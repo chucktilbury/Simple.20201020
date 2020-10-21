@@ -1,7 +1,7 @@
 # Simple
 This is an iteration of the Simple language. In this version, Flex and Yacc are used to clarify what the language looks like, but the final version will be written in C.
 
-Simple is a very simple language that implements single inheritance objects. All methods must be implemented inside a class, but classes do not needs to be implemented all in the same file. When a "new" definition for a class is encountered, duplicate methods are simply replaced with the new one. Inheritance is accomplished by simply adding the methods and attributes of the child class to the base class and renaming the result to the new name. 
+Simple is a very simple language that implements single inheritance objects. All methods must be implemented inside a class, but classes do not needs to be implemented all in the same file. When a "new" definition for a class is encountered, duplicate methods are simply replaced with the new one and new methods are simply added. There is no notion such as Python's "super". Inheritance is accomplished by simply adding the methods and attributes of the child class to the base class and renaming the result to the new name. 
 
 The run time strategy is to compile to byte code as the source is encountered and run in a virtual machine.
 
