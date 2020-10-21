@@ -5,15 +5,17 @@ Simple is a very simple language that implements single inheritance objects. All
 
 The run time strategy is to compile to byte code as the source is encountered and run in a virtual machine.
 
-The general philosophy of the language is to keep it simple. (surprise) 
+In general, the syntax of Simple is C-like. I find it clear to read and fairly standard for people who know other C-like languages.
+* Blocks are defined using "{}"
+* All statements are terminated by a ";"
+* Multiples files for a program is supported by using an "include" keyword. The source code of a program is concatinated as if it was a single file before it is compiled.
+
+The general philosophy of the language is to keep it simple. (surprise) Here are some of the unique features.
 * All numbers are double precision floats.
 * Strings, numbers, bools, lists, and hashes are the only data types. 
 * All data elements are handled as internal classes that can have definitions in the code. All of the native types can be converted to or from strings using a cast. 
 * There are no pointers.
-* Blocks are defined using "{}"
-* All statements are terminated by a ";"
 * The number of operators is kept to a minimum.
-* Multiples files for a program is supported by using an "include" keyword. The source code of a program is concatinated as if it was a single file before it is compiled.
 * Things like printing and reading files are handled as libraries, not as language features. Libraries are added to the program using an "import" keyword. A library is simply a module that has been pre-compiled.
 * Symbols are "decorated" with its type. They are accessed using the "." operator. 
 * Method overloading is supported but decorating the name with the input and output types.
