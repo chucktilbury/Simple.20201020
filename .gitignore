@@ -4,6 +4,13 @@ build/src/
 build/Ma*
 build/dox*
 docs/out/
+parser/parser.c
+parser/parser.h
+parser/parser.output
+parser/scanner.c
+bin/*
+lib/*
+
 # Prerequisites
 *.d
 

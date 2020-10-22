@@ -3,7 +3,6 @@
 
 #include "../include/scanner.h"
 #include "../parser/parser.h"
-//#include "../include/utils.h"
 #include "../include/configure.h"
 #include "../include/errors.h"
 
@@ -26,10 +25,10 @@ int main(int argc, char **argv) {
 
     //init_ast();
     for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
-        _DEBUG("before yyparse()");
+        _DEBUG("\n     >>> before yyparse()");
         open_file(str);
         yyparse();
-        _DEBUG("after yyparse()");
+        _DEBUG(">>> after yyparse()");
     }
 
     int errors = get_num_errors();
@@ -39,5 +38,6 @@ int main(int argc, char **argv) {
     else
         printf("\nparse succeeded: %d errors: %d warnings\n", errors, get_num_warnings());
 
+    destroy_config();
     return errors;
 }

@@ -57,7 +57,7 @@ complex_name
     | complex_name '.' SYMBOL {}
     ;
 
-intrinsic_type
+type_name
     : DICT {}
     | LIST {}
     | BOOL {}
@@ -78,7 +78,7 @@ formatted_string_param_list
 
 formatted_string
     : QSTRG {}
-    | QSTRG {} ':' '(' {} formatted_string_param_list {} ')'
+    | QSTRG {} ':' '(' {} formatted_string_param_list {} ')' {}
     ;
 
 bool_value
@@ -116,7 +116,7 @@ class_definition
         Data definition rules.
     */
 class_data_definition
-    : intrinsic_type {} SYMBOL {} ';' {}
+    : type_name {} SYMBOL {} ';' {}
     ;
 
 function_data_definition_target
@@ -131,15 +131,15 @@ function_data_definition_symbol
     ;
 
 function_data_definition
-    : intrinsic_type function_data_definition_symbol ';' {}
-    | intrinsic_type function_data_definition_symbol '=' {} function_data_definition_target ';' {}
+    : type_name function_data_definition_symbol ';' {}
+    | type_name function_data_definition_symbol '=' {} function_data_definition_target ';' {}
     ;
 
     /*
         Method definition related rules
     */
 method_def_param
-    : intrinsic_type {} SYMBOL {}
+    : type_name {} SYMBOL {}
     ;
 
 method_def_param_list
@@ -285,7 +285,7 @@ for_initialize_assign
     ;
 
 for_initialize
-    : intrinsic_type {} SYMBOL {} '=' for_initialize_assign ';' {}
+    : type_name {} SYMBOL {} '=' for_initialize_assign ';' {}
     | assignment {} ';' {}
     ;
 
@@ -361,7 +361,7 @@ switch_clause
         Assignment related rules
     */
 type_cast
-    : intrinsic_type {} ':' {}
+    : type_name {} ':' {}
     ;
 
 assignment_target

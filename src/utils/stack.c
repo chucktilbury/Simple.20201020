@@ -15,7 +15,6 @@
 typedef struct __stack_elem {
     void* data;
     struct __stack_elem* next;
-    //struct __stack_elem* prev;
 } __stack_elem;
 
 typedef struct {
@@ -75,9 +74,6 @@ int pop_stack(stack stk, void* out_buf) {
         } // else just discard any data
         free(s->top->data);
         s->top = s->top->next;
-        if(s->top != NULL) {
-            s->top->next = NULL;
-        }
         free(old_elem);
         return 0;
     }

@@ -7,7 +7,7 @@ add_library(utils STATIC
     queue.c
     #linked_lists.c
     hash_table.c
-    xxhash.c
+    #xxhash.c
     configure.c
     lists.c
     memory.c

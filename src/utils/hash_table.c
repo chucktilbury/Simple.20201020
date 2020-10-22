@@ -2,8 +2,12 @@
  * Hash table uses the
  *
  */
-
-#include "../include/common.h"
+#define XXH_INLINE_ALL
+#include "xxhash.h"
+#include "../include/hash_table.h"
+#include "../include/memory.h"
+#include "../include/misc.h"
+#include "../include/errors.h"
 
 #define TABLE_MAX_LOAD 0.75
 
