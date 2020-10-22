@@ -1,11 +1,10 @@
+
 /*
  *  External interface to the parts of the scanner that get called from
  *  application code.
  */
 #ifndef _SCANNER_H_
 #  define _SCANNER_H_
-
-#include <stdio.h>
 
 char *get_file_name(void);
 int get_line_number(void);

@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include "parser.h"
+#include "../include/errors.h"
 
 // string buffer to get token from
 static char strbuf[1024*64];
@@ -30,8 +31,8 @@ static void append_char(char ch) {
         bidx++;
     }
     else {
-        //scanner_error("buffer overrun");
-        fprintf(stderr, "scanner buffer overrun");
+        scanner_error("buffer overrun");
+        //fprintf(stderr, "scanner buffer overrun");
         exit(1);
     }
 }
@@ -42,8 +43,8 @@ static void append_str(char *str) {
         bidx = strlen(buffer);
     }
     else {
-        //scanner_error("buffer overrun");
-        fprintf(stderr, "scanner buffer overrun");
+        scanner_error("buffer overrun");
+        //fprintf(stderr, "scanner buffer overrun");
         exit(1);
     }
 }
@@ -141,15 +142,15 @@ static void update_loc(void){
 "."             { return '.'; }
 
     /* constructed tokens */
-[_A-Za-z][_0-9A-Za-z]*    { strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; }
+[_A-Za-z][_0-9A-Za-z]*    { _TRACE("symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; }
     /* [_A-Za-z][_0-9A-Za-z\.]*    { strncpy(strbuf, yytext, sizeof(strbuf)); return COMPLEX; } */
 
     /* recognize and ignore a C comments */
-"##" { BEGIN(COMMENT); }
-<COMMENT>"##" { BEGIN(INITIAL); }
+"##" { BEGIN(COMMENT); _TRACE("start multi-line comment"); }
+<COMMENT>"##" { BEGIN(INITIAL); _TRACE("end multi-line comment"); }
 <COMMENT>\n { name_stack->line_no++; yylineno++; }
 <COMMENT>.  {}  /* eat everything in between */
-"#".* {} /* eat up until the newline */
+"#".* { _TRACE("single-line comment"); } /* eat up until the newline */
 
     /* recognize a float */
     /*[-+]?[0-9]+\.[0-9]+([eE]*[-+]?[0-9]+)? { */
@@ -207,7 +208,7 @@ static void update_loc(void){
 
 <<EOF>> {
 
-        //debug(5, "%s: closing file", name_stack->name);
+        _DEBUG("%s: closing file", name_stack->name);
         _file_name_stack *name = name_stack->next;
         free(name_stack->name);
         free(name_stack);
@@ -228,16 +229,16 @@ void open_file(char *fname) {
 
     _file_name_stack *name;
 
-    //debug(5, "%s: open file", fname);
+    _DEBUG("%s: open file", fname);
     if(NULL == (name = calloc(1, sizeof(_file_name_stack)))) {
-        //scanner_error("cannot allocate memory for file stack");
-        fprintf(stderr, "cannot allocate memory for file stack\n");
+        scanner_error("cannot allocate memory for file stack");
+        //fprintf(stderr, "cannot allocate memory for file stack\n");
         exit(1);
     }
 
     if(NULL == (name->name = strdup(fname))) {
-        //scanner_error("cannot allocate memory for file stack name");
-        fprintf(stderr, "cannot allocate memory for file stack name\n");
+        scanner_error("cannot allocate memory for file stack name");
+        //fprintf(stderr, "cannot allocate memory for file stack name\n");
         exit(1);
     }
 
@@ -248,7 +249,7 @@ void open_file(char *fname) {
 
     yyin = fopen(fname, "r");
     if(NULL == yyin) {
-        fprintf(stderr, "cannot open the input file: \"%s\": %s", fname, strerror(errno));
+        scanner_error("cannot open the input file: \"%s\": %s", fname, strerror(errno));
         exit(1);
     }
 

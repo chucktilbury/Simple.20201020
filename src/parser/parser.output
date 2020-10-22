@@ -1,0 +1,4410 @@
+Terminals unused in grammar
+
+    '~'
+
+
+Grammar
+
+    0 $accept: module $end
+
+    1 module: module_list
+
+    2 module_item: import_definition
+    3            | class_definition
+
+    4 module_list: module_item
+    5            | module module_item
+
+    6 complex_name: SYMBOL
+    7             | complex_name '.' SYMBOL
+
+    8 intrinsic_type: DICT
+    9               | LIST
+   10               | BOOL
+   11               | STRING
+   12               | NUM
+   13               | complex_name
+
+   14 formatted_string_param: QSTRG
+   15                       | expression
+
+   16 formatted_string_param_list: formatted_string_param
+   17                            | formatted_string_param_list ',' formatted_string_param
+
+   18 formatted_string: QSTRG
+
+   19 $@1: %empty
+
+   20 $@2: %empty
+
+   21 $@3: %empty
+
+   22 formatted_string: QSTRG $@1 ':' '(' $@2 formatted_string_param_list $@3 ')'
+
+   23 bool_value: TRUE
+   24           | FALSE
+
+   25 $@4: %empty
+
+   26 import_definition: IMPORT SYMBOL $@4 ';'
+
+   27 class_body_item: class_data_definition
+   28                | method_definition
+   29                | constructor_definition
+   30                | destructor_definition
+
+   31 class_body: class_body_item
+   32           | class_body class_body_item
+
+   33 $@5: %empty
+
+   34 $@6: %empty
+
+   35 $@7: %empty
+
+   36 $@8: %empty
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' $@7 class_body $@8 '}'
+
+   38 $@9: %empty
+
+   39 $@10: %empty
+
+   40 class_data_definition: intrinsic_type $@9 SYMBOL $@10 ';'
+
+   41 function_data_definition_target: NOTHING
+   42                                | expression
+
+   43 $@11: %empty
+
+   44 function_data_definition_target: type_cast $@11 expression
+   45                                | formatted_string
+
+   46 function_data_definition_symbol: SYMBOL
+
+   47 function_data_definition: intrinsic_type function_data_definition_symbol ';'
+
+   48 $@12: %empty
+
+   49 function_data_definition: intrinsic_type function_data_definition_symbol '=' $@12 function_data_definition_target ';'
+
+   50 $@13: %empty
+
+   51 method_def_param: intrinsic_type $@13 SYMBOL
+
+   52 method_def_param_list: method_def_param
+   53                      | method_def_param_list ',' method_def_param
+
+   54 method_param_def: method_def_param_list
+   55                 | %empty
+
+   56 $@14: %empty
+
+   57 $@15: %empty
+
+   58 $@16: %empty
+
+   59 $@17: %empty
+
+   60 $@18: %empty
+
+   61 $@19: %empty
+
+   62 $@20: %empty
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+   64 method_body_element: function_data_definition
+   65                    | function_call
+   66                    | for_clause
+   67                    | if_clause
+   68                    | while_clause
+   69                    | do_clause
+   70                    | switch_clause
+   71                    | assignment ';'
+
+   72 method_body_element_list: method_body_element
+   73                         | method_body_element_list method_body_element
+
+   74 $@21: %empty
+
+   75 $@22: %empty
+
+   76 method_body: '{' $@21 method_body_element_list $@22 '}'
+   77            | '{' '}'
+
+   78 $@23: %empty
+
+   79 $@24: %empty
+
+   80 $@25: %empty
+
+   81 $@26: %empty
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def $@25 ')' $@26 method_body
+
+   83 $@27: %empty
+
+   84 destructor_definition: DESTROY $@27 method_body
+
+   85 $@28: %empty
+
+   86 $@29: %empty
+
+   87 subscript_item: '[' $@28 expression $@29 ']'
+
+   88 $@30: %empty
+
+   89 $@31: %empty
+
+   90 subscript_item: '[' $@30 formatted_string $@31 ']'
+
+   91 subscript_list: subscript_item
+   92               | subscript_list subscript_item
+
+   93 expression_name: complex_name
+
+   94 $@32: %empty
+
+   95 expression_name: complex_name $@32 subscript_list
+
+   96 expression: NUMBER
+   97           | expression_name
+   98           | expression '+' expression
+   99           | expression '-' expression
+  100           | expression '/' expression
+  101           | expression '*' expression
+  102           | expression '%' expression
+  103           | expression AND expression
+  104           | expression OR expression
+  105           | expression LESS expression
+  106           | expression MORE expression
+  107           | expression EQU expression
+  108           | expression NEQU expression
+  109           | expression LTEQU expression
+  110           | expression GTEQU expression
+  111           | '-' expression
+  112           | NOT expression
+  113           | '(' expression ')'
+
+  114 function_call_parameter: formatted_string
+  115                        | expression
+
+  116 function_call_parameter_list: %empty
+  117                             | function_call_parameter
+  118                             | function_call_parameter_list ',' function_call_parameter
+
+  119 $@33: %empty
+
+  120 $@34: %empty
+
+  121 $@35: %empty
+
+  122 $@36: %empty
+
+  123 $@37: %empty
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+  125 $@38: %empty
+
+  126 function_call: DESTROY complex_name $@38 ';'
+
+  127 branch_expression: expression
+  128                  | bool_value
+
+  129 jump_clause: CONTINUE ';'
+  130            | BREAK ';'
+
+  131 loop_body_element: method_body_element
+  132                  | jump_clause
+
+  133 loop_body_element_list: loop_body_element
+  134                       | loop_body_element_list loop_body_element
+
+  135 loop_body: '{' '}'
+
+  136 $@39: %empty
+
+  137 $@40: %empty
+
+  138 loop_body: '{' $@39 loop_body_element_list $@40 '}'
+
+  139 for_initialize_assign: NOTHING
+  140                      | expression
+  141                      | bool_value
+
+  142 $@41: %empty
+
+  143 $@42: %empty
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL $@42 '=' for_initialize_assign ';'
+
+  145 $@43: %empty
+
+  146 for_initialize: assignment $@43 ';'
+
+  147 $@44: %empty
+
+  148 for_test_expression: expression $@44 ';'
+
+  149 for_arith_expression: expression
+  150                     | assignment
+
+  151 $@45: %empty
+
+  152 $@46: %empty
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression for_arith_expression $@46 ')' loop_body
+
+  154 $@47: %empty
+
+  155 $@48: %empty
+
+  156 else_clause: ELSE '(' $@47 expression $@48 ')' method_body
+
+  157 $@49: %empty
+
+  158 else_clause: ELSE $@49 method_body
+
+  159 else_body: else_clause
+  160          | else_body else_clause
+  161          | method_body
+
+  162 $@50: %empty
+
+  163 $@51: %empty
+
+  164 if_clause: IF '(' $@50 branch_expression $@51 ')' else_body
+
+  165 $@52: %empty
+
+  166 $@53: %empty
+
+  167 while_clause: WHILE '(' $@52 branch_expression $@53 ')' loop_body
+
+  168 $@54: %empty
+
+  169 $@55: %empty
+
+  170 $@56: %empty
+
+  171 $@57: %empty
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 branch_expression $@57 ')' ';'
+
+  173 $@58: %empty
+
+  174 case_clause: CASE NUMBER $@58 loop_body
+
+  175 $@59: %empty
+
+  176 default_case: DEFAULT $@59 loop_body
+
+  177 case_body: case_clause
+  178          | case_body case_clause
+
+  179 $@60: %empty
+
+  180 $@61: %empty
+
+  181 $@62: %empty
+
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 ')' '{' $@62 case_body
+
+  183 switch_clause: switch_clause_intro '}'
+
+  184 $@63: %empty
+
+  185 switch_clause: switch_clause_intro default_case $@63 '}'
+
+  186 $@64: %empty
+
+  187 type_cast: intrinsic_type $@64 ':'
+
+  188 assignment_target: expression
+  189                  | formatted_string
+  190                  | type_cast expression
+  191                  | NOTHING
+  192                  | bool_value
+
+  193 $@65: %empty
+
+  194 assignment: complex_name $@65 '=' assignment_target
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '%' (37) 102
+    '(' (40) 22 37 63 82 113 124 153 156 164 167 172 182
+    ')' (41) 22 37 63 82 113 124 153 156 164 167 172 182
+    '*' (42) 101
+    '+' (43) 98
+    ',' (44) 17 53 118
+    '-' (45) 99 111
+    '.' (46) 7
+    '/' (47) 100
+    ':' (58) 22 187
+    ';' (59) 26 40 47 49 71 124 126 129 130 144 146 148 172
+    '=' (61) 49 144 194
+    '[' (91) 87 90
+    ']' (93) 87 90
+    '{' (123) 37 76 77 135 138 182
+    '}' (125) 37 76 77 135 138 183 185
+    '~' (126)
+    error (256)
+    NOTHING (258) 41 139 191
+    IMPORT (259) 26
+    CLASS (260) 37
+    METHOD (261) 63
+    CREATE (262) 82
+    DESTROY (263) 84 126
+    DICT (264) 8
+    LIST (265) 9
+    BOOL (266) 10
+    TRUE (267) 23
+    FALSE (268) 24
+    STRING (269) 11
+    NUM (270) 12
+    FOR (271) 153
+    IF (272) 164
+    ELSE (273) 156 158
+    WHILE (274) 167 172
+    DO (275) 172
+    SWITCH (276) 182
+    CASE (277) 174
+    BREAK (278) 130
+    CONTINUE (279) 129
+    DEFAULT (280) 176
+    SYMBOL (281) 6 7 26 37 40 46 51 63 144
+    NUMBER (282) 96 174
+    QSTRG (283) 14 18 22
+    AND (284) 103
+    OR (285) 104
+    NOT (286) 112
+    EQU (287) 107
+    NEQU (288) 108
+    LTEQU (289) 109
+    GTEQU (290) 110
+    LESS (291) 105
+    MORE (292) 106
+    NEG (293)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (56)
+        on left: 0
+    module (57)
+        on left: 1
+        on right: 0 5
+    module_item (58)
+        on left: 2 3
+        on right: 4 5
+    module_list (59)
+        on left: 4 5
+        on right: 1
+    complex_name (60)
+        on left: 6 7
+        on right: 7 13 93 95 124 126 194
+    intrinsic_type (61)
+        on left: 8 9 10 11 12 13
+        on right: 40 47 49 51 144 187
+    formatted_string_param (62)
+        on left: 14 15
+        on right: 16 17
+    formatted_string_param_list (63)
+        on left: 16 17
+        on right: 17 22
+    formatted_string (64)
+        on left: 18 22
+        on right: 45 90 114 189
+    $@1 (65)
+        on left: 19
+        on right: 22
+    $@2 (66)
+        on left: 20
+        on right: 22
+    $@3 (67)
+        on left: 21
+        on right: 22
+    bool_value (68)
+        on left: 23 24
+        on right: 128 141 192
+    import_definition (69)
+        on left: 26
+        on right: 2
+    $@4 (70)
+        on left: 25
+        on right: 26
+    class_body_item (71)
+        on left: 27 28 29 30
+        on right: 31 32
+    class_body (72)
+        on left: 31 32
+        on right: 32 37
+    class_definition (73)
+        on left: 37
+        on right: 3
+    $@5 (74)
+        on left: 33
+        on right: 37
+    $@6 (75)
+        on left: 34
+        on right: 37
+    $@7 (76)
+        on left: 35
+        on right: 37
+    $@8 (77)
+        on left: 36
+        on right: 37
+    class_data_definition (78)
+        on left: 40
+        on right: 27
+    $@9 (79)
+        on left: 38
+        on right: 40
+    $@10 (80)
+        on left: 39
+        on right: 40
+    function_data_definition_target (81)
+        on left: 41 42 44 45
+        on right: 49
+    $@11 (82)
+        on left: 43
+        on right: 44
+    function_data_definition_symbol (83)
+        on left: 46
+        on right: 47 49
+    function_data_definition (84)
+        on left: 47 49
+        on right: 64
+    $@12 (85)
+        on left: 48
+        on right: 49
+    method_def_param (86)
+        on left: 51
+        on right: 52 53
+    $@13 (87)
+        on left: 50
+        on right: 51
+    method_def_param_list (88)
+        on left: 52 53
+        on right: 53 54
+    method_param_def (89)
+        on left: 54 55
+        on right: 63 82
+    method_definition (90)
+        on left: 63
+        on right: 28
+    $@14 (91)
+        on left: 56
+        on right: 63
+    $@15 (92)
+        on left: 57
+        on right: 63
+    $@16 (93)
+        on left: 58
+        on right: 63
+    $@17 (94)
+        on left: 59
+        on right: 63
+    $@18 (95)
+        on left: 60
+        on right: 63
+    $@19 (96)
+        on left: 61
+        on right: 63
+    $@20 (97)
+        on left: 62
+        on right: 63
+    method_body_element (98)
+        on left: 64 65 66 67 68 69 70 71
+        on right: 72 73 131
+    method_body_element_list (99)
+        on left: 72 73
+        on right: 73 76
+    method_body (100)
+        on left: 76 77
+        on right: 63 82 84 156 158 161
+    $@21 (101)
+        on left: 74
+        on right: 76
+    $@22 (102)
+        on left: 75
+        on right: 76
+    constructor_definition (103)
+        on left: 82
+        on right: 29
+    $@23 (104)
+        on left: 78
+        on right: 82
+    $@24 (105)
+        on left: 79
+        on right: 82
+    $@25 (106)
+        on left: 80
+        on right: 82
+    $@26 (107)
+        on left: 81
+        on right: 82
+    destructor_definition (108)
+        on left: 84
+        on right: 30
+    $@27 (109)
+        on left: 83
+        on right: 84
+    subscript_item (110)
+        on left: 87 90
+        on right: 91 92
+    $@28 (111)
+        on left: 85
+        on right: 87
+    $@29 (112)
+        on left: 86
+        on right: 87
+    $@30 (113)
+        on left: 88
+        on right: 90
+    $@31 (114)
+        on left: 89
+        on right: 90
+    subscript_list (115)
+        on left: 91 92
+        on right: 92 95
+    expression_name (116)
+        on left: 93 95
+        on right: 97
+    $@32 (117)
+        on left: 94
+        on right: 95
+    expression (118)
+        on left: 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113
+        on right: 15 42 44 87 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 115 127 140 148 149 156 182 188 190
+    function_call_parameter (119)
+        on left: 114 115
+        on right: 117 118
+    function_call_parameter_list (120)
+        on left: 116 117 118
+        on right: 118 124
+    function_call (121)
+        on left: 124 126
+        on right: 65
+    $@33 (122)
+        on left: 119
+        on right: 124
+    $@34 (123)
+        on left: 120
+        on right: 124
+    $@35 (124)
+        on left: 121
+        on right: 124
+    $@36 (125)
+        on left: 122
+        on right: 124
+    $@37 (126)
+        on left: 123
+        on right: 124
+    $@38 (127)
+        on left: 125
+        on right: 126
+    branch_expression (128)
+        on left: 127 128
+        on right: 164 167 172
+    jump_clause (129)
+        on left: 129 130
+        on right: 132
+    loop_body_element (130)
+        on left: 131 132
+        on right: 133 134
+    loop_body_element_list (131)
+        on left: 133 134
+        on right: 134 138
+    loop_body (132)
+        on left: 135 138
+        on right: 153 167 172 174 176
+    $@39 (133)
+        on left: 136
+        on right: 138
+    $@40 (134)
+        on left: 137
+        on right: 138
+    for_initialize_assign (135)
+        on left: 139 140 141
+        on right: 144
+    for_initialize (136)
+        on left: 144 146
+        on right: 153
+    $@41 (137)
+        on left: 142
+        on right: 144
+    $@42 (138)
+        on left: 143
+        on right: 144
+    $@43 (139)
+        on left: 145
+        on right: 146
+    for_test_expression (140)
+        on left: 148
+        on right: 153
+    $@44 (141)
+        on left: 147
+        on right: 148
+    for_arith_expression (142)
+        on left: 149 150
+        on right: 153
+    for_clause (143)
+        on left: 153
+        on right: 66
+    $@45 (144)
+        on left: 151
+        on right: 153
+    $@46 (145)
+        on left: 152
+        on right: 153
+    else_clause (146)
+        on left: 156 158
+        on right: 159 160
+    $@47 (147)
+        on left: 154
+        on right: 156
+    $@48 (148)
+        on left: 155
+        on right: 156
+    $@49 (149)
+        on left: 157
+        on right: 158
+    else_body (150)
+        on left: 159 160 161
+        on right: 160 164
+    if_clause (151)
+        on left: 164
+        on right: 67
+    $@50 (152)
+        on left: 162
+        on right: 164
+    $@51 (153)
+        on left: 163
+        on right: 164
+    while_clause (154)
+        on left: 167
+        on right: 68
+    $@52 (155)
+        on left: 165
+        on right: 167
+    $@53 (156)
+        on left: 166
+        on right: 167
+    do_clause (157)
+        on left: 172
+        on right: 69
+    $@54 (158)
+        on left: 168
+        on right: 172
+    $@55 (159)
+        on left: 169
+        on right: 172
+    $@56 (160)
+        on left: 170
+        on right: 172
+    $@57 (161)
+        on left: 171
+        on right: 172
+    case_clause (162)
+        on left: 174
+        on right: 177 178
+    $@58 (163)
+        on left: 173
+        on right: 174
+    default_case (164)
+        on left: 176
+        on right: 185
+    $@59 (165)
+        on left: 175
+        on right: 176
+    case_body (166)
+        on left: 177 178
+        on right: 178 182
+    switch_clause_intro (167)
+        on left: 182
+        on right: 183 185
+    $@60 (168)
+        on left: 179
+        on right: 182
+    $@61 (169)
+        on left: 180
+        on right: 182
+    $@62 (170)
+        on left: 181
+        on right: 182
+    switch_clause (171)
+        on left: 183 185
+        on right: 70
+    $@63 (172)
+        on left: 184
+        on right: 185
+    type_cast (173)
+        on left: 187
+        on right: 44 190
+    $@64 (174)
+        on left: 186
+        on right: 187
+    assignment_target (175)
+        on left: 188 189 190 191 192
+        on right: 194
+    assignment (176)
+        on left: 194
+        on right: 71 146 150
+    $@65 (177)
+        on left: 193
+        on right: 194
+
+
+State 0
+
+    0 $accept: . module $end
+
+    IMPORT  shift, and go to state 1
+    CLASS   shift, and go to state 2
+
+    module             go to state 3
+    module_item        go to state 4
+    module_list        go to state 5
+    import_definition  go to state 6
+    class_definition   go to state 7
+
+
+State 1
+
+   26 import_definition: IMPORT . SYMBOL $@4 ';'
+
+    SYMBOL  shift, and go to state 8
+
+
+State 2
+
+   37 class_definition: CLASS . $@5 SYMBOL $@6 '(' ')' '{' $@7 class_body $@8 '}'
+
+    $default  reduce using rule 33 ($@5)
+
+    $@5  go to state 9
+
+
+State 3
+
+    0 $accept: module . $end
+    5 module_list: module . module_item
+
+    $end    shift, and go to state 10
+    IMPORT  shift, and go to state 1
+    CLASS   shift, and go to state 2
+
+    module_item        go to state 11
+    import_definition  go to state 6
+    class_definition   go to state 7
+
+
+State 4
+
+    4 module_list: module_item .
+
+    $default  reduce using rule 4 (module_list)
+
+
+State 5
+
+    1 module: module_list .
+
+    $default  reduce using rule 1 (module)
+
+
+State 6
+
+    2 module_item: import_definition .
+
+    $default  reduce using rule 2 (module_item)
+
+
+State 7
+
+    3 module_item: class_definition .
+
+    $default  reduce using rule 3 (module_item)
+
+
+State 8
+
+   26 import_definition: IMPORT SYMBOL . $@4 ';'
+
+    $default  reduce using rule 25 ($@4)
+
+    $@4  go to state 12
+
+
+State 9
+
+   37 class_definition: CLASS $@5 . SYMBOL $@6 '(' ')' '{' $@7 class_body $@8 '}'
+
+    SYMBOL  shift, and go to state 13
+
+
+State 10
+
+    0 $accept: module $end .
+
+    $default  accept
+
+
+State 11
+
+    5 module_list: module module_item .
+
+    $default  reduce using rule 5 (module_list)
+
+
+State 12
+
+   26 import_definition: IMPORT SYMBOL $@4 . ';'
+
+    ';'  shift, and go to state 14
+
+
+State 13
+
+   37 class_definition: CLASS $@5 SYMBOL . $@6 '(' ')' '{' $@7 class_body $@8 '}'
+
+    $default  reduce using rule 34 ($@6)
+
+    $@6  go to state 15
+
+
+State 14
+
+   26 import_definition: IMPORT SYMBOL $@4 ';' .
+
+    $default  reduce using rule 26 (import_definition)
+
+
+State 15
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 . '(' ')' '{' $@7 class_body $@8 '}'
+
+    '('  shift, and go to state 16
+
+
+State 16
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' . ')' '{' $@7 class_body $@8 '}'
+
+    ')'  shift, and go to state 17
+
+
+State 17
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' . '{' $@7 class_body $@8 '}'
+
+    '{'  shift, and go to state 18
+
+
+State 18
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' . $@7 class_body $@8 '}'
+
+    $default  reduce using rule 35 ($@7)
+
+    $@7  go to state 19
+
+
+State 19
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' $@7 . class_body $@8 '}'
+
+    METHOD   shift, and go to state 20
+    CREATE   shift, and go to state 21
+    DESTROY  shift, and go to state 22
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    SYMBOL   shift, and go to state 28
+
+    complex_name            go to state 29
+    intrinsic_type          go to state 30
+    class_body_item         go to state 31
+    class_body              go to state 32
+    class_data_definition   go to state 33
+    method_definition       go to state 34
+    constructor_definition  go to state 35
+    destructor_definition   go to state 36
+
+
+State 20
+
+   63 method_definition: METHOD . $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    $default  reduce using rule 56 ($@14)
+
+    $@14  go to state 37
+
+
+State 21
+
+   82 constructor_definition: CREATE . $@23 '(' $@24 method_param_def $@25 ')' $@26 method_body
+
+    $default  reduce using rule 78 ($@23)
+
+    $@23  go to state 38
+
+
+State 22
+
+   84 destructor_definition: DESTROY . $@27 method_body
+
+    $default  reduce using rule 83 ($@27)
+
+    $@27  go to state 39
+
+
+State 23
+
+    8 intrinsic_type: DICT .
+
+    $default  reduce using rule 8 (intrinsic_type)
+
+
+State 24
+
+    9 intrinsic_type: LIST .
+
+    $default  reduce using rule 9 (intrinsic_type)
+
+
+State 25
+
+   10 intrinsic_type: BOOL .
+
+    $default  reduce using rule 10 (intrinsic_type)
+
+
+State 26
+
+   11 intrinsic_type: STRING .
+
+    $default  reduce using rule 11 (intrinsic_type)
+
+
+State 27
+
+   12 intrinsic_type: NUM .
+
+    $default  reduce using rule 12 (intrinsic_type)
+
+
+State 28
+
+    6 complex_name: SYMBOL .
+
+    $default  reduce using rule 6 (complex_name)
+
+
+State 29
+
+    7 complex_name: complex_name . '.' SYMBOL
+   13 intrinsic_type: complex_name .  [SYMBOL]
+
+    '.'  shift, and go to state 40
+
+    $default  reduce using rule 13 (intrinsic_type)
+
+
+State 30
+
+   40 class_data_definition: intrinsic_type . $@9 SYMBOL $@10 ';'
+
+    $default  reduce using rule 38 ($@9)
+
+    $@9  go to state 41
+
+
+State 31
+
+   31 class_body: class_body_item .
+
+    $default  reduce using rule 31 (class_body)
+
+
+State 32
+
+   32 class_body: class_body . class_body_item
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' $@7 class_body . $@8 '}'
+
+    METHOD   shift, and go to state 20
+    CREATE   shift, and go to state 21
+    DESTROY  shift, and go to state 22
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    SYMBOL   shift, and go to state 28
+
+    $default  reduce using rule 36 ($@8)
+
+    complex_name            go to state 29
+    intrinsic_type          go to state 30
+    class_body_item         go to state 42
+    $@8                     go to state 43
+    class_data_definition   go to state 33
+    method_definition       go to state 34
+    constructor_definition  go to state 35
+    destructor_definition   go to state 36
+
+
+State 33
+
+   27 class_body_item: class_data_definition .
+
+    $default  reduce using rule 27 (class_body_item)
+
+
+State 34
+
+   28 class_body_item: method_definition .
+
+    $default  reduce using rule 28 (class_body_item)
+
+
+State 35
+
+   29 class_body_item: constructor_definition .
+
+    $default  reduce using rule 29 (class_body_item)
+
+
+State 36
+
+   30 class_body_item: destructor_definition .
+
+    $default  reduce using rule 30 (class_body_item)
+
+
+State 37
+
+   63 method_definition: METHOD $@14 . SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    SYMBOL  shift, and go to state 44
+
+
+State 38
+
+   82 constructor_definition: CREATE $@23 . '(' $@24 method_param_def $@25 ')' $@26 method_body
+
+    '('  shift, and go to state 45
+
+
+State 39
+
+   84 destructor_definition: DESTROY $@27 . method_body
+
+    '{'  shift, and go to state 46
+
+    method_body  go to state 47
+
+
+State 40
+
+    7 complex_name: complex_name '.' . SYMBOL
+
+    SYMBOL  shift, and go to state 48
+
+
+State 41
+
+   40 class_data_definition: intrinsic_type $@9 . SYMBOL $@10 ';'
+
+    SYMBOL  shift, and go to state 49
+
+
+State 42
+
+   32 class_body: class_body class_body_item .
+
+    $default  reduce using rule 32 (class_body)
+
+
+State 43
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' $@7 class_body $@8 . '}'
+
+    '}'  shift, and go to state 50
+
+
+State 44
+
+   63 method_definition: METHOD $@14 SYMBOL . $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    $default  reduce using rule 57 ($@15)
+
+    $@15  go to state 51
+
+
+State 45
+
+   82 constructor_definition: CREATE $@23 '(' . $@24 method_param_def $@25 ')' $@26 method_body
+
+    $default  reduce using rule 79 ($@24)
+
+    $@24  go to state 52
+
+
+State 46
+
+   76 method_body: '{' . $@21 method_body_element_list $@22 '}'
+   77            | '{' . '}'
+
+    '}'  shift, and go to state 53
+
+    $default  reduce using rule 74 ($@21)
+
+    $@21  go to state 54
+
+
+State 47
+
+   84 destructor_definition: DESTROY $@27 method_body .
+
+    $default  reduce using rule 84 (destructor_definition)
+
+
+State 48
+
+    7 complex_name: complex_name '.' SYMBOL .
+
+    $default  reduce using rule 7 (complex_name)
+
+
+State 49
+
+   40 class_data_definition: intrinsic_type $@9 SYMBOL . $@10 ';'
+
+    $default  reduce using rule 39 ($@10)
+
+    $@10  go to state 55
+
+
+State 50
+
+   37 class_definition: CLASS $@5 SYMBOL $@6 '(' ')' '{' $@7 class_body $@8 '}' .
+
+    $default  reduce using rule 37 (class_definition)
+
+
+State 51
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 . '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    '('  shift, and go to state 56
+
+
+State 52
+
+   82 constructor_definition: CREATE $@23 '(' $@24 . method_param_def $@25 ')' $@26 method_body
+
+    DICT    shift, and go to state 23
+    LIST    shift, and go to state 24
+    BOOL    shift, and go to state 25
+    STRING  shift, and go to state 26
+    NUM     shift, and go to state 27
+    SYMBOL  shift, and go to state 28
+
+    $default  reduce using rule 55 (method_param_def)
+
+    complex_name           go to state 29
+    intrinsic_type         go to state 57
+    method_def_param       go to state 58
+    method_def_param_list  go to state 59
+    method_param_def       go to state 60
+
+
+State 53
+
+   77 method_body: '{' '}' .
+
+    $default  reduce using rule 77 (method_body)
+
+
+State 54
+
+   76 method_body: '{' $@21 . method_body_element_list $@22 '}'
+
+    DESTROY  shift, and go to state 61
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    FOR      shift, and go to state 62
+    IF       shift, and go to state 63
+    WHILE    shift, and go to state 64
+    DO       shift, and go to state 65
+    SWITCH   shift, and go to state 66
+    SYMBOL   shift, and go to state 28
+
+    complex_name              go to state 67
+    intrinsic_type            go to state 68
+    function_data_definition  go to state 69
+    method_body_element       go to state 70
+    method_body_element_list  go to state 71
+    function_call             go to state 72
+    for_clause                go to state 73
+    if_clause                 go to state 74
+    while_clause              go to state 75
+    do_clause                 go to state 76
+    switch_clause_intro       go to state 77
+    switch_clause             go to state 78
+    assignment                go to state 79
+
+
+State 55
+
+   40 class_data_definition: intrinsic_type $@9 SYMBOL $@10 . ';'
+
+    ';'  shift, and go to state 80
+
+
+State 56
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' . $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    $default  reduce using rule 58 ($@16)
+
+    $@16  go to state 81
+
+
+State 57
+
+   51 method_def_param: intrinsic_type . $@13 SYMBOL
+
+    $default  reduce using rule 50 ($@13)
+
+    $@13  go to state 82
+
+
+State 58
+
+   52 method_def_param_list: method_def_param .
+
+    $default  reduce using rule 52 (method_def_param_list)
+
+
+State 59
+
+   53 method_def_param_list: method_def_param_list . ',' method_def_param
+   54 method_param_def: method_def_param_list .  [')']
+
+    ','  shift, and go to state 83
+
+    $default  reduce using rule 54 (method_param_def)
+
+
+State 60
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def . $@25 ')' $@26 method_body
+
+    $default  reduce using rule 80 ($@25)
+
+    $@25  go to state 84
+
+
+State 61
+
+  126 function_call: DESTROY . complex_name $@38 ';'
+
+    SYMBOL  shift, and go to state 28
+
+    complex_name  go to state 85
+
+
+State 62
+
+  153 for_clause: FOR . '(' $@45 for_initialize for_test_expression for_arith_expression $@46 ')' loop_body
+
+    '('  shift, and go to state 86
+
+
+State 63
+
+  164 if_clause: IF . '(' $@50 branch_expression $@51 ')' else_body
+
+    '('  shift, and go to state 87
+
+
+State 64
+
+  167 while_clause: WHILE . '(' $@52 branch_expression $@53 ')' loop_body
+
+    '('  shift, and go to state 88
+
+
+State 65
+
+  172 do_clause: DO . $@54 loop_body $@55 WHILE '(' $@56 branch_expression $@57 ')' ';'
+
+    $default  reduce using rule 168 ($@54)
+
+    $@54  go to state 89
+
+
+State 66
+
+  182 switch_clause_intro: SWITCH . '(' $@60 expression $@61 ')' '{' $@62 case_body
+
+    '('  shift, and go to state 90
+
+
+State 67
+
+    7 complex_name: complex_name . '.' SYMBOL
+   13 intrinsic_type: complex_name .  [SYMBOL]
+  124 function_call: complex_name . $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+  194 assignment: complex_name . $@65 '=' assignment_target
+
+    '.'  shift, and go to state 40
+
+    '('       reduce using rule 119 ($@33)
+    '='       reduce using rule 193 ($@65)
+    $default  reduce using rule 13 (intrinsic_type)
+
+    $@33  go to state 91
+    $@65  go to state 92
+
+
+State 68
+
+   47 function_data_definition: intrinsic_type . function_data_definition_symbol ';'
+   49                         | intrinsic_type . function_data_definition_symbol '=' $@12 function_data_definition_target ';'
+
+    SYMBOL  shift, and go to state 93
+
+    function_data_definition_symbol  go to state 94
+
+
+State 69
+
+   64 method_body_element: function_data_definition .
+
+    $default  reduce using rule 64 (method_body_element)
+
+
+State 70
+
+   72 method_body_element_list: method_body_element .
+
+    $default  reduce using rule 72 (method_body_element_list)
+
+
+State 71
+
+   73 method_body_element_list: method_body_element_list . method_body_element
+   76 method_body: '{' $@21 method_body_element_list . $@22 '}'
+
+    DESTROY  shift, and go to state 61
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    FOR      shift, and go to state 62
+    IF       shift, and go to state 63
+    WHILE    shift, and go to state 64
+    DO       shift, and go to state 65
+    SWITCH   shift, and go to state 66
+    SYMBOL   shift, and go to state 28
+
+    $default  reduce using rule 75 ($@22)
+
+    complex_name              go to state 67
+    intrinsic_type            go to state 68
+    function_data_definition  go to state 69
+    method_body_element       go to state 95
+    $@22                      go to state 96
+    function_call             go to state 72
+    for_clause                go to state 73
+    if_clause                 go to state 74
+    while_clause              go to state 75
+    do_clause                 go to state 76
+    switch_clause_intro       go to state 77
+    switch_clause             go to state 78
+    assignment                go to state 79
+
+
+State 72
+
+   65 method_body_element: function_call .
+
+    $default  reduce using rule 65 (method_body_element)
+
+
+State 73
+
+   66 method_body_element: for_clause .
+
+    $default  reduce using rule 66 (method_body_element)
+
+
+State 74
+
+   67 method_body_element: if_clause .
+
+    $default  reduce using rule 67 (method_body_element)
+
+
+State 75
+
+   68 method_body_element: while_clause .
+
+    $default  reduce using rule 68 (method_body_element)
+
+
+State 76
+
+   69 method_body_element: do_clause .
+
+    $default  reduce using rule 69 (method_body_element)
+
+
+State 77
+
+  183 switch_clause: switch_clause_intro . '}'
+  185              | switch_clause_intro . default_case $@63 '}'
+
+    DEFAULT  shift, and go to state 97
+    '}'      shift, and go to state 98
+
+    default_case  go to state 99
+
+
+State 78
+
+   70 method_body_element: switch_clause .
+
+    $default  reduce using rule 70 (method_body_element)
+
+
+State 79
+
+   71 method_body_element: assignment . ';'
+
+    ';'  shift, and go to state 100
+
+
+State 80
+
+   40 class_data_definition: intrinsic_type $@9 SYMBOL $@10 ';' .
+
+    $default  reduce using rule 40 (class_data_definition)
+
+
+State 81
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 . method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    DICT    shift, and go to state 23
+    LIST    shift, and go to state 24
+    BOOL    shift, and go to state 25
+    STRING  shift, and go to state 26
+    NUM     shift, and go to state 27
+    SYMBOL  shift, and go to state 28
+
+    $default  reduce using rule 55 (method_param_def)
+
+    complex_name           go to state 29
+    intrinsic_type         go to state 57
+    method_def_param       go to state 58
+    method_def_param_list  go to state 59
+    method_param_def       go to state 101
+
+
+State 82
+
+   51 method_def_param: intrinsic_type $@13 . SYMBOL
+
+    SYMBOL  shift, and go to state 102
+
+
+State 83
+
+   53 method_def_param_list: method_def_param_list ',' . method_def_param
+
+    DICT    shift, and go to state 23
+    LIST    shift, and go to state 24
+    BOOL    shift, and go to state 25
+    STRING  shift, and go to state 26
+    NUM     shift, and go to state 27
+    SYMBOL  shift, and go to state 28
+
+    complex_name      go to state 29
+    intrinsic_type    go to state 57
+    method_def_param  go to state 103
+
+
+State 84
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def $@25 . ')' $@26 method_body
+
+    ')'  shift, and go to state 104
+
+
+State 85
+
+    7 complex_name: complex_name . '.' SYMBOL
+  126 function_call: DESTROY complex_name . $@38 ';'
+
+    '.'  shift, and go to state 40
+
+    $default  reduce using rule 125 ($@38)
+
+    $@38  go to state 105
+
+
+State 86
+
+  153 for_clause: FOR '(' . $@45 for_initialize for_test_expression for_arith_expression $@46 ')' loop_body
+
+    $default  reduce using rule 151 ($@45)
+
+    $@45  go to state 106
+
+
+State 87
+
+  164 if_clause: IF '(' . $@50 branch_expression $@51 ')' else_body
+
+    $default  reduce using rule 162 ($@50)
+
+    $@50  go to state 107
+
+
+State 88
+
+  167 while_clause: WHILE '(' . $@52 branch_expression $@53 ')' loop_body
+
+    $default  reduce using rule 165 ($@52)
+
+    $@52  go to state 108
+
+
+State 89
+
+  172 do_clause: DO $@54 . loop_body $@55 WHILE '(' $@56 branch_expression $@57 ')' ';'
+
+    '{'  shift, and go to state 109
+
+    loop_body  go to state 110
+
+
+State 90
+
+  182 switch_clause_intro: SWITCH '(' . $@60 expression $@61 ')' '{' $@62 case_body
+
+    $default  reduce using rule 179 ($@60)
+
+    $@60  go to state 111
+
+
+State 91
+
+  124 function_call: complex_name $@33 . '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    '('  shift, and go to state 112
+
+
+State 92
+
+  194 assignment: complex_name $@65 . '=' assignment_target
+
+    '='  shift, and go to state 113
+
+
+State 93
+
+   46 function_data_definition_symbol: SYMBOL .
+
+    $default  reduce using rule 46 (function_data_definition_symbol)
+
+
+State 94
+
+   47 function_data_definition: intrinsic_type function_data_definition_symbol . ';'
+   49                         | intrinsic_type function_data_definition_symbol . '=' $@12 function_data_definition_target ';'
+
+    ';'  shift, and go to state 114
+    '='  shift, and go to state 115
+
+
+State 95
+
+   73 method_body_element_list: method_body_element_list method_body_element .
+
+    $default  reduce using rule 73 (method_body_element_list)
+
+
+State 96
+
+   76 method_body: '{' $@21 method_body_element_list $@22 . '}'
+
+    '}'  shift, and go to state 116
+
+
+State 97
+
+  176 default_case: DEFAULT . $@59 loop_body
+
+    $default  reduce using rule 175 ($@59)
+
+    $@59  go to state 117
+
+
+State 98
+
+  183 switch_clause: switch_clause_intro '}' .
+
+    $default  reduce using rule 183 (switch_clause)
+
+
+State 99
+
+  185 switch_clause: switch_clause_intro default_case . $@63 '}'
+
+    $default  reduce using rule 184 ($@63)
+
+    $@63  go to state 118
+
+
+State 100
+
+   71 method_body_element: assignment ';' .
+
+    $default  reduce using rule 71 (method_body_element)
+
+
+State 101
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def . $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    $default  reduce using rule 59 ($@17)
+
+    $@17  go to state 119
+
+
+State 102
+
+   51 method_def_param: intrinsic_type $@13 SYMBOL .
+
+    $default  reduce using rule 51 (method_def_param)
+
+
+State 103
+
+   53 method_def_param_list: method_def_param_list ',' method_def_param .
+
+    $default  reduce using rule 53 (method_def_param_list)
+
+
+State 104
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def $@25 ')' . $@26 method_body
+
+    $default  reduce using rule 81 ($@26)
+
+    $@26  go to state 120
+
+
+State 105
+
+  126 function_call: DESTROY complex_name $@38 . ';'
+
+    ';'  shift, and go to state 121
+
+
+State 106
+
+  153 for_clause: FOR '(' $@45 . for_initialize for_test_expression for_arith_expression $@46 ')' loop_body
+
+    DICT    shift, and go to state 23
+    LIST    shift, and go to state 24
+    BOOL    shift, and go to state 25
+    STRING  shift, and go to state 26
+    NUM     shift, and go to state 27
+    SYMBOL  shift, and go to state 28
+
+    complex_name    go to state 122
+    intrinsic_type  go to state 123
+    for_initialize  go to state 124
+    assignment      go to state 125
+
+
+State 107
+
+  164 if_clause: IF '(' $@50 . branch_expression $@51 ')' else_body
+
+    TRUE    shift, and go to state 126
+    FALSE   shift, and go to state 127
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name       go to state 132
+    bool_value         go to state 133
+    expression_name    go to state 134
+    expression         go to state 135
+    branch_expression  go to state 136
+
+
+State 108
+
+  167 while_clause: WHILE '(' $@52 . branch_expression $@53 ')' loop_body
+
+    TRUE    shift, and go to state 126
+    FALSE   shift, and go to state 127
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name       go to state 132
+    bool_value         go to state 133
+    expression_name    go to state 134
+    expression         go to state 135
+    branch_expression  go to state 137
+
+
+State 109
+
+  135 loop_body: '{' . '}'
+  138          | '{' . $@39 loop_body_element_list $@40 '}'
+
+    '}'  shift, and go to state 138
+
+    $default  reduce using rule 136 ($@39)
+
+    $@39  go to state 139
+
+
+State 110
+
+  172 do_clause: DO $@54 loop_body . $@55 WHILE '(' $@56 branch_expression $@57 ')' ';'
+
+    $default  reduce using rule 169 ($@55)
+
+    $@55  go to state 140
+
+
+State 111
+
+  182 switch_clause_intro: SWITCH '(' $@60 . expression $@61 ')' '{' $@62 case_body
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 141
+
+
+State 112
+
+  124 function_call: complex_name $@33 '(' . $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    $default  reduce using rule 120 ($@34)
+
+    $@34  go to state 142
+
+
+State 113
+
+  194 assignment: complex_name $@65 '=' . assignment_target
+
+    NOTHING  shift, and go to state 143
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    TRUE     shift, and go to state 126
+    FALSE    shift, and go to state 127
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    SYMBOL   shift, and go to state 28
+    NUMBER   shift, and go to state 128
+    QSTRG    shift, and go to state 144
+    NOT      shift, and go to state 129
+    '-'      shift, and go to state 130
+    '('      shift, and go to state 131
+
+    complex_name       go to state 145
+    intrinsic_type     go to state 146
+    formatted_string   go to state 147
+    bool_value         go to state 148
+    expression_name    go to state 134
+    expression         go to state 149
+    type_cast          go to state 150
+    assignment_target  go to state 151
+
+
+State 114
+
+   47 function_data_definition: intrinsic_type function_data_definition_symbol ';' .
+
+    $default  reduce using rule 47 (function_data_definition)
+
+
+State 115
+
+   49 function_data_definition: intrinsic_type function_data_definition_symbol '=' . $@12 function_data_definition_target ';'
+
+    $default  reduce using rule 48 ($@12)
+
+    $@12  go to state 152
+
+
+State 116
+
+   76 method_body: '{' $@21 method_body_element_list $@22 '}' .
+
+    $default  reduce using rule 76 (method_body)
+
+
+State 117
+
+  176 default_case: DEFAULT $@59 . loop_body
+
+    '{'  shift, and go to state 109
+
+    loop_body  go to state 153
+
+
+State 118
+
+  185 switch_clause: switch_clause_intro default_case $@63 . '}'
+
+    '}'  shift, and go to state 154
+
+
+State 119
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 . ')' '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    ')'  shift, and go to state 155
+
+
+State 120
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def $@25 ')' $@26 . method_body
+
+    '{'  shift, and go to state 46
+
+    method_body  go to state 156
+
+
+State 121
+
+  126 function_call: DESTROY complex_name $@38 ';' .
+
+    $default  reduce using rule 126 (function_call)
+
+
+State 122
+
+    7 complex_name: complex_name . '.' SYMBOL
+   13 intrinsic_type: complex_name .  [SYMBOL]
+  194 assignment: complex_name . $@65 '=' assignment_target
+
+    '.'  shift, and go to state 40
+
+    '='       reduce using rule 193 ($@65)
+    $default  reduce using rule 13 (intrinsic_type)
+
+    $@65  go to state 92
+
+
+State 123
+
+  144 for_initialize: intrinsic_type . $@41 SYMBOL $@42 '=' for_initialize_assign ';'
+
+    $default  reduce using rule 142 ($@41)
+
+    $@41  go to state 157
+
+
+State 124
+
+  153 for_clause: FOR '(' $@45 for_initialize . for_test_expression for_arith_expression $@46 ')' loop_body
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name         go to state 132
+    expression_name      go to state 134
+    expression           go to state 158
+    for_test_expression  go to state 159
+
+
+State 125
+
+  146 for_initialize: assignment . $@43 ';'
+
+    $default  reduce using rule 145 ($@43)
+
+    $@43  go to state 160
+
+
+State 126
+
+   23 bool_value: TRUE .
+
+    $default  reduce using rule 23 (bool_value)
+
+
+State 127
+
+   24 bool_value: FALSE .
+
+    $default  reduce using rule 24 (bool_value)
+
+
+State 128
+
+   96 expression: NUMBER .
+
+    $default  reduce using rule 96 (expression)
+
+
+State 129
+
+  112 expression: NOT . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 161
+
+
+State 130
+
+  111 expression: '-' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 162
+
+
+State 131
+
+  113 expression: '(' . expression ')'
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 163
+
+
+State 132
+
+    7 complex_name: complex_name . '.' SYMBOL
+   93 expression_name: complex_name .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+   95                | complex_name . $@32 subscript_list
+
+    '.'  shift, and go to state 40
+
+    '['       reduce using rule 94 ($@32)
+    $default  reduce using rule 93 (expression_name)
+
+    $@32  go to state 164
+
+
+State 133
+
+  128 branch_expression: bool_value .
+
+    $default  reduce using rule 128 (branch_expression)
+
+
+State 134
+
+   97 expression: expression_name .
+
+    $default  reduce using rule 97 (expression)
+
+
+State 135
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  127 branch_expression: expression .  [')']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 127 (branch_expression)
+
+
+State 136
+
+  164 if_clause: IF '(' $@50 branch_expression . $@51 ')' else_body
+
+    $default  reduce using rule 163 ($@51)
+
+    $@51  go to state 178
+
+
+State 137
+
+  167 while_clause: WHILE '(' $@52 branch_expression . $@53 ')' loop_body
+
+    $default  reduce using rule 166 ($@53)
+
+    $@53  go to state 179
+
+
+State 138
+
+  135 loop_body: '{' '}' .
+
+    $default  reduce using rule 135 (loop_body)
+
+
+State 139
+
+  138 loop_body: '{' $@39 . loop_body_element_list $@40 '}'
+
+    DESTROY   shift, and go to state 61
+    DICT      shift, and go to state 23
+    LIST      shift, and go to state 24
+    BOOL      shift, and go to state 25
+    STRING    shift, and go to state 26
+    NUM       shift, and go to state 27
+    FOR       shift, and go to state 62
+    IF        shift, and go to state 63
+    WHILE     shift, and go to state 64
+    DO        shift, and go to state 65
+    SWITCH    shift, and go to state 66
+    BREAK     shift, and go to state 180
+    CONTINUE  shift, and go to state 181
+    SYMBOL    shift, and go to state 28
+
+    complex_name              go to state 67
+    intrinsic_type            go to state 68
+    function_data_definition  go to state 69
+    method_body_element       go to state 182
+    function_call             go to state 72
+    jump_clause               go to state 183
+    loop_body_element         go to state 184
+    loop_body_element_list    go to state 185
+    for_clause                go to state 73
+    if_clause                 go to state 74
+    while_clause              go to state 75
+    do_clause                 go to state 76
+    switch_clause_intro       go to state 77
+    switch_clause             go to state 78
+    assignment                go to state 79
+
+
+State 140
+
+  172 do_clause: DO $@54 loop_body $@55 . WHILE '(' $@56 branch_expression $@57 ')' ';'
+
+    WHILE  shift, and go to state 186
+
+
+State 141
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  182 switch_clause_intro: SWITCH '(' $@60 expression . $@61 ')' '{' $@62 case_body
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 180 ($@61)
+
+    $@61  go to state 187
+
+
+State 142
+
+  124 function_call: complex_name $@33 '(' $@34 . function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    QSTRG   shift, and go to state 144
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    $default  reduce using rule 116 (function_call_parameter_list)
+
+    complex_name                  go to state 132
+    formatted_string              go to state 188
+    expression_name               go to state 134
+    expression                    go to state 189
+    function_call_parameter       go to state 190
+    function_call_parameter_list  go to state 191
+
+
+State 143
+
+  191 assignment_target: NOTHING .
+
+    $default  reduce using rule 191 (assignment_target)
+
+
+State 144
+
+   18 formatted_string: QSTRG .  [',', ')', ';', ']']
+   22                 | QSTRG . $@1 ':' '(' $@2 formatted_string_param_list $@3 ')'
+
+    ':'       reduce using rule 19 ($@1)
+    $default  reduce using rule 18 (formatted_string)
+
+    $@1  go to state 192
+
+
+State 145
+
+    7 complex_name: complex_name . '.' SYMBOL
+   13 intrinsic_type: complex_name .  [':']
+   93 expression_name: complex_name .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ')', ';']
+   95                | complex_name . $@32 subscript_list
+
+    '.'  shift, and go to state 40
+
+    ':'       reduce using rule 13 (intrinsic_type)
+    '['       reduce using rule 94 ($@32)
+    $default  reduce using rule 93 (expression_name)
+
+    $@32  go to state 164
+
+
+State 146
+
+  187 type_cast: intrinsic_type . $@64 ':'
+
+    $default  reduce using rule 186 ($@64)
+
+    $@64  go to state 193
+
+
+State 147
+
+  189 assignment_target: formatted_string .
+
+    $default  reduce using rule 189 (assignment_target)
+
+
+State 148
+
+  192 assignment_target: bool_value .
+
+    $default  reduce using rule 192 (assignment_target)
+
+
+State 149
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  188 assignment_target: expression .  [')', ';']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 188 (assignment_target)
+
+
+State 150
+
+  190 assignment_target: type_cast . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 194
+
+
+State 151
+
+  194 assignment: complex_name $@65 '=' assignment_target .
+
+    $default  reduce using rule 194 (assignment)
+
+
+State 152
+
+   49 function_data_definition: intrinsic_type function_data_definition_symbol '=' $@12 . function_data_definition_target ';'
+
+    NOTHING  shift, and go to state 195
+    DICT     shift, and go to state 23
+    LIST     shift, and go to state 24
+    BOOL     shift, and go to state 25
+    STRING   shift, and go to state 26
+    NUM      shift, and go to state 27
+    SYMBOL   shift, and go to state 28
+    NUMBER   shift, and go to state 128
+    QSTRG    shift, and go to state 144
+    NOT      shift, and go to state 129
+    '-'      shift, and go to state 130
+    '('      shift, and go to state 131
+
+    complex_name                     go to state 145
+    intrinsic_type                   go to state 146
+    formatted_string                 go to state 196
+    function_data_definition_target  go to state 197
+    expression_name                  go to state 134
+    expression                       go to state 198
+    type_cast                        go to state 199
+
+
+State 153
+
+  176 default_case: DEFAULT $@59 loop_body .
+
+    $default  reduce using rule 176 (default_case)
+
+
+State 154
+
+  185 switch_clause: switch_clause_intro default_case $@63 '}' .
+
+    $default  reduce using rule 185 (switch_clause)
+
+
+State 155
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' . '(' $@18 method_param_def $@19 ')' $@20 method_body
+
+    '('  shift, and go to state 200
+
+
+State 156
+
+   82 constructor_definition: CREATE $@23 '(' $@24 method_param_def $@25 ')' $@26 method_body .
+
+    $default  reduce using rule 82 (constructor_definition)
+
+
+State 157
+
+  144 for_initialize: intrinsic_type $@41 . SYMBOL $@42 '=' for_initialize_assign ';'
+
+    SYMBOL  shift, and go to state 201
+
+
+State 158
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  148 for_test_expression: expression . $@44 ';'
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 147 ($@44)
+
+    $@44  go to state 202
+
+
+State 159
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression . for_arith_expression $@46 ')' loop_body
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name          go to state 203
+    expression_name       go to state 134
+    expression            go to state 204
+    for_arith_expression  go to state 205
+    assignment            go to state 206
+
+
+State 160
+
+  146 for_initialize: assignment $@43 . ';'
+
+    ';'  shift, and go to state 207
+
+
+State 161
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  112           | NOT expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+
+    $default  reduce using rule 112 (expression)
+
+
+State 162
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  111           | '-' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+
+    $default  reduce using rule 111 (expression)
+
+
+State 163
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  113           | '(' expression . ')'
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+    ')'    shift, and go to state 208
+
+
+State 164
+
+   95 expression_name: complex_name $@32 . subscript_list
+
+    '['  shift, and go to state 209
+
+    subscript_item  go to state 210
+    subscript_list  go to state 211
+
+
+State 165
+
+  103 expression: expression AND . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 212
+
+
+State 166
+
+  104 expression: expression OR . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 213
+
+
+State 167
+
+  107 expression: expression EQU . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 214
+
+
+State 168
+
+  108 expression: expression NEQU . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 215
+
+
+State 169
+
+  109 expression: expression LTEQU . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 216
+
+
+State 170
+
+  110 expression: expression GTEQU . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 217
+
+
+State 171
+
+  105 expression: expression LESS . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 218
+
+
+State 172
+
+  106 expression: expression MORE . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 219
+
+
+State 173
+
+   98 expression: expression '+' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 220
+
+
+State 174
+
+   99 expression: expression '-' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 221
+
+
+State 175
+
+  101 expression: expression '*' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 222
+
+
+State 176
+
+  100 expression: expression '/' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 223
+
+
+State 177
+
+  102 expression: expression '%' . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 224
+
+
+State 178
+
+  164 if_clause: IF '(' $@50 branch_expression $@51 . ')' else_body
+
+    ')'  shift, and go to state 225
+
+
+State 179
+
+  167 while_clause: WHILE '(' $@52 branch_expression $@53 . ')' loop_body
+
+    ')'  shift, and go to state 226
+
+
+State 180
+
+  130 jump_clause: BREAK . ';'
+
+    ';'  shift, and go to state 227
+
+
+State 181
+
+  129 jump_clause: CONTINUE . ';'
+
+    ';'  shift, and go to state 228
+
+
+State 182
+
+  131 loop_body_element: method_body_element .
+
+    $default  reduce using rule 131 (loop_body_element)
+
+
+State 183
+
+  132 loop_body_element: jump_clause .
+
+    $default  reduce using rule 132 (loop_body_element)
+
+
+State 184
+
+  133 loop_body_element_list: loop_body_element .
+
+    $default  reduce using rule 133 (loop_body_element_list)
+
+
+State 185
+
+  134 loop_body_element_list: loop_body_element_list . loop_body_element
+  138 loop_body: '{' $@39 loop_body_element_list . $@40 '}'
+
+    DESTROY   shift, and go to state 61
+    DICT      shift, and go to state 23
+    LIST      shift, and go to state 24
+    BOOL      shift, and go to state 25
+    STRING    shift, and go to state 26
+    NUM       shift, and go to state 27
+    FOR       shift, and go to state 62
+    IF        shift, and go to state 63
+    WHILE     shift, and go to state 64
+    DO        shift, and go to state 65
+    SWITCH    shift, and go to state 66
+    BREAK     shift, and go to state 180
+    CONTINUE  shift, and go to state 181
+    SYMBOL    shift, and go to state 28
+
+    $default  reduce using rule 137 ($@40)
+
+    complex_name              go to state 67
+    intrinsic_type            go to state 68
+    function_data_definition  go to state 69
+    method_body_element       go to state 182
+    function_call             go to state 72
+    jump_clause               go to state 183
+    loop_body_element         go to state 229
+    $@40                      go to state 230
+    for_clause                go to state 73
+    if_clause                 go to state 74
+    while_clause              go to state 75
+    do_clause                 go to state 76
+    switch_clause_intro       go to state 77
+    switch_clause             go to state 78
+    assignment                go to state 79
+
+
+State 186
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE . '(' $@56 branch_expression $@57 ')' ';'
+
+    '('  shift, and go to state 231
+
+
+State 187
+
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 . ')' '{' $@62 case_body
+
+    ')'  shift, and go to state 232
+
+
+State 188
+
+  114 function_call_parameter: formatted_string .
+
+    $default  reduce using rule 114 (function_call_parameter)
+
+
+State 189
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  115 function_call_parameter: expression .  [',', ')']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 115 (function_call_parameter)
+
+
+State 190
+
+  117 function_call_parameter_list: function_call_parameter .
+
+    $default  reduce using rule 117 (function_call_parameter_list)
+
+
+State 191
+
+  118 function_call_parameter_list: function_call_parameter_list . ',' function_call_parameter
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list . $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    ','  shift, and go to state 233
+
+    $default  reduce using rule 121 ($@35)
+
+    $@35  go to state 234
+
+
+State 192
+
+   22 formatted_string: QSTRG $@1 . ':' '(' $@2 formatted_string_param_list $@3 ')'
+
+    ':'  shift, and go to state 235
+
+
+State 193
+
+  187 type_cast: intrinsic_type $@64 . ':'
+
+    ':'  shift, and go to state 236
+
+
+State 194
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  190 assignment_target: type_cast expression .  [')', ';']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 190 (assignment_target)
+
+
+State 195
+
+   41 function_data_definition_target: NOTHING .
+
+    $default  reduce using rule 41 (function_data_definition_target)
+
+
+State 196
+
+   45 function_data_definition_target: formatted_string .
+
+    $default  reduce using rule 45 (function_data_definition_target)
+
+
+State 197
+
+   49 function_data_definition: intrinsic_type function_data_definition_symbol '=' $@12 function_data_definition_target . ';'
+
+    ';'  shift, and go to state 237
+
+
+State 198
+
+   42 function_data_definition_target: expression .  [';']
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 42 (function_data_definition_target)
+
+
+State 199
+
+   44 function_data_definition_target: type_cast . $@11 expression
+
+    $default  reduce using rule 43 ($@11)
+
+    $@11  go to state 238
+
+
+State 200
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' . $@18 method_param_def $@19 ')' $@20 method_body
+
+    $default  reduce using rule 60 ($@18)
+
+    $@18  go to state 239
+
+
+State 201
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL . $@42 '=' for_initialize_assign ';'
+
+    $default  reduce using rule 143 ($@42)
+
+    $@42  go to state 240
+
+
+State 202
+
+  148 for_test_expression: expression $@44 . ';'
+
+    ';'  shift, and go to state 241
+
+
+State 203
+
+    7 complex_name: complex_name . '.' SYMBOL
+   93 expression_name: complex_name .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ')']
+   95                | complex_name . $@32 subscript_list
+  194 assignment: complex_name . $@65 '=' assignment_target
+
+    '.'  shift, and go to state 40
+
+    '='       reduce using rule 193 ($@65)
+    '['       reduce using rule 94 ($@32)
+    $default  reduce using rule 93 (expression_name)
+
+    $@32  go to state 164
+    $@65  go to state 92
+
+
+State 204
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  149 for_arith_expression: expression .  [')']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 149 (for_arith_expression)
+
+
+State 205
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression for_arith_expression . $@46 ')' loop_body
+
+    $default  reduce using rule 152 ($@46)
+
+    $@46  go to state 242
+
+
+State 206
+
+  150 for_arith_expression: assignment .
+
+    $default  reduce using rule 150 (for_arith_expression)
+
+
+State 207
+
+  146 for_initialize: assignment $@43 ';' .
+
+    $default  reduce using rule 146 (for_initialize)
+
+
+State 208
+
+  113 expression: '(' expression ')' .
+
+    $default  reduce using rule 113 (expression)
+
+
+State 209
+
+   87 subscript_item: '[' . $@28 expression $@29 ']'
+   90               | '[' . $@30 formatted_string $@31 ']'
+
+    QSTRG     reduce using rule 88 ($@30)
+    $default  reduce using rule 85 ($@28)
+
+    $@28  go to state 243
+    $@30  go to state 244
+
+
+State 210
+
+   91 subscript_list: subscript_item .
+
+    $default  reduce using rule 91 (subscript_list)
+
+
+State 211
+
+   92 subscript_list: subscript_list . subscript_item
+   95 expression_name: complex_name $@32 subscript_list .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+
+    '['  shift, and go to state 209
+
+    $default  reduce using rule 95 (expression_name)
+
+    subscript_item  go to state 245
+
+
+State 212
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  103           | expression AND expression .  [AND, OR, ',', ')', ';', ']']
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 103 (expression)
+
+
+State 213
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  104           | expression OR expression .  [AND, OR, ',', ')', ';', ']']
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 104 (expression)
+
+
+State 214
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  107           | expression EQU expression .  [AND, OR, EQU, NEQU, ',', ')', ';', ']']
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 107 (expression)
+
+
+State 215
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  108           | expression NEQU expression .  [AND, OR, EQU, NEQU, ',', ')', ';', ']']
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 108 (expression)
+
+
+State 216
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  109           | expression LTEQU expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, ',', ')', ';', ']']
+  110           | expression . GTEQU expression
+
+    '+'  shift, and go to state 173
+    '-'  shift, and go to state 174
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 109 (expression)
+
+
+State 217
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  110           | expression GTEQU expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, ',', ')', ';', ']']
+
+    '+'  shift, and go to state 173
+    '-'  shift, and go to state 174
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 110 (expression)
+
+
+State 218
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  105           | expression LESS expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, ',', ')', ';', ']']
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    '+'  shift, and go to state 173
+    '-'  shift, and go to state 174
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 105 (expression)
+
+
+State 219
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  106           | expression MORE expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, ',', ')', ';', ']']
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    '+'  shift, and go to state 173
+    '-'  shift, and go to state 174
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 106 (expression)
+
+
+State 220
+
+   98 expression: expression . '+' expression
+   98           | expression '+' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', ',', ')', ';', ']']
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 98 (expression)
+
+
+State 221
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+   99           | expression '-' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', ',', ')', ';', ']']
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    '*'  shift, and go to state 175
+    '/'  shift, and go to state 176
+    '%'  shift, and go to state 177
+
+    $default  reduce using rule 99 (expression)
+
+
+State 222
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  101           | expression '*' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    $default  reduce using rule 101 (expression)
+
+
+State 223
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  100           | expression '/' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    $default  reduce using rule 100 (expression)
+
+
+State 224
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  102           | expression '%' expression .  [AND, OR, EQU, NEQU, LTEQU, GTEQU, LESS, MORE, '+', '-', '*', '/', '%', ',', ')', ';', ']']
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    $default  reduce using rule 102 (expression)
+
+
+State 225
+
+  164 if_clause: IF '(' $@50 branch_expression $@51 ')' . else_body
+
+    ELSE  shift, and go to state 246
+    '{'   shift, and go to state 46
+
+    method_body  go to state 247
+    else_clause  go to state 248
+    else_body    go to state 249
+
+
+State 226
+
+  167 while_clause: WHILE '(' $@52 branch_expression $@53 ')' . loop_body
+
+    '{'  shift, and go to state 109
+
+    loop_body  go to state 250
+
+
+State 227
+
+  130 jump_clause: BREAK ';' .
+
+    $default  reduce using rule 130 (jump_clause)
+
+
+State 228
+
+  129 jump_clause: CONTINUE ';' .
+
+    $default  reduce using rule 129 (jump_clause)
+
+
+State 229
+
+  134 loop_body_element_list: loop_body_element_list loop_body_element .
+
+    $default  reduce using rule 134 (loop_body_element_list)
+
+
+State 230
+
+  138 loop_body: '{' $@39 loop_body_element_list $@40 . '}'
+
+    '}'  shift, and go to state 251
+
+
+State 231
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' . $@56 branch_expression $@57 ')' ';'
+
+    $default  reduce using rule 170 ($@56)
+
+    $@56  go to state 252
+
+
+State 232
+
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 ')' . '{' $@62 case_body
+
+    '{'  shift, and go to state 253
+
+
+State 233
+
+  118 function_call_parameter_list: function_call_parameter_list ',' . function_call_parameter
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    QSTRG   shift, and go to state 144
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name             go to state 132
+    formatted_string         go to state 188
+    expression_name          go to state 134
+    expression               go to state 189
+    function_call_parameter  go to state 254
+
+
+State 234
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 . ')' '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    ')'  shift, and go to state 255
+
+
+State 235
+
+   22 formatted_string: QSTRG $@1 ':' . '(' $@2 formatted_string_param_list $@3 ')'
+
+    '('  shift, and go to state 256
+
+
+State 236
+
+  187 type_cast: intrinsic_type $@64 ':' .
+
+    $default  reduce using rule 187 (type_cast)
+
+
+State 237
+
+   49 function_data_definition: intrinsic_type function_data_definition_symbol '=' $@12 function_data_definition_target ';' .
+
+    $default  reduce using rule 49 (function_data_definition)
+
+
+State 238
+
+   44 function_data_definition_target: type_cast $@11 . expression
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 257
+
+
+State 239
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 . method_param_def $@19 ')' $@20 method_body
+
+    DICT    shift, and go to state 23
+    LIST    shift, and go to state 24
+    BOOL    shift, and go to state 25
+    STRING  shift, and go to state 26
+    NUM     shift, and go to state 27
+    SYMBOL  shift, and go to state 28
+
+    $default  reduce using rule 55 (method_param_def)
+
+    complex_name           go to state 29
+    intrinsic_type         go to state 57
+    method_def_param       go to state 58
+    method_def_param_list  go to state 59
+    method_param_def       go to state 258
+
+
+State 240
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL $@42 . '=' for_initialize_assign ';'
+
+    '='  shift, and go to state 259
+
+
+State 241
+
+  148 for_test_expression: expression $@44 ';' .
+
+    $default  reduce using rule 148 (for_test_expression)
+
+
+State 242
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression for_arith_expression $@46 . ')' loop_body
+
+    ')'  shift, and go to state 260
+
+
+State 243
+
+   87 subscript_item: '[' $@28 . expression $@29 ']'
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 261
+
+
+State 244
+
+   90 subscript_item: '[' $@30 . formatted_string $@31 ']'
+
+    QSTRG  shift, and go to state 144
+
+    formatted_string  go to state 262
+
+
+State 245
+
+   92 subscript_list: subscript_list subscript_item .
+
+    $default  reduce using rule 92 (subscript_list)
+
+
+State 246
+
+  156 else_clause: ELSE . '(' $@47 expression $@48 ')' method_body
+  158            | ELSE . $@49 method_body
+
+    '('  shift, and go to state 263
+
+    $default  reduce using rule 157 ($@49)
+
+    $@49  go to state 264
+
+
+State 247
+
+  161 else_body: method_body .
+
+    $default  reduce using rule 161 (else_body)
+
+
+State 248
+
+  159 else_body: else_clause .
+
+    $default  reduce using rule 159 (else_body)
+
+
+State 249
+
+  160 else_body: else_body . else_clause
+  164 if_clause: IF '(' $@50 branch_expression $@51 ')' else_body .  [DESTROY, DICT, LIST, BOOL, STRING, NUM, FOR, IF, WHILE, DO, SWITCH, BREAK, CONTINUE, SYMBOL, '}']
+
+    ELSE  shift, and go to state 246
+
+    $default  reduce using rule 164 (if_clause)
+
+    else_clause  go to state 265
+
+
+State 250
+
+  167 while_clause: WHILE '(' $@52 branch_expression $@53 ')' loop_body .
+
+    $default  reduce using rule 167 (while_clause)
+
+
+State 251
+
+  138 loop_body: '{' $@39 loop_body_element_list $@40 '}' .
+
+    $default  reduce using rule 138 (loop_body)
+
+
+State 252
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 . branch_expression $@57 ')' ';'
+
+    TRUE    shift, and go to state 126
+    FALSE   shift, and go to state 127
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name       go to state 132
+    bool_value         go to state 133
+    expression_name    go to state 134
+    expression         go to state 135
+    branch_expression  go to state 266
+
+
+State 253
+
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 ')' '{' . $@62 case_body
+
+    $default  reduce using rule 181 ($@62)
+
+    $@62  go to state 267
+
+
+State 254
+
+  118 function_call_parameter_list: function_call_parameter_list ',' function_call_parameter .
+
+    $default  reduce using rule 118 (function_call_parameter_list)
+
+
+State 255
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' . '(' $@36 function_call_parameter_list $@37 ')' ';'
+
+    '('  shift, and go to state 268
+
+
+State 256
+
+   22 formatted_string: QSTRG $@1 ':' '(' . $@2 formatted_string_param_list $@3 ')'
+
+    $default  reduce using rule 20 ($@2)
+
+    $@2  go to state 269
+
+
+State 257
+
+   44 function_data_definition_target: type_cast $@11 expression .  [';']
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 44 (function_data_definition_target)
+
+
+State 258
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def . $@19 ')' $@20 method_body
+
+    $default  reduce using rule 61 ($@19)
+
+    $@19  go to state 270
+
+
+State 259
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL $@42 '=' . for_initialize_assign ';'
+
+    NOTHING  shift, and go to state 271
+    TRUE     shift, and go to state 126
+    FALSE    shift, and go to state 127
+    SYMBOL   shift, and go to state 28
+    NUMBER   shift, and go to state 128
+    NOT      shift, and go to state 129
+    '-'      shift, and go to state 130
+    '('      shift, and go to state 131
+
+    complex_name           go to state 132
+    bool_value             go to state 272
+    expression_name        go to state 134
+    expression             go to state 273
+    for_initialize_assign  go to state 274
+
+
+State 260
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression for_arith_expression $@46 ')' . loop_body
+
+    '{'  shift, and go to state 109
+
+    loop_body  go to state 275
+
+
+State 261
+
+   87 subscript_item: '[' $@28 expression . $@29 ']'
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 86 ($@29)
+
+    $@29  go to state 276
+
+
+State 262
+
+   90 subscript_item: '[' $@30 formatted_string . $@31 ']'
+
+    $default  reduce using rule 89 ($@31)
+
+    $@31  go to state 277
+
+
+State 263
+
+  156 else_clause: ELSE '(' . $@47 expression $@48 ')' method_body
+
+    $default  reduce using rule 154 ($@47)
+
+    $@47  go to state 278
+
+
+State 264
+
+  158 else_clause: ELSE $@49 . method_body
+
+    '{'  shift, and go to state 46
+
+    method_body  go to state 279
+
+
+State 265
+
+  160 else_body: else_body else_clause .
+
+    $default  reduce using rule 160 (else_body)
+
+
+State 266
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 branch_expression . $@57 ')' ';'
+
+    $default  reduce using rule 171 ($@57)
+
+    $@57  go to state 280
+
+
+State 267
+
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 ')' '{' $@62 . case_body
+
+    CASE  shift, and go to state 281
+
+    case_clause  go to state 282
+    case_body    go to state 283
+
+
+State 268
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' . $@36 function_call_parameter_list $@37 ')' ';'
+
+    $default  reduce using rule 122 ($@36)
+
+    $@36  go to state 284
+
+
+State 269
+
+   22 formatted_string: QSTRG $@1 ':' '(' $@2 . formatted_string_param_list $@3 ')'
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    QSTRG   shift, and go to state 285
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name                 go to state 132
+    formatted_string_param       go to state 286
+    formatted_string_param_list  go to state 287
+    expression_name              go to state 134
+    expression                   go to state 288
+
+
+State 270
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 . ')' $@20 method_body
+
+    ')'  shift, and go to state 289
+
+
+State 271
+
+  139 for_initialize_assign: NOTHING .
+
+    $default  reduce using rule 139 (for_initialize_assign)
+
+
+State 272
+
+  141 for_initialize_assign: bool_value .
+
+    $default  reduce using rule 141 (for_initialize_assign)
+
+
+State 273
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  140 for_initialize_assign: expression .  [';']
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 140 (for_initialize_assign)
+
+
+State 274
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL $@42 '=' for_initialize_assign . ';'
+
+    ';'  shift, and go to state 290
+
+
+State 275
+
+  153 for_clause: FOR '(' $@45 for_initialize for_test_expression for_arith_expression $@46 ')' loop_body .
+
+    $default  reduce using rule 153 (for_clause)
+
+
+State 276
+
+   87 subscript_item: '[' $@28 expression $@29 . ']'
+
+    ']'  shift, and go to state 291
+
+
+State 277
+
+   90 subscript_item: '[' $@30 formatted_string $@31 . ']'
+
+    ']'  shift, and go to state 292
+
+
+State 278
+
+  156 else_clause: ELSE '(' $@47 . expression $@48 ')' method_body
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name     go to state 132
+    expression_name  go to state 134
+    expression       go to state 293
+
+
+State 279
+
+  158 else_clause: ELSE $@49 method_body .
+
+    $default  reduce using rule 158 (else_clause)
+
+
+State 280
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 branch_expression $@57 . ')' ';'
+
+    ')'  shift, and go to state 294
+
+
+State 281
+
+  174 case_clause: CASE . NUMBER $@58 loop_body
+
+    NUMBER  shift, and go to state 295
+
+
+State 282
+
+  177 case_body: case_clause .
+
+    $default  reduce using rule 177 (case_body)
+
+
+State 283
+
+  178 case_body: case_body . case_clause
+  182 switch_clause_intro: SWITCH '(' $@60 expression $@61 ')' '{' $@62 case_body .  [DEFAULT, '}']
+
+    CASE  shift, and go to state 281
+
+    $default  reduce using rule 182 (switch_clause_intro)
+
+    case_clause  go to state 296
+
+
+State 284
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 . function_call_parameter_list $@37 ')' ';'
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    QSTRG   shift, and go to state 144
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    $default  reduce using rule 116 (function_call_parameter_list)
+
+    complex_name                  go to state 132
+    formatted_string              go to state 188
+    expression_name               go to state 134
+    expression                    go to state 189
+    function_call_parameter       go to state 190
+    function_call_parameter_list  go to state 297
+
+
+State 285
+
+   14 formatted_string_param: QSTRG .
+
+    $default  reduce using rule 14 (formatted_string_param)
+
+
+State 286
+
+   16 formatted_string_param_list: formatted_string_param .
+
+    $default  reduce using rule 16 (formatted_string_param_list)
+
+
+State 287
+
+   17 formatted_string_param_list: formatted_string_param_list . ',' formatted_string_param
+   22 formatted_string: QSTRG $@1 ':' '(' $@2 formatted_string_param_list . $@3 ')'
+
+    ','  shift, and go to state 298
+
+    $default  reduce using rule 21 ($@3)
+
+    $@3  go to state 299
+
+
+State 288
+
+   15 formatted_string_param: expression .  [',', ')']
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 15 (formatted_string_param)
+
+
+State 289
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' . $@20 method_body
+
+    $default  reduce using rule 62 ($@20)
+
+    $@20  go to state 300
+
+
+State 290
+
+  144 for_initialize: intrinsic_type $@41 SYMBOL $@42 '=' for_initialize_assign ';' .
+
+    $default  reduce using rule 144 (for_initialize)
+
+
+State 291
+
+   87 subscript_item: '[' $@28 expression $@29 ']' .
+
+    $default  reduce using rule 87 (subscript_item)
+
+
+State 292
+
+   90 subscript_item: '[' $@30 formatted_string $@31 ']' .
+
+    $default  reduce using rule 90 (subscript_item)
+
+
+State 293
+
+   98 expression: expression . '+' expression
+   99           | expression . '-' expression
+  100           | expression . '/' expression
+  101           | expression . '*' expression
+  102           | expression . '%' expression
+  103           | expression . AND expression
+  104           | expression . OR expression
+  105           | expression . LESS expression
+  106           | expression . MORE expression
+  107           | expression . EQU expression
+  108           | expression . NEQU expression
+  109           | expression . LTEQU expression
+  110           | expression . GTEQU expression
+  156 else_clause: ELSE '(' $@47 expression . $@48 ')' method_body
+
+    AND    shift, and go to state 165
+    OR     shift, and go to state 166
+    EQU    shift, and go to state 167
+    NEQU   shift, and go to state 168
+    LTEQU  shift, and go to state 169
+    GTEQU  shift, and go to state 170
+    LESS   shift, and go to state 171
+    MORE   shift, and go to state 172
+    '+'    shift, and go to state 173
+    '-'    shift, and go to state 174
+    '*'    shift, and go to state 175
+    '/'    shift, and go to state 176
+    '%'    shift, and go to state 177
+
+    $default  reduce using rule 155 ($@48)
+
+    $@48  go to state 301
+
+
+State 294
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 branch_expression $@57 ')' . ';'
+
+    ';'  shift, and go to state 302
+
+
+State 295
+
+  174 case_clause: CASE NUMBER . $@58 loop_body
+
+    $default  reduce using rule 173 ($@58)
+
+    $@58  go to state 303
+
+
+State 296
+
+  178 case_body: case_body case_clause .
+
+    $default  reduce using rule 178 (case_body)
+
+
+State 297
+
+  118 function_call_parameter_list: function_call_parameter_list . ',' function_call_parameter
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list . $@37 ')' ';'
+
+    ','  shift, and go to state 233
+
+    $default  reduce using rule 123 ($@37)
+
+    $@37  go to state 304
+
+
+State 298
+
+   17 formatted_string_param_list: formatted_string_param_list ',' . formatted_string_param
+
+    SYMBOL  shift, and go to state 28
+    NUMBER  shift, and go to state 128
+    QSTRG   shift, and go to state 285
+    NOT     shift, and go to state 129
+    '-'     shift, and go to state 130
+    '('     shift, and go to state 131
+
+    complex_name            go to state 132
+    formatted_string_param  go to state 305
+    expression_name         go to state 134
+    expression              go to state 288
+
+
+State 299
+
+   22 formatted_string: QSTRG $@1 ':' '(' $@2 formatted_string_param_list $@3 . ')'
+
+    ')'  shift, and go to state 306
+
+
+State 300
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 . method_body
+
+    '{'  shift, and go to state 46
+
+    method_body  go to state 307
+
+
+State 301
+
+  156 else_clause: ELSE '(' $@47 expression $@48 . ')' method_body
+
+    ')'  shift, and go to state 308
+
+
+State 302
+
+  172 do_clause: DO $@54 loop_body $@55 WHILE '(' $@56 branch_expression $@57 ')' ';' .
+
+    $default  reduce using rule 172 (do_clause)
+
+
+State 303
+
+  174 case_clause: CASE NUMBER $@58 . loop_body
+
+    '{'  shift, and go to state 109
+
+    loop_body  go to state 309
+
+
+State 304
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 . ')' ';'
+
+    ')'  shift, and go to state 310
+
+
+State 305
+
+   17 formatted_string_param_list: formatted_string_param_list ',' formatted_string_param .
+
+    $default  reduce using rule 17 (formatted_string_param_list)
+
+
+State 306
+
+   22 formatted_string: QSTRG $@1 ':' '(' $@2 formatted_string_param_list $@3 ')' .
+
+    $default  reduce using rule 22 (formatted_string)
+
+
+State 307
+
+   63 method_definition: METHOD $@14 SYMBOL $@15 '(' $@16 method_param_def $@17 ')' '(' $@18 method_param_def $@19 ')' $@20 method_body .
+
+    $default  reduce using rule 63 (method_definition)
+
+
+State 308
+
+  156 else_clause: ELSE '(' $@47 expression $@48 ')' . method_body
+
+    '{'  shift, and go to state 46
+
+    method_body  go to state 311
+
+
+State 309
+
+  174 case_clause: CASE NUMBER $@58 loop_body .
+
+    $default  reduce using rule 174 (case_clause)
+
+
+State 310
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' . ';'
+
+    ';'  shift, and go to state 312
+
+
+State 311
+
+  156 else_clause: ELSE '(' $@47 expression $@48 ')' method_body .
+
+    $default  reduce using rule 156 (else_clause)
+
+
+State 312
+
+  124 function_call: complex_name $@33 '(' $@34 function_call_parameter_list $@35 ')' '(' $@36 function_call_parameter_list $@37 ')' ';' .
+
+    $default  reduce using rule 124 (function_call)

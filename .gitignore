@@ -1,3 +1,9 @@
+build/CM*
+build/cm*
+build/src/
+build/Ma*
+build/dox*
+docs/out/
 # Prerequisites
 *.d
 
