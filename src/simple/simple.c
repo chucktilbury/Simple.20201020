@@ -22,7 +22,7 @@ END_CONFIG
 int main(int argc, char **argv) {
     init_errors(10, stdout);
     configure(argc, argv);
-    int verbose = GET_CONFIG_NUM("VERBOSE");
+    //int verbose = GET_CONFIG_NUM("VERBOSE");
 
     //init_ast();
     for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {

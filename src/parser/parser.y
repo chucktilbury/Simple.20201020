@@ -56,6 +56,8 @@ compound_name
     | compound_name '.' SYMBOL {
             _TRACE("adding to compound name: %s", TOKSTR);
         }
+    | compound_name error SYMBOL
+    | compound_name '.' error
     ;
 
 type_name
@@ -77,6 +79,7 @@ type_name
     | compound_name {
             _TRACE("compound name as a type name seen");
         }
+    | error
     ;
 
 formatted_string_param
@@ -86,6 +89,7 @@ formatted_string_param
     | expression {
             _TRACE("expression as formatted string parameter");
         }
+    | error
     ;
 
 formatted_string_param_list
@@ -110,6 +114,7 @@ formatted_string
         } ')' {
             _TRACE("end of formtted string definition");
         }
+    | error
     ;
 
 bool_value
@@ -130,7 +135,9 @@ import_definition
         } ';' {
             _TRACE("import definition finished");
         }
+    | IMPORT error ';'
     ;
+
 
     /*
         Class definition related rules.
@@ -179,6 +186,7 @@ class_definition
             _TRACE("end class body and definition");
             _TRACE("");
         }
+    | error
     ;
 
     /*
@@ -200,6 +208,7 @@ data_definition
         } assignment_target {
             _TRACE("end of data definition with assignment");
         } ';'
+    | error ';'
     ;
 
     /*
@@ -212,6 +221,7 @@ method_def_param_list
     | method_def_param_list ',' data_type_intro {
             _TRACE("method parameter list (2)");
         }
+    | error
     ;
 
 method_param_def
@@ -234,6 +244,7 @@ method_definition
         } ')' method_body {
             _TRACE("end method body definition");
         }
+    | METHOD error
     ;
 
 method_body_element
@@ -245,6 +256,7 @@ method_body_element
     | do_clause
     | switch_clause
     | assignment ';'
+    | destroy_statement
     ;
 
 method_body_element_list
@@ -274,6 +286,7 @@ constructor_definition
             _TRACE("end construcor method body");
             _TRACE("end construcor method definition");
         }
+    | CONSTRUCT error
     ;
 
 destructor_definition
@@ -282,6 +295,7 @@ destructor_definition
         } method_body {
             _TRACE("end destructor definition and body");
         }
+    | DESTRUCT error
     ;
 
     /*
@@ -406,9 +420,13 @@ function_call
         } ')' '(' function_call_parameter_list ')' ';' {
             _TRACE("end function call output parameters");
         }
-    | DESTROY compound_name ';' {
+    ;
+
+destroy_statement
+    : DESTROY compound_name ';' {
             _TRACE("destroy symbol: %s", "not implemented");
         }
+    | DESTROY error ';'
     ;
 
     /*
@@ -535,6 +553,7 @@ else_body
     : else_clause
     | else_body else_clause
     | method_body
+    | error
     ;
 
 if_clause
@@ -570,7 +589,6 @@ while_clause
         } loop_body {
             _TRACE("");
         }
-
     ;
 
 do_clause
@@ -596,6 +614,7 @@ case_clause
         } loop_body {
             _TRACE("end case loop body and clause");
         }
+    | CASE error
     ;
 
 default_case
@@ -604,6 +623,7 @@ default_case
         } loop_body {
             _TRACE("end default case clause and loop body");
         }
+    | DEFAULT error
     ;
 
 case_body
@@ -677,6 +697,6 @@ extern char yytext[];
 void yyerror(const char* s)
 {
 	fflush(stdout);
-	fprintf(stdout, "\n%s: line %d: at %d: %s\n\n", get_file_name(), get_line_number(), get_col_number(), s);
+	fprintf(stdout, "%s: line %d: at %d: %s: %s\n", get_file_name(), get_line_number(), get_col_number(), s);
     inc_error_count();
 }
