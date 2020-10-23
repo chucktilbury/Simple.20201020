@@ -3,7 +3,15 @@
  * data type and the caller is responsible for freeing the data and making sure that the
  * pointer remains valid through the life of the list.
  */
-#include "../include/common.h"
+
+//#include "../include/common.h"
+#include <stdio.h>
+
+//#undef _DEBUGGING
+#include "../include/errors.h"
+#include "../include/memory.h"
+#include "../include/lists.h"
+#include "../include/misc.h"
 
 /*
  * This resizes the list to grow it. This should always be called before

@@ -121,17 +121,17 @@ void destroy_config(void) {
     for(int i = 0; _global_config[i].type != CONFIG_TYPE_END; i++) {
         switch(_global_config[i].type) {
             case CONFIG_TYPE_STR: {
-                    fprintf(stderr, "CFG: string: %s: %s\n", _global_config[i].name, _global_config[i].value.string);
+                    //fprintf(stderr, "CFG: string: %s: %s\n", _global_config[i].name, _global_config[i].value.string);
                     FREE(_global_config[i].value.string);
                 }
                 break;
 
             case CONFIG_TYPE_LIST: {
-                    fprintf(stderr, "CFG: list: %s\n", _global_config[i].name);
+                    //fprintf(stderr, "CFG: list: %s\n", _global_config[i].name);
                     list_t* lst = _global_config[i].value.list;
                     reset_list(lst);
                     for(void* item = get_list_next(lst); item != NULL; item = get_list_next(lst)) {
-                        fprintf(stderr, "CFG: list item: %s\n", (char*)item);
+                        //fprintf(stderr, "CFG: list item: %s\n", (char*)item);
                         FREE(item);
                     }
                     destroy_list(lst);

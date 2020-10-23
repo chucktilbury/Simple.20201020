@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#undef _DEBUGGING
 #include "../include/scanner.h"
 #include "../parser/parser.h"
 #include "../include/configure.h"
@@ -34,9 +35,9 @@ int main(int argc, char **argv) {
     int errors = get_num_errors();
 
     if(errors != 0)
-        printf("\nparse failed: %d errors: %d warnings\n", errors, get_num_warnings());
+        printf("\nparse failed: %d errors: %d warnings\n\n", errors, get_num_warnings());
     else
-        printf("\nparse succeeded: %d errors: %d warnings\n", errors, get_num_warnings());
+        printf("\nparse succeeded: %d errors: %d warnings\n\n", errors, get_num_warnings());
 
     destroy_config();
     return errors;

@@ -1,6 +1,7 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
-
+#include <stdlib.h>
+#undef _DEBUGGING
 typedef struct _memory_node {
     int magic;
     size_t size;
@@ -15,6 +16,8 @@ typedef struct {
     memory_node_t* first;
     memory_node_t* last;
 } memory_system_t;
+
+extern memory_system_t* memory_system;
 
 void init_memory_system(void);
 void destroy_memory_system(void);

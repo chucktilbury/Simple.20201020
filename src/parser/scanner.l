@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include "parser.h"
+#undef _DEBUGGING
 #include "../include/errors.h"
 
 // string buffer to get token from
@@ -70,8 +71,10 @@ static void update_loc(void){
 //#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
 %}
 
-/* state definitions */
+DIGIT   [0-9]
+SYMCH   [a-zA-Z_$@%^&!~?#|]
 
+/* state definitions */
 %x SQUOTES
 %x DQUOTES
 %x COMMENT
@@ -91,10 +94,11 @@ static void update_loc(void){
 "func"          { return METHOD; }
 "method"        { return METHOD; }
 "def"           { return METHOD; }
-"constructor"   { return CREATE; }
-"destructor"    { return DESTROY; }
+"constructor"   { return CONSTRUCT; }
+"destructor"    { return DESTRUCT; }
+"destroy"       { return DESTROY; }
 "string"        { return STRING; }
-"number"        { return NUM; }
+"number"        { return NUMBER; }
 "dict"          { return DICT; }
 "list"          { return LIST; }
 "bool"          { return BOOL; }
@@ -144,21 +148,24 @@ static void update_loc(void){
 "."             { return '.'; }
 
     /* constructed tokens */
-[_A-Za-z][_0-9A-Za-z]*    { _TRACE("symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; }
+    /* [_A-Za-z][_0-9A-Za-z]*    { _TRACE("SCANNER: symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; } */
+{SYMCH}({SYMCH}|{DIGIT})* { _TRACE("SCANNER: symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; }
     /* [_A-Za-z][_0-9A-Za-z\.]*    { strncpy(strbuf, yytext, sizeof(strbuf)); return COMPLEX; } */
 
-    /* recognize and ignore a C comments */
-"##" { BEGIN(COMMENT); _TRACE("start multi-line comment"); }
-<COMMENT>"##" { BEGIN(INITIAL); _TRACE("end multi-line comment"); }
+    /* recognize and ignore comments */
+"<-" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
+<COMMENT>"->" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
 <COMMENT>\n { name_stack->line_no++; yylineno++; }
 <COMMENT>.  {}  /* eat everything in between */
-"#".* { _TRACE("single-line comment"); } /* eat up until the newline */
+
+"<<".* { _TRACE("SCANNER: single-line comment"); }  /* eat up until the newline */
 
     /* recognize a float */
     /*[-+]?[0-9]+\.[0-9]+([eE]*[-+]?[0-9]+)? { */
-[0-9]+\.[0-9]+([eE]+[-+]?[0-9]+)? {
+[0-9]+(\.[0-9]+([eE]+[-+]?[0-9]+)?)? {
+        _TRACE("SCANNER: number scanned: %s", yytext);
         strncpy(strbuf, yytext, sizeof(strbuf));
-        return NUMBER;
+        return NUM;
     }
 
     /* double quoted strings have escapes managed */
@@ -174,8 +181,7 @@ static void update_loc(void){
         return QSTRG;
     }
 
-    /* problem is that the short rule matches before the long one does */
-    /* <DQUOTES>\"[ \t]*\\[ \t]*\n$ { printf("here2\n"); name_stack->line_no ++; } */
+    /* the short rule matches before the long one does */
 <DQUOTES>\\n    { append_char('\n'); }
 <DQUOTES>\\r    { append_char('\r'); }
 <DQUOTES>\\t    { append_char('\t'); }
@@ -190,6 +196,7 @@ static void update_loc(void){
 <DQUOTES>\\[0-7]{1,3} { append_char((char)strtol(yytext+1, 0, 8));  }
 <DQUOTES>\\[xX][0-9a-fA-F]{1,3} { append_char((char)strtol(yytext+2, 0, 16));  }
 <DQUOTES>[^\\\"\n]*  { append_str(yytext); }
+<DQUOTES>\n     { name_stack->line_no++; yylineno++; } /* track line numbers, but strip new line */
 
 
     /* single quoted strings are absolute literals */
@@ -199,18 +206,21 @@ static void update_loc(void){
         BEGIN(SQUOTES);
     }
 
-    /*<SQUOTES>\'[ \t]*\\[ \t]*\n { name_stack->line_no ++; } */
-<SQUOTES>[^\\'\n]*  { append_str(yytext); }
-<SQUOTES>\\.    { append_str(yytext); }
 <SQUOTES>\' {
         strncpy(strbuf, buffer, sizeof(strbuf));
         BEGIN(INITIAL);
         return QSTRG;
     }
 
+<SQUOTES>[^\\'\n]*  { append_str(yytext); }
+<SQUOTES>\\.    { append_str(yytext); }
+<SQUOTES>\n     { append_str(yytext); name_stack->line_no++; yylineno++; } /* don't strip new lines */
+
+.               { warning("unrecognized character: %c (0x%02X)", yytext[0], yytext[0]);}
+
 <<EOF>> {
 
-        _DEBUG("%s: closing file", name_stack->name);
+        _DEBUG("SCANNER: %s: closing file", name_stack->name);
         _file_name_stack *name = name_stack->next;
         free(name_stack->name);
         free(name_stack);
@@ -231,7 +241,7 @@ void open_file(char *fname) {
 
     _file_name_stack *name;
 
-    _DEBUG("%s: open file", fname);
+    _DEBUG("SCANNER: %s: open file", fname);
     if(NULL == (name = calloc(1, sizeof(_file_name_stack)))) {
         scanner_error("cannot allocate memory for file stack");
         //fprintf(stderr, "cannot allocate memory for file stack\n");
