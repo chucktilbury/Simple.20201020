@@ -320,7 +320,7 @@ subscript_list
 
 expression_name
     : compound_name {
-            _TRACE("expression compound name");
+            _TRACE("expression compound name: %s", "not supported");
         }
     | compound_name {
             _TRACE("expression compound name with subscript");
@@ -609,7 +609,7 @@ do_clause
         Switch/case related rules
     */
 case_clause
-    : CASE NUMBER {
+    : CASE NUM {
             _TRACE("begin case clause and loop body: %s", TOKSTR);
         } loop_body {
             _TRACE("end case loop body and clause");
