@@ -172,7 +172,7 @@ class_name
     ;
 
 class_definition
-    : class_name '(' ')' '{' {
+    : class_name '{' {
             _TRACE("start class body");
         } class_body '}' {
             _TRACE("end class body and definition");
@@ -656,21 +656,12 @@ switch_clause
     /*
         Assignment related rules
     */
-type_cast
-    : type_name ':' {
-            _TRACE("cast prefux to type: %s", TOKSTR);
-        }
-    ;
-
 assignment_target
     : expression {
             _TRACE("assignment target is an expression");
         }
     | formatted_string {
             _TRACE("assignment target is a string");
-        }
-    | type_cast expression {
-            _TRACE("assignment target is an expression with a type cast");
         }
     | NOTHING {
             _TRACE("assignment target is nothing");
