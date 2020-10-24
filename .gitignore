@@ -4,10 +4,10 @@ build/src/
 build/Ma*
 build/dox*
 docs/out/
-parser/parser.c
-parser/parser.h
-parser/parser.output
-parser/scanner.c
+src/parser/parser.c
+src/parser/parser.h
+src/parser/parser.output
+src/parser/scanner.c
 bin/*
 lib/*
 
