@@ -5,9 +5,14 @@
 #include <string.h>
 #include <errno.h>
 
-#include "parser.h"
 #undef _DEBUGGING
+
+#include "parser.h"
 #include "../include/errors.h"
+#include "../include/misc.h"
+
+//#undef _TRACE
+//#define _TRACE(...)
 
 // string buffer to get token from
 static char strbuf[1024*64];
@@ -237,35 +242,36 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 
 %%
 
-void open_file(char *fname) {
+int open_file(const char *fname) {
 
     _file_name_stack *name;
+    char locbuf[1024];
 
-    _DEBUG("SCANNER: %s: open file", fname);
-    if(NULL == (name = calloc(1, sizeof(_file_name_stack)))) {
-        scanner_error("cannot allocate memory for file stack");
-        //fprintf(stderr, "cannot allocate memory for file stack\n");
-        exit(1);
+    if(find_file(fname, locbuf, sizeof(locbuf)) == NULL) {
+        syntax("cannot find the input file: %s", fname);
+        return 1;
     }
 
-    if(NULL == (name->name = strdup(fname))) {
-        scanner_error("cannot allocate memory for file stack name");
-        //fprintf(stderr, "cannot allocate memory for file stack name\n");
-        exit(1);
-    }
+    _DEBUG("SCANNER: %s: open file", locbuf);
+    if(NULL == (name = calloc(1, sizeof(_file_name_stack))))
+        fatal_error("cannot allocate memory for file stack");
+
+    if(NULL == (name->name = strdup(locbuf)))
+        fatal_error("cannot allocate memory for file stack name");
 
     name->next = name_stack;
     name->line_no = 1;
     name->col_no = 1;
     name_stack = name;
 
-    yyin = fopen(fname, "r");
+    yyin = fopen(locbuf, "r");
     if(NULL == yyin) {
-        scanner_error("cannot open the input file: \"%s\": %s", fname, strerror(errno));
-        exit(1);
+        syntax("cannot open the input file: \"%s\": %s", locbuf, strerror(errno));
+        return 1;
     }
 
     yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+    return 0;
 }
 
 // Tracking and global interface

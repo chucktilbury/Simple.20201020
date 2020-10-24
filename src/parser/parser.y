@@ -8,6 +8,9 @@
 #include <string.h>
 
 //#undef _DEBUGGING
+//#undef _TRACE
+//#define _TRACE(...)
+
 #include "../include/scanner.h"
 #include "../include/errors.h"
 
@@ -132,10 +135,11 @@ bool_value
 import_definition
     : IMPORT SYMBOL {
             _TRACE("import definition, importing symbol: %s", TOKSTR);
-        } ';' {
+            if(open_file(TOKSTR))
+                syntax("cannot open input file for import: %s", TOKSTR);
             _TRACE("import definition finished");
         }
-    | IMPORT error ';'
+    | IMPORT error
     ;
 
 
@@ -173,6 +177,12 @@ class_name
 
 class_definition
     : class_name '{' {
+            _TRACE("start class body");
+        } class_body '}' {
+            _TRACE("end class body and definition");
+            _TRACE("");
+        }
+    | class_name '(' ')' '{' {
             _TRACE("start class body");
         } class_body '}' {
             _TRACE("end class body and definition");
@@ -318,15 +328,21 @@ subscript_list
     : subscript_item
     | subscript_list subscript_item
 
+subscripted_compound_name
+    : compound_name {
+            _TRACE("subscripted compound name: %s", "not implemented");
+            _TRACE("begin subscripted compound name list");
+        } subscript_list {
+            _TRACE("end subscripted compound name list");
+        }
+    ;
+
 expression_name
     : compound_name {
             _TRACE("expression compound name: %s", "not supported");
         }
-    | compound_name {
+    | subscripted_compound_name {
             _TRACE("expression compound name with subscript");
-            _TRACE("begin expression subscript definition");
-        } subscript_list {
-            _TRACE("end expression subscript definition");
         }
     ;
 
@@ -395,29 +411,51 @@ expression
     /*
         Function call related rules
     */
-function_call_parameter
+call_input_parameter
     : formatted_string {
             _TRACE("function call parameter is formatted string");
         }
     | expression {
             _TRACE("function call parameter is expression");
         }
+    | bool_value {
+            _TRACE("function call parameter is bool value");
+        }
     ;
 
-function_call_parameter_list
+call_input_parameter_list
     :
-    | function_call_parameter
-    | function_call_parameter_list ',' function_call_parameter
+    | call_input_parameter
+    | call_input_parameter_list ',' call_input_parameter
+    ;
+
+    /*
+    call_output_parameter
+        : compound_name {
+                _TRACE("function call output compound name: %s", "not implemented");
+            }
+        |
+        ;
+    */
+
+call_output_parameter_list
+    :
+    | expression_name {
+
+        }
+    | call_output_parameter_list ',' expression_name {
+            _TRACE("function call output parameter (2): %s", "not implemented");
+        }
     ;
 
 function_call
     : compound_name {
             _TRACE("function call name: %s", "not implemented");
             _TRACE("begin function call input parameters");
-        } '(' function_call_parameter_list {
+        } '(' call_input_parameter_list {
             _TRACE("end function call input parameters");
             _TRACE("begin function call output parameters");
-        } ')' '(' function_call_parameter_list ')' ';' {
+        } ')' '(' call_output_parameter_list ')' ';' {
             _TRACE("end function call output parameters");
         }
     ;

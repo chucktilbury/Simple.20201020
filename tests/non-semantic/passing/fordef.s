@@ -1,6 +1,7 @@
 <-
     Verify that for definition syntax is accepted.
 ->
+import classdef
 
 class cname() {
     func fname()() {

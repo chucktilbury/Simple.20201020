@@ -18,19 +18,7 @@ BEGIN_CONFIG
     CONFIG_STR("-d", "DUMP_FILE", "Specify the file name to dump the AST into", 0, "ast_dump.dot", 1)
 END_CONFIG
 
-
-int main(int argc, char **argv) {
-    init_errors(10, stdout);
-    configure(argc, argv);
-    //int verbose = GET_CONFIG_NUM("VERBOSE");
-
-    //init_ast();
-    for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
-        _DEBUG("\n     >>> before yyparse()");
-        open_file(str);
-        yyparse();
-        _DEBUG(">>> after yyparse()");
-    }
+static void exit_func(void) {
 
     int errors = get_num_errors();
 
@@ -40,5 +28,33 @@ int main(int argc, char **argv) {
         printf("\nparse succeeded: %d errors: %d warnings\n\n", errors, get_num_warnings());
 
     destroy_config();
-    return errors;
+}
+
+static void init_all(int argc, char** argv) {
+
+    init_errors(10, stdout);
+    configure(argc, argv);
+    //init_ast();
+
+    if(atexit(exit_func))
+        fatal_error("cannot add exit function");
+}
+
+int main(int argc, char **argv) {
+
+    init_all(argc, argv);
+    //int verbose = GET_CONFIG_NUM("VERBOSE");
+
+    for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
+        _DEBUG("\n     >>> before yyparse()");
+        if(open_file(str)) {
+            syntax("cannot continue");
+            break;
+        }
+
+        yyparse();
+        _DEBUG(">>> after yyparse()");
+    }
+
+    return get_num_errors();
 }

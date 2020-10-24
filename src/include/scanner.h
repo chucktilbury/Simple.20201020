@@ -6,10 +6,12 @@
 #ifndef _SCANNER_H_
 #  define _SCANNER_H_
 
+#include <stdio.h>
+
 char *get_file_name(void);
 int get_line_number(void);
 int get_col_number(void);
-void open_file(char *fname);
+int open_file(const char *fname);
 const char *get_tok_str(void);
 int get_token(void);
 
