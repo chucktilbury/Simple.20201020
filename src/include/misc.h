@@ -10,6 +10,7 @@
  * specified limit.
  */
 #define STRNCAT(dest, src, size) strncat((dest), (src), size-strlen(dest))
+char* cat_string(char* dest, const char* src, size_t size);
 
 /*
  * Clip the path to the main file name.
@@ -20,5 +21,10 @@ const char* clip_path(const char* path);
  *  Find a file in the path provided by config.
  */
 const char* find_file(const char* fname, char* outbuf, size_t bsize);
+
+/*
+ *  Re-allocate a string.
+ */
+char* realloc_string(const char* orig, const char* newstr);
 
 #endif

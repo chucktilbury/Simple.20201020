@@ -1,17 +1,8 @@
 
-project(simple)
+project(parser_support)
 
-add_executable(${PROJECT_NAME}
-    simple.c
-    #globals.c
-)
-
-target_link_libraries(${PROJECT_NAME}
-    parser
-    #abstract
-    parser_support
-    #expressions
-    utils
+add_library(${PROJECT_NAME} STATIC
+    compound_names.c
 )
 
 target_include_directories(${PROJECT_NAME}

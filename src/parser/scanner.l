@@ -14,6 +14,10 @@
 //#undef _TRACE
 //#define _TRACE(...)
 
+// maximum depth of imports prevents crashing from circular imports.
+static int import_depth = 0;
+#define MAX_IMPORTS 15
+
 // string buffer to get token from
 static char strbuf[1024*64];
 
@@ -236,6 +240,7 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
         if(!YY_CURRENT_BUFFER) {
             yyterminate();
         }
+        import_depth--;
 
         //return EOF;
     }
@@ -246,6 +251,12 @@ int open_file(const char *fname) {
 
     _file_name_stack *name;
     char locbuf[1024];
+
+    import_depth++;
+    if(import_depth > MAX_IMPORTS) {
+        syntax("exceeded maximum import depth (%d), circular imports?", MAX_IMPORTS);
+        fatal_error("import error, cannot continue");
+    }
 
     if(find_file(fname, locbuf, sizeof(locbuf)) == NULL) {
         syntax("cannot find the input file: %s", fname);

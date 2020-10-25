@@ -4,7 +4,7 @@
 
 # parser library
 add_subdirectory(parser)
-#add_subdirectory(parser_support)
+add_subdirectory(parser_support)
 
 # utils library
 add_subdirectory(utils)

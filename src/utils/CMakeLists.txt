@@ -1,7 +1,7 @@
 
 project(utils)
 
-add_library(utils STATIC
+add_library(${PROJECT_NAME} STATIC
     errors.c
     stack.c
     queue.c

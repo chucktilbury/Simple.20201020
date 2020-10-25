@@ -13,8 +13,16 @@
 
 #include "../include/scanner.h"
 #include "../include/errors.h"
+#include "../include/parser_support.h"
 
 #define TOKSTR get_tok_str()
+
+/*
+ *  Compound name is allocated when a new one is being formed and destroyed
+ *  when it's consumed. If the name needs to be stored, then that must happen
+ *  explititly.
+ */
+compound_name comp_name;
 
 %}
 %define parse.error verbose
@@ -54,10 +62,12 @@ module_item
     */
 compound_name
     : SYMBOL {
-            _TRACE("new symbol name: %s", TOKSTR);
+            //_TRACE("new symbol name: %s", TOKSTR);
+            comp_name = create_compound_name(TOKSTR);
         }
     | compound_name '.' SYMBOL {
-            _TRACE("adding to compound name: %s", TOKSTR);
+            //_TRACE("adding to compound name: %s", TOKSTR);
+            add_compound_name(comp_name, TOKSTR);
         }
     | compound_name error SYMBOL
     | compound_name '.' error
@@ -80,7 +90,8 @@ type_name
             _TRACE("defining number data type");
         }
     | compound_name {
-            _TRACE("compound name as a type name seen");
+            _TRACE("compound name as a type name see: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
         }
     | error
     ;
@@ -135,8 +146,10 @@ bool_value
 import_definition
     : IMPORT SYMBOL {
             _TRACE("import definition, importing symbol: %s", TOKSTR);
-            if(open_file(TOKSTR))
+            if(open_file(TOKSTR)) {
                 syntax("cannot open input file for import: %s", TOKSTR);
+                fatal_error("cannot continue");
+            }
             _TRACE("import definition finished");
         }
     | IMPORT error
@@ -189,7 +202,8 @@ class_definition
             _TRACE("");
         }
     | class_name '(' compound_name {
-            _TRACE("class inherits from %s", "not implemented");
+            _TRACE("class inherits from %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
         } ')' '{' {
             _TRACE("start class body");
         } class_body '}' {
@@ -330,7 +344,8 @@ subscript_list
 
 subscripted_compound_name
     : compound_name {
-            _TRACE("subscripted compound name: %s", "not implemented");
+            _TRACE("subscripted compound name: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
             _TRACE("begin subscripted compound name list");
         } subscript_list {
             _TRACE("end subscripted compound name list");
@@ -339,7 +354,8 @@ subscripted_compound_name
 
 expression_name
     : compound_name {
-            _TRACE("expression compound name: %s", "not supported");
+            _TRACE("expression compound name: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
         }
     | subscripted_compound_name {
             _TRACE("expression compound name with subscript");
@@ -450,7 +466,8 @@ call_output_parameter_list
 
 function_call
     : compound_name {
-            _TRACE("function call name: %s", "not implemented");
+            _TRACE("function call name: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
             _TRACE("begin function call input parameters");
         } '(' call_input_parameter_list {
             _TRACE("end function call input parameters");
@@ -462,7 +479,8 @@ function_call
 
 destroy_statement
     : DESTROY compound_name ';' {
-            _TRACE("destroy symbol: %s", "not implemented");
+            _TRACE("destroy symbol: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
         }
     | DESTROY error ';'
     ;
@@ -711,7 +729,8 @@ assignment_target
 
 assignment
     : compound_name {
-            _TRACE("assignment to compound name: %s", "not implemented");
+            _TRACE("assignment to compound name: %s", get_compound_name(comp_name));
+            destroy_compound_name(comp_name);
         } '=' assignment_target {
             _TRACE("end assignment statement");
         }

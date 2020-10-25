@@ -49,7 +49,9 @@ const char* find_file(const char* fname, char* outbuf, size_t bsize) {
             cat_string(outbuf, "/", bsize);
         cat_string(outbuf, fname, bsize);
 
-        if(outbuf[strlen(outbuf)-1] != 's' && outbuf[strlen(outbuf)-2] != '.')
+        int tlen = strlen(outbuf) - 2;
+        _DEBUG("file ex = %s", &outbuf[tlen]);
+        if(strcmp(&outbuf[tlen], ".s"))
             cat_string(outbuf, ".s", bsize);
 
         _DEBUG("checking file name: %s", outbuf);
@@ -61,5 +63,40 @@ const char* find_file(const char* fname, char* outbuf, size_t bsize) {
     }
 
     _DEBUG("no file was found");
+    return NULL;
+}
+
+/*
+ *  Re allocate and cat a string.
+ *
+ *  If the original is not NULL, then it is taken to having been allocated
+ *  previously from the heap. If the original is NULL, then a new string is
+ *  allocated for the newstr. If newstr is NULL, then the original is free'd.
+ *
+ *  If there was no error, then the return value is a pointer to the new
+ *  string. If there was an error, then the return value is NULL.
+ */
+char* realloc_string(const char* orig, const char* newstr) {
+
+    _DEBUG("recat a string: orig = %s, new = %s", orig, newstr);
+    if(orig != NULL) {
+        if(newstr == NULL)
+            free((void*)orig);
+        else {
+            char* nptr = realloc((void*)orig, strlen(orig)+strlen(newstr)+2);
+            if(nptr == NULL)
+                fatal_error("cannot re-allocate memory for string");
+            strcpy(nptr, orig);
+            strcat(nptr, newstr);
+            return nptr;
+        }
+    }
+    else if(newstr != NULL) {
+        char* nptr = strdup(newstr);
+        if(nptr == NULL)
+            fatal_error("cannot allocate new memory for string");
+        return nptr;
+    }
+
     return NULL;
 }
