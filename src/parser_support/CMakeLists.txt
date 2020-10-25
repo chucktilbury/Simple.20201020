@@ -3,6 +3,7 @@ project(parser_support)
 
 add_library(${PROJECT_NAME} STATIC
     compound_names.c
+    flag_manager.c
 )
 
 target_include_directories(${PROJECT_NAME}

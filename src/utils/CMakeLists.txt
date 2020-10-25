@@ -5,9 +5,7 @@ add_library(${PROJECT_NAME} STATIC
     errors.c
     stack.c
     queue.c
-    #linked_lists.c
     hash_table.c
-    #xxhash.c
     configure.c
     lists.c
     memory.c

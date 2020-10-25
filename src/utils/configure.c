@@ -1,5 +1,6 @@
-/*
- * Stand-alone command line parser.
+/**
+ * @file configure.c
+ * @brief Stand-alone command line parser.
  *
  * Command parameters have the format of "-x arg". In this, 'x' can be any letter or number
  * and they are case sensitive. Command switches are exactly 2 characters and may NOT be
@@ -7,11 +8,13 @@
  * optimal, and may change. It would be better to have command args any arbitrary length,
  * but that is not easy to fix with this implementation.
  *
+ * @author Chuck Tilbury
+ * @version 0.1
+ * @date 2020-10-25
+ *
+ * @copyright Copyright (c) 2020
+ *
  */
-
-// TODO Only look at the parameter for the length of it, so that the value can be
-// concatenated to it.
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,6 +119,10 @@ static void init_config(void) {
     }
 }
 
+/**
+ * @brief Destroy the configuration when the program exist.
+ *
+ */
 void destroy_config(void) {
 
     for(int i = 0; _global_config[i].type != CONFIG_TYPE_END; i++) {
@@ -151,8 +158,18 @@ void destroy_config(void) {
     }
 }
 
+/**
+ * @brief This reads the command line and saves the configuration so that it can be
+ * accessed as an opaque data structure.
+ *
+ * TODO: Read configuration from the environment and also from a configuration file.
+ * Add controls that access output options.
+ *
+ * @param argc -- Number of arguments to process.
+ * @param argv -- Char** to the arguments.
+ * @return int -- Returns the number of configuration items processed.
+ */
 int configure(int argc, char** argv) {
-
     configuration_t* config;
     int idx;
     _MARK();
