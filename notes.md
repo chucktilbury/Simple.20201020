@@ -1,8 +1,9 @@
 This is a rough sketch of my todo list in this project.
 
 * Connect error module to the configure module for verbosity.
-* Implement initializing lists and dicts.
-* Implement compound symbols.
+* Implement parse rules for initializing lists and dicts.
+* Implement first cut at expressions. (without symbols)
+* ~~Implement compound symbols.~~
 * ~~Implement includes.~~
   * ~~need to look for circular includes. Probably just go with a depth limit.~~
 * ~~Fix the bug where function call output parameters can be a constant value.~~
