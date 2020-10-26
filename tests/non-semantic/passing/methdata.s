@@ -5,7 +5,7 @@
 
 class classname() {
 
-    func fname()() {
+    fname()() {
         string str;
         string str = "this is a string";
         string str = 'this is a string';

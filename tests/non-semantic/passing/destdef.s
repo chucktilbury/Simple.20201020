@@ -4,7 +4,7 @@
 ->
 
 class cname () {
-    func fname()() {
+    fname()() {
         destroy name;
         destroy compound.name;
     }

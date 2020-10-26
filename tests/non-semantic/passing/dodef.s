@@ -5,7 +5,7 @@
 
 class cname() {
 
-    func fname()() {
+    fname()() {
 
         do {} while(not x equ 123);
         do {} while(true);

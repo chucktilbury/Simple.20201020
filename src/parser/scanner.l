@@ -100,9 +100,6 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 "nothing"       { return NOTHING; }
 "import"        { return IMPORT; }
 "class"         { return CLASS; }
-"func"          { return METHOD; }
-"method"        { return METHOD; }
-"def"           { return METHOD; }
 "constructor"   { return CONSTRUCT; }
 "destructor"    { return DESTRUCT; }
 "destroy"       { return DESTROY; }
@@ -123,6 +120,8 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 "break"         { return BREAK; }
 "continue"      { return CONTINUE; }
 "default"       { return DEFAULT; }
+"entry"         { return ENTRY; }
+"Entry"         { return ENTRY; }
 
     /* boolean operator tokens composed of special characters */
 "and"           { return AND; }

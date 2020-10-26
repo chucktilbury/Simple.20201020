@@ -28,10 +28,10 @@ compound_name comp_name;
 %define parse.error verbose
 %locations
 
-%token NOTHING IMPORT CLASS METHOD CONSTRUCT DESTRUCT DESTROY
+%token NOTHING IMPORT CLASS CONSTRUCT DESTRUCT DESTROY
 %token DICT LIST BOOL TRUE FALSE STRING NUM FOR
 %token IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
-%token DEFAULT SYMBOL NUMBER QSTRG
+%token DEFAULT SYMBOL NUMBER QSTRG ENTRY
 %token AND OR NOT EQU NEQU LTEQU GTEQU LESS MORE
 
 %left '='
@@ -47,6 +47,13 @@ compound_name comp_name;
     /*
         Module rules.
      */
+module
+    : module_list {
+        _DEBUG("module finished");
+        if(!get_flag(ENTRY_DEFINED))
+            warning("no entry defined for program.");
+    }
+
 module_list
     : module_item
     | module_list module_item
@@ -168,9 +175,11 @@ class_body_item
         }
     | constructor_definition {
             _TRACE("class body constructor definition completed");
+            set_flag(CONSTRUCTOR_DEFINED);
         }
     | destructor_definition {
             _TRACE("class body destructor definition completed");
+            set_flag(DESTRUCTOR_DEFINED);
         }
     ;
 
@@ -186,29 +195,41 @@ class_name
         } SYMBOL {
             _TRACE("class name: %s", TOKSTR);
         }
+    | CLASS ENTRY {
+            _TRACE("");
+            _TRACE("start ENTRY class definition");
+            if(get_flag(ENTRY_DEFINED))
+                syntax("only one entry class may be defined for program");
+            set_flag(CLASS_IS_ENTRY);
+    }
     ;
 
-class_definition
+class_definition_params
     : class_name '{' {
             _TRACE("start class body");
-        } class_body '}' {
-            _TRACE("end class body and definition");
-            _TRACE("");
         }
     | class_name '(' ')' '{' {
             _TRACE("start class body");
-        } class_body '}' {
-            _TRACE("end class body and definition");
-            _TRACE("");
         }
     | class_name '(' compound_name {
             _TRACE("class inherits from %s", get_compound_name(comp_name));
             destroy_compound_name(comp_name);
-        } ')' '{' {
-            _TRACE("start class body");
-        } class_body '}' {
+        } ')' '{'
+    ;
+
+class_definition
+    : class_definition_params class_body '}' {
             _TRACE("end class body and definition");
             _TRACE("");
+            if(get_flag(CLASS_IS_ENTRY)) {
+                clear_flag(CLASS_IS_ENTRY);
+                if(!get_flag(CONSTRUCTOR_DEFINED))
+                    syntax("entry class must have a constructor defined");
+                else
+                    set_flag(ENTRY_DEFINED);
+            }
+            clear_flag(CONSTRUCTOR_DEFINED);
+            clear_flag(DESTRUCTOR_DEFINED);
         }
     | error
     ;
@@ -258,7 +279,7 @@ method_param_def
     ;
 
 method_definition
-    : METHOD SYMBOL {
+    : SYMBOL {
         } '(' method_param_def {
             _TRACE("begin method definition with symbol: %s", TOKSTR);
             _TRACE("begin of input parameter list");
@@ -268,7 +289,6 @@ method_definition
         } ')' method_body {
             _TRACE("end method body definition");
         }
-    | METHOD error
     ;
 
 method_body_element
@@ -309,6 +329,7 @@ constructor_definition
         } ')'  method_body {
             _TRACE("end construcor method body");
             _TRACE("end construcor method definition");
+            set_flag(CONSTRUCTOR_DEFINED);
         }
     | CONSTRUCT error
     ;
@@ -318,6 +339,7 @@ destructor_definition
             _TRACE("begin destructor definition and body");
         } method_body {
             _TRACE("end destructor definition and body");
+            set_flag(DESTRUCTOR_DEFINED);
         }
     | DESTRUCT error
     ;

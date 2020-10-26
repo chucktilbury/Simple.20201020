@@ -3,7 +3,7 @@
 ->
 
 class cname() {
-    func fname()() {
+    fname()() {
         if(x equ 0) {}
 
         if(x equ 0){}

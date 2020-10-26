@@ -4,7 +4,7 @@
 import classdef
 
 class cname() {
-    func fname()() {
+    fname()() {
 
         for(number x = 0; not x equ 0; x = x+1) {}
         for(x = 0; not x equ 0; x = x+1) {}

@@ -14,3 +14,6 @@ class somename() {
     number asd;
 }
 
+class somename {
+    number asd;
+}

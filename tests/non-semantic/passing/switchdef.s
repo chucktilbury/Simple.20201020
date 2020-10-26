@@ -4,7 +4,7 @@
 
 class cname() {
 
-    func fname()() {
+    fname()() {
         switch(asd+4/3) {
             case 10 {}
             case 0 {}

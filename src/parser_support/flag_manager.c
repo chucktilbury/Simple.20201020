@@ -20,9 +20,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "../include/errors.h"
 #include "../include/parser_support.h"
+#include "../include/misc.h"
 
 // define 32 flags to start with. If more flags are needed, then define
 // another flags var and then implement the logic to tell the difference.
@@ -88,6 +90,36 @@ int get_flag(int flag) {
     else
         return v;
 }
+
+// This data structure must match the order that the flags are defined in
+static struct flag_strs{
+    int flag;
+    char* str;
+} flag_strs[] = {
+    {ENTRY_DEFINED, "ENTRY_DEFINED"},
+    {CLASS_IS_ENTRY, "CLASS_IS_ENTRY"},
+    {CONSTRUCTOR_DEFINED, "CONSTRUCTOR_DEFINED"},
+    {DESTRUCTOR_DEFINED, "DESTRUCTOR_DEFINED"},
+    {-1, NULL}
+};
+
+/**
+ * @brief Convert the current flags into a printable string. Note
+ * that the string must be free()'d.
+ *
+ */
+const char* flag_to_str(void) {
+
+    char* outstr = strdup("");
+    for(int i = 0; flag_strs[i].str != NULL; i++) {
+        if(get_flag(i)) {
+            outstr = realloc_string(outstr, "|");
+            outstr = realloc_string(outstr, flag_strs[i].str);
+        }
+    }
+    return outstr;
+}
+
 
 #ifdef __TEST_FLAG_MANAGER__
 

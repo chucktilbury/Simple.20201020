@@ -12,3 +12,13 @@ import methoddef
 import switchdef
 import whiledef
 import destdef
+
+
+class entry {
+
+    constructor() {
+    }
+    fblart()() {
+
+    }
+}

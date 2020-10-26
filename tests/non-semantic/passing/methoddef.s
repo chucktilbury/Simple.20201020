@@ -7,19 +7,19 @@
 class somename()
 {
 
-    func funcname()() {} << function definitions can be empty
-    func fname(number simple_name)(<- empty ->) {}
-    func fname(number x, number y, number z)(<- empty ->) {}
-    func fname(<- empty ->)(number simple_name) {}
-    func fname(<- empty ->)(number x, number y, number z) {}
-    func fname(number simple_name)(number x, number y, number z) {}
-    func fname(complex.name x)(complex.name y) {}
+    funcname()() {} << function definitions can be empty
+    fname(number simple_name)(<- empty ->) {}
+    fname(number x, number y, number z)(<- empty ->) {}
+    fname(<- empty ->)(number simple_name) {}
+    fname(<- empty ->)(number x, number y, number z) {}
+    fname(number simple_name)(number x, number y, number z) {}
+    fname(complex.name x)(complex.name y) {}
 
     <- make sure all acceptible types are accepted ->
-    func fname(string str)(string str) {}
-    func fname(dict str)(dict str) {}
-    func fname(list str)(list str) {}
-    func fname(bool str)(bool str) {}
-    func fname(number str)(number str) {}
-    func fname(compound.name str)(compound.name str) {}
+    fname(string str)(string str) {}
+    fname(dict str)(dict str) {}
+    fname(list str)(list str) {}
+    fname(bool str)(bool str) {}
+    fname(number str)(number str) {}
+    fname(compound.name str)(compound.name str) {}
 }

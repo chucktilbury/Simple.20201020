@@ -3,7 +3,7 @@
 ->
 
 class cname() {
-    func fname()() {
+    fname()() {
         asd()();
         asd(123)();
         asd()(compound.name);

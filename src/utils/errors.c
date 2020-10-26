@@ -70,10 +70,10 @@ void syntax(char *str, ...) {
     const char *name = get_file_name();
     int lnum = get_line_number();
 
-    if(NULL != name)
-        fprintf(stderr, "error: %s: %d: ", name, lnum);
+    if(lnum > 0)
+        fprintf(stderr, "Syntax Error: %s: %d: ", name, lnum);
     else
-        fprintf(stderr, "error: ");
+        fprintf(stderr, "Syntax Error: ");
 
     va_start(args, str);
     vfprintf(stderr, str, args);
@@ -88,7 +88,7 @@ void scanner_error(char *str, ...) {
     const char *name = get_file_name();
     int lnum = get_line_number();
 
-    if(NULL != name)
+    if(lnum > 0)
         fprintf(stderr, "Scanner Error: %s: %d: ", name, lnum);
     else
         fprintf(stderr, "Scanner Error: ");
@@ -106,7 +106,7 @@ void warning(char *str, ...) {
     const char *name = get_file_name();
     int lnum = get_line_number();
 
-    if(NULL != name)
+    if(lnum > 0)
         fprintf(stderr, "Warning: %s: %d: ", name, lnum);
     else
         fprintf(stderr, "Warning: ");

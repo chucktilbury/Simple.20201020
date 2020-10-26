@@ -4,7 +4,7 @@
 
 class cname() {
 
-    func fname()() {
+    fname()() {
         asd = 1/2*3+4;
         asd = 'strings';
         asd = asd[123];
