@@ -3,7 +3,7 @@
     syntax.
 ->
 
-class cname () {
+cname () {
     fname()() {
         destroy name;
         destroy compound.name;

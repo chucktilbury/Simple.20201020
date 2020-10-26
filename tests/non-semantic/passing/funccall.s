@@ -2,7 +2,7 @@
     Verify function call syntax works.
 ->
 
-class cname() {
+cname {
     fname()() {
         asd()();
         asd(123)();

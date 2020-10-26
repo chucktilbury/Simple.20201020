@@ -41,6 +41,6 @@ void set_flag(int flag);
 void clear_flag(int flag);
 void reset_flag(int flag);
 int get_flag(int flag);
-const char* flag_to_str(void);
+char* flag_to_str(void);
 
 #endif

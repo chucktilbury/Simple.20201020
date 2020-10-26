@@ -108,43 +108,19 @@ static struct flag_strs{
  * that the string must be free()'d.
  *
  */
-const char* flag_to_str(void) {
+char* flag_to_str(void) {
 
-    char* outstr = strdup("");
+    char* outstr = strdup("(");
     for(int i = 0; flag_strs[i].str != NULL; i++) {
         if(get_flag(i)) {
-            outstr = realloc_string(outstr, "|");
             outstr = realloc_string(outstr, flag_strs[i].str);
+            outstr = realloc_string(outstr, "|");
         }
     }
+
+    if(strlen(outstr) == 1)
+        outstr = realloc_string(outstr, "NONE ");
+    outstr[strlen(outstr)-1] = ')';
     return outstr;
 }
 
-
-#ifdef __TEST_FLAG_MANAGER__
-
-void ftest(int f) {
-    clear_flags();
-    printf("\nall clear flag %d value = %d 0x%08lX\n", f, get_flag(f), flags);
-    set_flag(f);
-    printf(  "set flag %d value       = %d 0x%08lX\n", f, get_flag(f), flags);
-    clear_flag(f);
-    printf(  "clear flag %d value     = %d 0x%08lX\n", f, get_flag(f), flags);
-    reset_flag(f);
-    printf(  "reset flag %d value     = %d 0x%08lX\n", f, get_flag(f), flags);
-}
-
-int main(void) {
-
-    ftest(0);
-    ftest(1);
-    ftest(2);
-    ftest(13);
-    ftest(14);
-    ftest(15);
-    ftest(23);
-    ftest(31);
-    ftest(30);
-    return 0;
-}
-#endif

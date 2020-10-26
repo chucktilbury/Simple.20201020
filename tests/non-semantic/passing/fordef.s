@@ -3,7 +3,7 @@
 ->
 import classdef
 
-class cname() {
+cname() {
     fname()() {
 
         for(number x = 0; not x equ 0; x = x+1) {}

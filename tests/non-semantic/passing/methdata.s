@@ -3,7 +3,7 @@
     is accepted.
 ->
 
-class classname() {
+classname() {
 
     fname()() {
         string str;

@@ -14,7 +14,7 @@ import whiledef
 import destdef
 
 
-class entry {
+entry {
 
     constructor() {
     }

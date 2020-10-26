@@ -6,12 +6,12 @@
 
 import something;
 
-class name() {
+name() {
     number asdf = 123;
     string symbol = "this is a string":('asd', 123 <- this is an expression ->, some.compound.name);
     string another = "this is a string":(1+2*3/4);
-    func name(number asd, string wer)(number @result) {}
-    func other()(){}
+    name(number asd, string wer)(number @result) {}
+    other()(){}
     number qwer = 123* asd.tre.qwe / 2 + asdf[12];
 
     string asdf = 'this

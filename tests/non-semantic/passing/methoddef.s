@@ -4,7 +4,7 @@
 ->
 
 << class definition is required
-class somename()
+somename()
 {
 
     funcname()() {} << function definitions can be empty
@@ -22,4 +22,6 @@ class somename()
     fname(bool str)(bool str) {}
     fname(number str)(number str) {}
     fname(compound.name str)(compound.name str) {}
+    constructor(){}
+    destructor{}
 }

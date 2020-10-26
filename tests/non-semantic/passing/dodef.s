@@ -3,7 +3,7 @@
     is accepted.
 ->
 
-class cname() {
+cname() {
 
     fname()() {
 

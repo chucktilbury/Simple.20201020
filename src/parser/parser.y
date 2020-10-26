@@ -28,7 +28,7 @@ compound_name comp_name;
 %define parse.error verbose
 %locations
 
-%token NOTHING IMPORT CLASS CONSTRUCT DESTRUCT DESTROY
+%token NOTHING IMPORT CONSTRUCT DESTRUCT DESTROY
 %token DICT LIST BOOL TRUE FALSE STRING NUM FOR
 %token IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
 %token DEFAULT SYMBOL NUMBER QSTRG ENTRY
@@ -189,20 +189,18 @@ class_body
     ;
 
 class_name
-    : CLASS {
+    : SYMBOL {
             _TRACE("");
             _TRACE("start class definition");
-        } SYMBOL {
             _TRACE("class name: %s", TOKSTR);
         }
-    | CLASS ENTRY {
+    | ENTRY {
             _TRACE("");
             _TRACE("start ENTRY class definition");
             if(get_flag(ENTRY_DEFINED))
                 syntax("only one entry class may be defined for program");
             set_flag(CLASS_IS_ENTRY);
     }
-    ;
 
 class_definition_params
     : class_name '{' {
@@ -220,6 +218,9 @@ class_definition_params
 class_definition
     : class_definition_params class_body '}' {
             _TRACE("end class body and definition");
+            char* f = flag_to_str();
+            _TRACE("class flags: %s", f);
+            free(f);
             _TRACE("");
             if(get_flag(CLASS_IS_ENTRY)) {
                 clear_flag(CLASS_IS_ENTRY);

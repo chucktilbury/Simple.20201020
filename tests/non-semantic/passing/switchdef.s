@@ -2,7 +2,7 @@
     Verify that correct switch/case syntax is accepted.
 ->
 
-class cname() {
+cname() {
 
     fname()() {
         switch(asd+4/3) {

@@ -2,7 +2,7 @@
     Verify that if/else clause syntax is accepted.
 ->
 
-class cname() {
+cname {
     fname()() {
         if(x equ 0) {}
 

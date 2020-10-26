@@ -107,7 +107,7 @@ const char* find_file(const char* fname, char* outbuf, size_t bsize) {
  */
 char* realloc_string(const char* orig, const char* newstr) {
 
-    _DEBUG("recat a string: orig = %s, new = %s", orig, newstr);
+    _DEBUG("recat a string: orig = \"%s\", new = \"%s\"", orig, newstr);
     if(orig != NULL) {
         if(newstr == NULL)
             free((void*)orig);
@@ -115,7 +115,6 @@ char* realloc_string(const char* orig, const char* newstr) {
             char* nptr = realloc((void*)orig, strlen(orig)+strlen(newstr)+2);
             if(nptr == NULL)
                 fatal_error("cannot re-allocate memory for string");
-            strcpy(nptr, orig);
             strcat(nptr, newstr);
             return nptr;
         }

@@ -2,7 +2,7 @@
     Verify that assignment statems accept correct syntax.
 ->
 
-class cname() {
+cname() {
 
     fname()() {
         asd = 1/2*3+4;

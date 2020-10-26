@@ -99,7 +99,6 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
     /* keywords */
 "nothing"       { return NOTHING; }
 "import"        { return IMPORT; }
-"class"         { return CLASS; }
 "constructor"   { return CONSTRUCT; }
 "destructor"    { return DESTRUCT; }
 "destroy"       { return DESTROY; }
