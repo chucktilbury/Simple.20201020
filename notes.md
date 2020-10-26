@@ -4,7 +4,7 @@ This is a rough sketch of my todo list in this project.
 * Implement parse rules for initializing lists and dicts.
 * Implement first cut at expressions. (without symbols)
 * Implement parser syntax for program entry point with syntax checking.
-* Implement parser flag manager.
+* ~~Implement parser flag manager~~.
 * ~~Implement compound symbols.~~
 * ~~Implement includes.~~
   * ~~need to look for circular includes. Probably just go with a depth limit.~~
