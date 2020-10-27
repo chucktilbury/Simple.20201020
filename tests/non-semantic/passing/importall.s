@@ -12,6 +12,7 @@ import methoddef
 import switchdef
 import whiledef
 import destdef
+import expressions
 
 
 entry {

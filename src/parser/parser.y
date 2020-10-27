@@ -34,7 +34,7 @@ compound_name comp_name;
 %token DEFAULT SYMBOL NUMBER QSTRG ENTRY
 %token AND OR NOT EQU NEQU LTEQU GTEQU LESS MORE
 
-%left '='
+%right '='
 %left AND OR
 %left EQU NEQU
 %left LESS MORE LTEQU GTEQU
@@ -42,6 +42,7 @@ compound_name comp_name;
 %left '*' '/' '%'
 %left NEG
 %right NOT '~'
+%right ':'
 
 %%
     /*
@@ -103,22 +104,24 @@ type_name
     | error
     ;
 
-formatted_string_param
-    : QSTRG {
-            _TRACE("quoted string as formatted string parameter");
+expression_list
+    : expression {
+            _TRACE("begin expression list");
         }
-    | expression {
-            _TRACE("expression as formatted string parameter");
+    | expression_list ',' expression {
+            _TRACE("add expression to list");
         }
-    | error
     ;
 
-formatted_string_param_list
-    : formatted_string_param {
-            _TRACE("adding formatted string parameter (1)");
+possible_blank_expr_list
+    : {
+            _TRACE("blank expression list");
         }
-    | formatted_string_param_list ',' formatted_string_param {
-            _TRACE("adding formatted string parameter (2)");
+    | expression {
+            _TRACE("begin expression list");
+        }
+    | expression_list ',' expression {
+            _TRACE("add expression to list");
         }
     ;
 
@@ -130,7 +133,7 @@ formatted_string
             _TRACE("begin formatted string with formtting '%s'", TOKSTR);
         } ':' '(' {
             _TRACE("formatted string parameter list begining");
-        } formatted_string_param_list {
+        } expression_list {
             _TRACE("formatted string parameter list ending");
         } ')' {
             _TRACE("end of formtted string definition");
@@ -167,7 +170,10 @@ import_definition
         Class definition related rules.
     */
 class_body_item
-    : data_definition {
+    : type_assignment ';' {  /* data_definition { */
+            _TRACE("class body data with assignment definition completed");
+        }
+    | data_type_intro ';' {
             _TRACE("class body data definition completed");
         }
     | method_definition {
@@ -245,18 +251,6 @@ data_type_intro
         }
     ;
 
-data_definition
-    : data_type_intro ';' {
-            _TRACE("end of data definition without assignment");
-        }
-    | data_type_intro '=' {
-            _TRACE("start of data definition with assignment");
-        } assignment_target {
-            _TRACE("end of data definition with assignment");
-        } ';'
-    | error ';'
-    ;
-
     /*
         Method definition related rules
     */
@@ -293,15 +287,16 @@ method_definition
     ;
 
 method_body_element
-    : data_definition
-    | function_call
-    | for_clause
+    : for_clause
     | if_clause
     | while_clause
     | do_clause
     | switch_clause
     | assignment ';'
-    | destroy_statement
+    | data_type_intro ';'
+    | type_assignment ';' /*data_definition*/
+    | function_call ';'
+    | destroy_statement ';'
     ;
 
 method_body_element_list
@@ -354,11 +349,6 @@ subscript_item
         } expression {
             _TRACE("end list subscript expression");
         } ']'
-    | '[' {
-            _TRACE("begin dict subscript definition");
-        } formatted_string {
-            _TRACE("end dict subscript definition");
-        } ']'
     ;
 
 subscript_list
@@ -388,6 +378,12 @@ expression_name
 expression
     : NUM {
             _TRACE("expression literal number: %s", TOKSTR);
+        }
+    | formatted_string {
+            _TRACE("formatted string expression value");
+        }
+    | bool_value {
+            _TRACE("boolean expression value");
         }
     | expression_name {
             _TRACE("expression variable value");
@@ -440,6 +436,9 @@ expression
     | NOT expression {
             _TRACE("expression NOT operator");
         }
+    | type_name ':' expression {
+            _TRACE("casting expression");
+        }
     | '(' expression ')'
     ;
 
@@ -450,33 +449,6 @@ expression
     /*
         Function call related rules
     */
-call_input_parameter
-    : formatted_string {
-            _TRACE("function call parameter is formatted string");
-        }
-    | expression {
-            _TRACE("function call parameter is expression");
-        }
-    | bool_value {
-            _TRACE("function call parameter is bool value");
-        }
-    ;
-
-call_input_parameter_list
-    :
-    | call_input_parameter
-    | call_input_parameter_list ',' call_input_parameter
-    ;
-
-    /*
-    call_output_parameter
-        : compound_name {
-                _TRACE("function call output compound name: %s", "not implemented");
-            }
-        |
-        ;
-    */
-
 call_output_parameter_list
     :
     | expression_name {
@@ -492,16 +464,16 @@ function_call
             _TRACE("function call name: %s", get_compound_name(comp_name));
             destroy_compound_name(comp_name);
             _TRACE("begin function call input parameters");
-        } '(' call_input_parameter_list {
+        } '(' possible_blank_expr_list {
             _TRACE("end function call input parameters");
             _TRACE("begin function call output parameters");
-        } ')' '(' call_output_parameter_list ')' ';' {
+        } ')' '(' call_output_parameter_list ')' {
             _TRACE("end function call output parameters");
         }
     ;
 
 destroy_statement
-    : DESTROY compound_name ';' {
+    : DESTROY compound_name {
             _TRACE("destroy symbol: %s", get_compound_name(comp_name));
             destroy_compound_name(comp_name);
         }
@@ -511,15 +483,6 @@ destroy_statement
     /*
         Common rules for branching and defining loop bodies
     */
-branch_expression
-    : expression {
-            _TRACE("branch expression as expression");
-        }
-    | bool_value {
-            _TRACE("branch expression as bool value");
-        }
-    ;
-
 jump_clause
     : CONTINUE ';' {
             _TRACE("jump clause as continue");
@@ -551,38 +514,15 @@ loop_body
     ;
 
     /*
-        For loop related rules
+        FOR loop related rules
     */
-for_initialize_assign
-    : NOTHING {
-            _TRACE("for loop initialize assignment to NOTHING");
-        }
-    | expression {
-            _TRACE("for loop initialize assignment with expression");
-        }
-    | bool_value {
-            _TRACE("for loop initialize assignment with bool value");
-        }
-    ;
-
 for_initialize
-    : type_name {
+    : type_assignment ';' {
             _TRACE("for loop initialize with type name: %s", TOKSTR);
-        } SYMBOL {
-            _TRACE("for loop initialize symbol: %s", TOKSTR);
-        } '=' for_initialize_assign ';' {
-            _TRACE("for loop initialize assignment");
         }
     | assignment ';' {
-            _TRACE("for loop initialize simple assignment");
-        }
-    ;
-
-
-for_test_expression
-    : expression ';' {
-            _TRACE("for loop test expression");
-        }
+            _TRACE("for loop initialize assignment");
+    }
     ;
 
 for_arith_expression
@@ -597,7 +537,7 @@ for_arith_expression
 for_clause
     : FOR '(' {
             _TRACE("begin for loop definition");
-        } for_initialize for_test_expression  for_arith_expression {
+        } for_initialize expression ';' for_arith_expression {
             _TRACE("begin for loop loop body");
         } ')' loop_body {
             _TRACE("end for loop loop body");
@@ -639,7 +579,7 @@ if_clause
     : IF '(' {
             _TRACE("begin if clause definition");
             _TRACE("begin if clause branch expression definition");
-        } branch_expression {
+        } expression {
             _TRACE("end if clause branch expression definition");
             _TRACE("begin else clause definition");
         } ')' else_body {
@@ -655,7 +595,7 @@ while_clause
     : WHILE '(' {
             _TRACE("begin while clause with expression definition");
             _TRACE("begin while clause branch expression definition");
-        } branch_expression {
+        } expression {
             _TRACE("end while clause branch expression definition");
             _TRACE("begin while clause loop body definition");
         } ')' loop_body {
@@ -678,7 +618,7 @@ do_clause
             _TRACE("end do/while clause loop body definition");
         } WHILE '(' {
             _TRACE("begin do/while branch expression definition");
-        } branch_expression ')' ';' {
+        } expression ')' ';' {
             _TRACE("end do/while branch expression definition");
             _TRACE("end do/while clause definition");
         }
@@ -739,14 +679,8 @@ assignment_target
     : expression {
             _TRACE("assignment target is an expression");
         }
-    | formatted_string {
-            _TRACE("assignment target is a string");
-        }
     | NOTHING {
             _TRACE("assignment target is nothing");
-        }
-    | bool_value {
-            _TRACE("assignemnt target is bool value");
         }
     ;
 
@@ -758,6 +692,15 @@ assignment
             _TRACE("end assignment statement");
         }
     ;
+
+type_assignment
+    : type_name SYMBOL {
+            _TRACE("type assignment of type: %s", TOKSTR);
+        } '=' assignment_target {
+            _TRACE("after type assignment");
+        }
+    ;
+
 
 %%
 
