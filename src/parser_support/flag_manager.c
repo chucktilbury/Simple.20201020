@@ -22,9 +22,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../include/errors.h"
+#include "../include/utils.h"
 #include "../include/parser_support.h"
-#include "../include/misc.h"
 
 // define 32 flags to start with. If more flags are needed, then define
 // another flags var and then implement the logic to tell the difference.

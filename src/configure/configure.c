@@ -21,11 +21,9 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include "../include/utils.h"
 #include "../include/configure.h"
-#include "../include/memory.h"
-#include "../include/misc.h"
-#include "../include/lists.h"
-#include "../include/errors.h"
+
 
 //static char cmd_line_buffer[1024*4];
 static char prog_name[1024];

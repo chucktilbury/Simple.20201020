@@ -11,8 +11,8 @@
 #include <stdarg.h>
 
 //#include "utils.h"
-#include "../include/scanner.h"
-#include "../include/misc.h"
+#include "../include/parser_support.h"
+#include "../include/utils.h"
 
 static struct errors {
     int level;
@@ -188,6 +188,19 @@ void debug_trace(int lev, const char *str, ...) {
         va_end(args);
         fprintf(ofp, "\n");
     }
+}
+
+void system_error(char *str, ...) {
+
+    va_list args;
+
+    fprintf(stderr, "SYSTEM ERROR: ");
+
+    va_start(args, str);
+    vfprintf(stderr, str, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    errors.errors++;
 }
 
 void fatal_error(char *str, ...) {

@@ -1,102 +1,84 @@
-/*
- * Simple allocaion routines that will be able to track how much memory is in
- * use and detect where a memory leak is located.
+/**
+ * @file memory.c
+ * @brief This is a wrapper for memory routines. When there is a memory error, the
+ * program is aborted.
+ *
+ * In the future this will have hooks to track memory use for things like
+ * finding out what line in the code a particular block was allocated from
+ * and whether all memory has been freed.
+ *
+ * @author Chuck Tilbury
+ * @version 0.1
+ * @date 2020-10-27
+ *
+ * @copyright Copyright (c) 2020
+ *
  */
+#include <stdint.h>
+#include <string.h>
+#include "../include/utils.h"
 
-/*
- * In the future, these function will track memory usage and that functionality will
- * be turned on or off by the program verbosity setting.
- */
+#define GETSEG(p) ((((uint64_t)(p)) & 0xFFFF00000000) >> 32)
 
-#include "../include/common.h"
+static int stack_segment = 0;
+static int heap_segment = 0;
 
-void init_memory_system(void) {
-    // TBD
-    _MARK();
+void init_memory(void) {
+
+    int num;
+    stack_segment = GETSEG(&num);
+    heap_segment = GETSEG(&heap_segment);
+
+    //_DEBUG("stack = %p, heap = %p", &num, &heap_segment);
+    _DEBUG("stack = 0x%04X, heap = 0x%04X", stack_segment, heap_segment);
 }
 
-void destroy_memory_system(void) {
-    // TBD
-    _MARK();
-}
+void* malloc_memory(size_t size) {
 
-/*
- * Allocate a memory buffer using calloc().
- */
-#ifndef _DEBUGGING
-void* allocate_memory(size_t size) {
-#else
-void* allocate_memory(const char* file, int line, const char* func, size_t size) {
-#endif
-
-    void* ptr = calloc(1, size);
+    void* ptr = malloc(size);
     if(ptr == NULL)
-        fatal_error("cannot allocate %lu bytes", size);
+        fatal_error("malloc cannot allocate %lu bytes", size);
 
-    _DEBUG("%s: %d: %s: MALLOC: %lu bytes to ptr %p", file, line, func, size, ptr);
     return ptr;
 }
 
-/*
- * Allocate memory for some number of data structures.
- */
-#ifndef _DEBUGGING
-void* allocate_data(size_t num, size_t size) {
-#else
-void* allocate_data(const char* file, int line, const char* func, size_t num, size_t size) {
-#endif
+void* calloc_memory(size_t num, size_t size) {
 
     void* ptr = calloc(num, size);
     if(ptr == NULL)
-        fatal_error("cannot allocate %lu bytes", size * num);
+        fatal_error("calloc cannot allocate %lu bytes", num*size);
 
-    _DEBUG("%s: %d: %s: CALLOC: %lu items of %lu bytes to ptr %p", file, line, func, num, size, ptr);
     return ptr;
 }
 
-/*
- * Reallocate a memory buffer using realloc().
- */
-#ifndef _DEBUGGING
-void* reallocate_memory(void* ptr, size_t size) {
-#else
-void* reallocate_memory(const char* file, int line, const char* func, void* ptr, size_t size) {
-#endif
+void* realloc_memory(void* ptr, size_t size) {
 
-    void* nptr = realloc(ptr, size);
+    void* nptr;
+
+    if(GETSEG(ptr) == heap_segment)
+         nptr = realloc(ptr, size);
+    else
+        fatal_error("attempt to reallocate memory not allocated by malloc. (0x%04X)", GETSEG(ptr));
+
     if(nptr == NULL)
-        fatal_error("cannot reallocate %lu bytes", size);
-
-    _DEBUG("%s: %d: %s: REALLOC: %p ptr to %lu bytes to ptr %p", file, line, func, ptr, size, nptr);
+        fatal_error("realloc cannot allocate %lu bytes", size);
     return nptr;
 }
 
-/*
- * Allocate a string and copy the string to it.
- */
-#ifndef _DEBUGGING
-char* allocate_string(const char* str) {
-#else
-char* allocate_string(const char* file, int line, const char* func, const char* str) {
-#endif
+char* strdup_memory(const char* str) {
 
-    char* ptr = strdup(str);
-    if(ptr == NULL)
-        fatal_error("cannot allocate %lu bytes for string", strlen(str));
+    char* nstr = strdup(str);
+    if(nstr == NULL)
+        fatal_error("strdup cannot allocate %lu bytes", strlen(str));
 
-    _DEBUG("%s: %d: %s: STRDUP: %lu bytes to ptr %p", file, line, func, strlen(str)+1, ptr);
-    return ptr;
+    return nstr;
 }
 
-/*
- * Free a memory buffer.
- */
-#ifndef _DEBUGGING
+// note that the heap and the bss segments have the same signature under Linux.
 void free_memory(void* ptr) {
-#else
-void free_memory(const char* file, int line, const char* func, void* ptr) {
-    _DEBUG("%s: %d: %s: FREE: %p", file, line, func, ptr);
-#endif
 
-    free(ptr);
+    if(GETSEG(ptr) == heap_segment)
+        free(ptr);
+    else
+        fatal_error("attempt to free memory not allocated by malloc. (0x%04X)", GETSEG(ptr));
 }

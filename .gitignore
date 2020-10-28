@@ -10,6 +10,8 @@ src/parser/parser.output
 src/parser/scanner.c
 bin/*
 lib/*
+src/include/.old/*
+src/utils/.old/*
 
 # Prerequisites
 *.d

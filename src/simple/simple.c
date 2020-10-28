@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 #undef _DEBUGGING
-#include "../include/scanner.h"
+#include "../include/parser_support.h"
 #include "../parser/parser.h"
 #include "../include/configure.h"
-#include "../include/errors.h"
+#include "../include/utils.h"
 
 //#include "ast_tree.h"
 
@@ -33,6 +33,7 @@ static void exit_func(void) {
 static void init_all(int argc, char** argv) {
 
     init_errors(10, stdout);
+    init_memory();
     configure(argc, argv);
     //init_ast();
 

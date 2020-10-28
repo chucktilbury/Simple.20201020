@@ -5,11 +5,11 @@
 #include <string.h>
 #include <errno.h>
 
-#undef _DEBUGGING
+//#undef _DEBUGGING
 
 #include "parser.h"
-#include "../include/errors.h"
-#include "../include/misc.h"
+#include "../include/parser_support.h"
+#include "../include/utils.h"
 
 //#undef _TRACE
 //#define _TRACE(...)
@@ -229,8 +229,8 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 
         _DEBUG("SCANNER: %s: closing file", name_stack->name);
         _file_name_stack *name = name_stack->next;
-        free(name_stack->name);
-        free(name_stack);
+        FREE(name_stack->name);
+        FREE(name_stack);
         name_stack = name;
 
         memset(strbuf, 0, sizeof(strbuf));
@@ -262,10 +262,10 @@ int open_file(const char *fname) {
     }
 
     _DEBUG("SCANNER: %s: open file", locbuf);
-    if(NULL == (name = calloc(1, sizeof(_file_name_stack))))
+    if(NULL == (name = CALLOC(1, sizeof(_file_name_stack))))
         fatal_error("cannot allocate memory for file stack");
 
-    if(NULL == (name->name = strdup(locbuf)))
+    if(NULL == (name->name = STRDUP(locbuf)))
         fatal_error("cannot allocate memory for file stack name");
 
     name->next = name_stack;
@@ -306,6 +306,7 @@ int get_col_number(void) {
 }
 
 const char *get_tok_str(void) {
+    _DEBUG("strbuf value: %s", strbuf);
     return strbuf;
 }
 

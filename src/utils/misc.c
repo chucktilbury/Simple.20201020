@@ -14,9 +14,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#undef _DEBUGGING
+//#undef _DEBUGGING
+#include "../include/utils.h"
 #include "../include/configure.h"
-#include "../include/errors.h"
 
 /**
  * @brief This function works around the strncat() problem where the size is the length of the added
@@ -110,9 +110,9 @@ char* realloc_string(const char* orig, const char* newstr) {
     _DEBUG("recat a string: orig = \"%s\", new = \"%s\"", orig, newstr);
     if(orig != NULL) {
         if(newstr == NULL)
-            free((void*)orig);
+            FREE((void*)orig);
         else {
-            char* nptr = realloc((void*)orig, strlen(orig)+strlen(newstr)+2);
+            char* nptr = REALLOC((void*)orig, strlen(orig)+strlen(newstr)+2);
             if(nptr == NULL)
                 fatal_error("cannot re-allocate memory for string");
             strcat(nptr, newstr);
@@ -120,7 +120,7 @@ char* realloc_string(const char* orig, const char* newstr) {
         }
     }
     else if(newstr != NULL) {
-        char* nptr = strdup(newstr);
+        char* nptr = STRDUP(newstr);
         if(nptr == NULL)
             fatal_error("cannot allocate new memory for string");
         return nptr;

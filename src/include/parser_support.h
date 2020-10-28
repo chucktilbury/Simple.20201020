@@ -11,7 +11,30 @@
 #ifndef __PARSER_SUPPORT_H__
 #define __PARSER_SUPPORT_H__
 
+#include <stdio.h>
+
+/********************************
+ * Definitions and prototypes for the code located in scanner.l
+ */
+char *get_file_name(void);
+int get_line_number(void);
+int get_col_number(void);
+int open_file(const char *fname);
+const char *get_tok_str(void);
+int get_token(void);
+
 /*
+ * Defined by flex. Call one time to isolate a symbol and then use the global
+ * symbol struct to access the symbol.
+ */
+extern int yylex(void);
+extern int yyparse(void);
+extern FILE *yyin;
+
+// void yyerror(char *s, ...);
+void yyerror(const char *s);
+
+/************************************
  * Prototypes and data for compound names.
  */
 
@@ -25,7 +48,7 @@ const char* get_compound_name(compound_name);
 const char* iterate_compound_name(compound_name);
 void reset_compound_name(compound_name name);
 
-/*
+/********************************************
  * Prototypes and data for the flag manager.
  */
 typedef enum {FM_UNUSED = 0x03, FM_TRUE = 0x01, FM_FALSE = 0x00} flag_manager_state;

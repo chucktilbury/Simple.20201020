@@ -20,12 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#undef _DEBUGGING
+//#undef _DEBUGGING
 #include "../include/parser_support.h"
-#include "../include/lists.h"
-#include "../include/errors.h"
-#include "../include/misc.h"
-#include "../include/memory.h"
+#include "../include/utils.h"
 
 typedef struct __cname {
     char* raw_name;

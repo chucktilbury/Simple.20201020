@@ -6,10 +6,9 @@ add_library(${PROJECT_NAME} STATIC
     stack.c
     queue.c
     hash_table.c
-    configure.c
     lists.c
-    memory.c
     misc.c
+    memory.c
 )
 
 target_include_directories(${PROJECT_NAME}

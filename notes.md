@@ -4,6 +4,8 @@ This is a rough sketch of my todo list in this project.
 * Implement parse rules for initializing lists and dicts.
 * Implement first cut at expressions. (symbols always have the value of 5)
 * Implement the symbol table.
+* Fix the memory macros so that the debugging can be turned off foa module.
+* ~~Arrange the include directory according to libraries, instead of individual includes.~~
 * ~~Try to compress experssion lists to one rule.~~
 * ~~Implement syntax for casts in parser. Casts are used to convert numbers to strings and back. Other things could be cast to a string.~~
 * ~~Implement parser syntax for program entry point with syntax checking.~~

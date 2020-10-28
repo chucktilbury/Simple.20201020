@@ -2,7 +2,7 @@
 #define __CONFIGURE_H__
 
 #include <stdio.h>
-#include "lists.h"
+#include "utils.h"
 
 typedef enum {
     CONFIG_TYPE_NUM,

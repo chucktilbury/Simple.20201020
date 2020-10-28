@@ -8,11 +8,7 @@
 #include <stdio.h>
 
 //#undef _DEBUGGING
-#include "../include/errors.h"
-#include "../include/memory.h"
-#include "../include/lists.h"
-#include "../include/misc.h"
-
+#include "../include/utils.h"
 /*
  * This resizes the list to grow it. This should always be called before
  * adding aything to it.

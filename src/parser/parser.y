@@ -11,8 +11,7 @@
 //#undef _TRACE
 //#define _TRACE(...)
 
-#include "../include/scanner.h"
-#include "../include/errors.h"
+#include "../include/utils.h"
 #include "../include/parser_support.h"
 
 #define TOKSTR get_tok_str()
@@ -70,11 +69,12 @@ module_item
     */
 compound_name
     : SYMBOL {
-            //_TRACE("new symbol name: %s", TOKSTR);
+            _TRACE("new symbol name: %s", TOKSTR);
             comp_name = create_compound_name(TOKSTR);
+            _TRACE("after...");
         }
     | compound_name '.' SYMBOL {
-            //_TRACE("adding to compound name: %s", TOKSTR);
+            _TRACE("adding to compound name: %s", TOKSTR);
             add_compound_name(comp_name, TOKSTR);
         }
     | compound_name error SYMBOL

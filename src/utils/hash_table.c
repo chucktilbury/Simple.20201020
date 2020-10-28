@@ -1,13 +1,21 @@
-/*
- * Hash table uses the
+/**
+ * @file hash_table.c
+ * @brief Hash table implementation uses the "open addressing" technique.
+ * See https://www.craftinginterpreters.com/hash-tables.html for an
+ * example implementation that this is based on.
+ *
+ * @author Chuck Tilbury
+ * @version 0.1
+ * @date 2020-10-27
+ *
+ * @copyright Copyright (c) 2020
  *
  */
-#define XXH_INLINE_ALL
-#include "xxhash.h"
-#include "../include/hash_table.h"
-#include "../include/memory.h"
-#include "../include/misc.h"
-#include "../include/errors.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "../include/utils.h"
 
 #define TABLE_MAX_LOAD 0.75
 
@@ -50,9 +58,9 @@ static _table_entry_t* find_slot(_table_entry_t* ent, size_t cap, const char* ke
         {
 #ifdef __TESTING_HASH_TABLE_C__
             if(entry->key != NULL)
-                printf("found: index: %-2u key: %-12s value: %s\n", index, key, (char*)entry->data);
+                _DEBUG("found: index: %-2u key: %-12s value: %s\n", index, key, (char*)entry->data);
             else
-                printf("insert: index: %-2u key: %-12s\n", index, key);
+                _DEBUG("insert: index: %-2u key: %-12s\n", index, key);
 #endif
             return entry;
         }
@@ -71,16 +79,14 @@ static void grow_table(hash_table_t* tab)
     if(tab->count + 2 > tab->capacity * TABLE_MAX_LOAD)
     {
 #ifdef __TESTING_HASH_TABLE_C__
-        printf("\ngrowing table\n");
-        printf("  table capacity: %lu\n", tab->capacity);
-        printf("  table count: %lu\n", tab->count);
+        _DEBUG("\ngrowing table\n");
+        _DEBUG("  table capacity: %lu\n", tab->capacity);
+        _DEBUG("  table count: %lu\n", tab->count);
 #endif
         // table must always be an even power of 2 for this to work.
         size_t capacity = tab->capacity << 1;
 
         _table_entry_t* entries = (_table_entry_t*)CALLOC(capacity, sizeof(_table_entry_t));
-
-        if(entries == NULL) fatal_error("cannot allocate %lu bytes for hash table", capacity * sizeof(_table_entry_t));
 
         // re-add the table entries to the new table.
         if(tab->entries != NULL)
@@ -99,34 +105,40 @@ static void grow_table(hash_table_t* tab)
                 }
             }
             // free the old table
-            free(tab->entries);
+            FREE(tab->entries);
         }
 
         tab->entries = entries;
         tab->capacity = capacity;
 #ifdef __TESTING_HASH_TABLE_C__
-        printf("\nfinished growing table\n");
-        printf("  table capacity: %lu\n", tab->capacity);
-        printf("  table count: %lu\n", tab->count);
+        _DEBUG("\nfinished growing table\n");
+        _DEBUG("  table capacity: %lu\n", tab->capacity);
+        _DEBUG("  table count: %lu\n", tab->count);
 #endif
     }
 }
 
+/**
+ * @brief Create a hash table object
+ *
+ * @return hash_table_t* -- pointer to the allocated memory.
+ */
 hash_table_t* create_hash_table(void)
 {
     hash_table_t* tab;
 
     tab = MALLOC(sizeof(hash_table_t));
-    if(tab == NULL)
-    {
-        fatal_error("cannot allocate %lu bytes for hash table structure", sizeof(hash_table_t));
-    }
 
     tab->capacity = 0x01 << 3;
     tab->entries = (_table_entry_t*)CALLOC(tab->capacity, sizeof(_table_entry_t));
     return tab;
 }
 
+/**
+ * @brief Destroy the hash table and free all memory associated with it.
+ *
+ * @param tab -- Pointer to the table to destroy.
+ */
 void destroy_hash_table(hash_table_t* tab)
 {
     if(tab != NULL)
@@ -146,8 +158,15 @@ void destroy_hash_table(hash_table_t* tab)
     }
 }
 
-/*
- * Refuse to replace an entry.
+/**
+ * @brief Insert an entry into the hash table. This function refuses to replace an
+ * entry and returns an error code.
+ *
+ * @param tab -- Hash table to place the entry into.
+ * @param key -- String that will be used to place the hash.
+ * @param data -- Pointer to the data to store in the table.
+ * @param size -- Size of the data to store in the table.
+ * @return int -- Indicate whether the data was sored or not.
  */
 int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
 {
@@ -158,13 +177,7 @@ int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t siz
 
     if(retv == HASH_NO_ERROR) {
         entry->key = STRDUP(key);
-        if(entry->key == NULL)
-            fatal_error("cannot allocate %lu bytes for hash table key", strlen(key));
-
         entry->data = MALLOC(size);
-        if(entry->data == NULL)
-            fatal_error("cannot allocate %lu bytes for hash table data", size);
-
         memcpy(entry->data, data, size);
         entry->size = size;
         tab->count++;
@@ -173,6 +186,18 @@ int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t siz
     return retv;
 }
 
+/**
+ * @brief Find the has table entry. If the entry does not exist, then an error
+ * is returned and the value that the data parameter points to is undefined. If
+ * HASH_NO_ERROR is returned, then the location that the data parameter points
+ * to has been filled in with the data that was sored in the table.
+ *
+ * @param tab -- The table to search.
+ * @param key -- The string to derive the hash from.
+ * @param data -- Pointer to where the data is to be copied to.
+ * @param size -- Number of bytes to copy for the data.
+ * @return int -- Indicate whether there was an error or not.
+ */
 int find_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
 {
     _table_entry_t* entry = find_slot(tab->entries, tab->capacity, key);
@@ -195,6 +220,14 @@ int find_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
     return retv;
 }
 
+/**
+ * @brief Return the size of the data that is stored in the hash table. If
+ * the entry is not found, then return 0, which is an impossible size.
+ *
+ * @param tab -- The table to search.
+ * @param key -- String used to generate the hash.
+ * @return size_t -- Size of the data that is stored for the hash.
+ */
 size_t find_hash_table_entry_size(hash_table_t* tab, const char* key) {
 
     _table_entry_t* entry = find_slot(tab->entries, tab->capacity, key);
@@ -207,10 +240,14 @@ size_t find_hash_table_entry_size(hash_table_t* tab, const char* key) {
     return retv;
 }
 
-/*
- * Iterate all of the keys in the hash table. Used for various dump utilities.
+/**
+ * @brief Iterate all of the keys in the hash table. Used for various
+ * dump utilities. Make reset != 0 to reset to the beginning of the table.
+ * This only returns valid keys and not empty slots.
  *
- * Make reset != 0 to reset to the beginning of the table.
+ * @param tab -- The specific table to dump.
+ * @param reset -- Set to !0 to reset the index to the beginning of the table.
+ * @return const char* -- The key that is stored at the hash location.
  */
 const char* iterate_hash_table(hash_table_t* tab, int reset) {
 

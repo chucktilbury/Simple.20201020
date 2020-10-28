@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/stack.h"
+#include "../include/utils.h"
 
 typedef struct __stack_elem {
     void* data;
@@ -32,17 +32,8 @@ int push_stack(stack stk, void* in_buf) {
 
     __stack* s = (__stack*)stk;
 
-    __stack_elem* nelem = calloc(1, sizeof(__stack_elem));
-    if(nelem == NULL) {
-        fprintf(stderr, "Cannot allocate stack element\n");
-        return 1;
-    }
-
-    nelem->data = malloc(s->item_size);
-    if(nelem->data == NULL) {
-        fprintf(stderr, "cannot allocate stack data\n");
-        return 1;
-    }
+    __stack_elem* nelem = CALLOC(1, sizeof(__stack_elem));
+    nelem->data = MALLOC(s->item_size);
 
     memcpy(nelem->data, in_buf, s->item_size);
     if(s->top == NULL) {
@@ -72,9 +63,9 @@ int pop_stack(stack stk, void* out_buf) {
         if(out_buf != NULL) {
             memcpy(out_buf, s->top->data, s->item_size);
         } // else just discard any data
-        free(s->top->data);
+        FREE(s->top->data);
         s->top = s->top->next;
-        free(old_elem);
+        FREE(old_elem);
         return 0;
     }
 
@@ -112,12 +103,7 @@ int stack_is_empty(stack stk) {
  */
 stack create_stack(size_t size) {
 
-    __stack* stk = calloc(1, sizeof(__stack));
-
-    if(stk == NULL) {
-        fprintf(stderr, "Cannot allocate stack\n");
-        return NULL;
-    }
+    __stack* stk = CALLOC(1, sizeof(__stack));
 
     stk->item_size = size;
     // top is NULL
@@ -132,7 +118,7 @@ int destroy_stack(stack stk) {
     while(!stack_is_empty(stk)) {
         pop_stack(stk, NULL);
     }
-    free(stk);
+    FREE(stk);
     return 0;
 }
 

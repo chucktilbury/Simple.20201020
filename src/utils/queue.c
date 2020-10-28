@@ -9,7 +9,7 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include "queue.h"
+#include "../include/utils.h"
 
 typedef struct __queue_elem {
     void* data;
@@ -30,17 +30,9 @@ typedef struct {
 int write_queue(queue que, void* in_buf) {
 
     __queue* q = (__queue*)que;
-    __queue_elem* nelem = calloc(1, sizeof(__queue_elem));
-    if(nelem == NULL) {
-        fprintf(stderr, "cannot allocate memory for queue element\n");
-        return 1;
-    }
-
-    nelem->data = malloc(q->item_size);
-    if(nelem->data == NULL) {
-        fprintf(stderr, "cannot allocate memory for queue data\n");
-        return 1;
-    }
+    // MALLOC() and CALLOC() end the program if they fail.
+    __queue_elem* nelem = CALLOC(1, sizeof(__queue_elem));
+    nelem->data = MALLOC(q->item_size);
 
     memcpy(nelem->data, in_buf, q->item_size);
     if(q->base == NULL) {
@@ -88,11 +80,7 @@ int reset_queue(queue que) {
  */
 queue create_queue(size_t elem_size) {
 
-    __queue* q = (__queue*)calloc(1, sizeof(__queue));
-    if(q == NULL) {
-        fprintf(stderr, "cannot allocate memory for queue\n");
-        return NULL;
-    }
+    __queue* q = (__queue*)CALLOC(1, sizeof(__queue));
 
     q->item_size = elem_size;
     // base and crnt are NULL
@@ -113,11 +101,11 @@ int destroy_queue(queue que) {
         for(crnt = q->base; crnt != NULL; crnt = next) {
             next = crnt->next;
             if(crnt->data != NULL) {
-                free(crnt->data);
+                FREE(crnt->data);
             }
-            free(crnt);
+            FREE(crnt);
         }
-        free(q);
+        FREE(q);
         return 0;
     }
     return 1;
