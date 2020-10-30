@@ -5,6 +5,7 @@ add_library(${PROJECT_NAME} STATIC
     compound_names.c
     flag_manager.c
     symbol_table.c
+    expressions.c
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -13,4 +14,8 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/../parser
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Wextra" "-g" "-D_DEBUGGING")
+target_compile_options(${PROJECT_NAME} PRIVATE
+    "-Wall" "-Wextra"
+    "$<$<CONFIG:DEBUG>:-O0;-g;-D_DEBUGGING>"
+    "$<$<CONFIG:RELEASE>:-Ofast>"
+)

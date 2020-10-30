@@ -11,4 +11,8 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/../parser
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Wextra" "-g" "-D_DEBUGGING")
+target_compile_options(${PROJECT_NAME} PRIVATE
+    "-Wall" "-Wextra"
+    "$<$<CONFIG:DEBUG>:-O0;-g;-D_DEBUGGING>"
+    "$<$<CONFIG:RELEASE>:-Ofast>"
+)

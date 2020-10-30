@@ -35,7 +35,10 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/../parser_support
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE "-g" "-D_DEBUGGING")
+target_compile_options(${PROJECT_NAME} PRIVATE
+    "$<$<CONFIG:DEBUG>:-O0;-g;-D_DEBUGGING>"
+    "$<$<CONFIG:RELEASE>:-Ofast>"
+)
 
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/parser.h"
