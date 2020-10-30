@@ -8,6 +8,8 @@
  * optimal, and may change. It would be better to have command args any arbitrary length,
  * but that is not easy to fix with this implementation.
  *
+ * NOTE that configure is initialized before the routines in errors.c.
+ *
  * @author Chuck Tilbury
  * @version 0.1
  * @date 2020-10-25
@@ -431,63 +433,3 @@ void show_use(void) {
     exit(1);
 }
 
-#ifdef __TESTING_CONFIGURE_C__
-
-/*
- * Sanity check this functionality.
- *
- * example:
- * ./cfg -o filename.fn -i f1.c:f2.c:f3.c -v 10
- *    -or-
- * ./cfg -ofilename.fn -if1.c:f2.c:f3.c -v10
- *
- */
-
-BEGIN_CONFIG
-    CONFIG_NUM("-v", "VERBOSE", "Control the verbosity", 0, 0)
-    CONFIG_STR("-o", "OUT_FILE", "Name the output file", 1, NULL)
-    CONFIG_BOOL("-boo", "BOOL_VAL", "Demostrate a boolean value", 0, 0)
-    CONFIG_LIST("-i", "INPUT_FILES", "List of files to be compiled", 1, NULL)
-    CONFIG_LIST("-s", "FILE_SEARCH", "Set the search path list", 0, "./:./include")
-END_CONFIG
-
-int main(int argc, char** argv) {
-
-    int n = configure(argc, argv);
-    printf("num_parms: %d\n", n);
-    printf("verbosity: %d\n", *(int*)get_config("VERBOSE"));
-    printf("file_search: %s\n", (char*)get_config("FILE_SEARCH"));
-    printf("file_list: %s\n", (char*)get_config("INPUT_FILES"));
-    printf("out file: %s\n", (char*)get_config("OUT_FILE"));
-    printf("prog_name: %s\n", (char*)get_config("PROG_NAME"));
-    printf("bool_val: %d\n", GET_CONFIG_BOOL("BOOL_VAL"));
-
-    printf("\nVERBOSE: ");
-    for(char* str = iterate_config("VERBOSE"); str != NULL; str = iterate_config("VERBOSE"))
-        printf("%s ", str);
-    printf("\n");
-
-    printf("FILE_SEARCH: ");
-    for(char* str = iterate_config("FILE_SEARCH"); str != NULL; str = iterate_config("FILE_SEARCH"))
-        printf("%s ", str);
-    printf("\n");
-
-    printf("INPUT_FILES: ");
-    for(char* str = iterate_config("INPUT_FILES"); str != NULL; str = iterate_config("INPUT_FILES"))
-        printf("%s ", str);
-    printf("\n");
-
-    printf("OUT_FILE: ");
-    for(char* str = iterate_config("OUT_FILE"); str != NULL; str = iterate_config("OUT_FILE"))
-        printf("%s ", str);
-    printf("\n");
-
-    printf("BOOL_VAL: ");
-    for(char* str = iterate_config("BOOL_VAL"); str != NULL; str = iterate_config("BOOL_VAL"))
-        printf("%s ", str);
-    printf("\n");
-
-    //show_use();
-}
-
-#endif

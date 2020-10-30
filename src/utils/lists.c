@@ -120,7 +120,9 @@ void* get_list_next(list_t* list)
 {
     if(list != NULL)
     {
-        if(list->index >= 0 && list->index < list->nitems)
+        //if(list->index >= 0 && list->index < list->nitems)
+        // list->index is unsigned, so it is always >= 0
+        if(list->index < list->nitems)
         {
             void* retv = list->buffer[list->index];
             list->index++;

@@ -69,9 +69,8 @@ module_item
     */
 compound_name
     : SYMBOL {
-            _TRACE("new symbol name: %s", TOKSTR);
+            _TRACE("new compound symbol name: %s", TOKSTR);
             comp_name = create_compound_name(TOKSTR);
-            _TRACE("after...");
         }
     | compound_name '.' SYMBOL {
             _TRACE("adding to compound name: %s", TOKSTR);
@@ -107,9 +106,15 @@ type_name
 expression_list
     : expression {
             _TRACE("begin expression list");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     | expression_list ',' expression {
             _TRACE("add expression to list");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     ;
 
@@ -119,9 +124,15 @@ possible_blank_expr_list
         }
     | expression {
             _TRACE("begin expression list");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     | expression_list ',' expression {
             _TRACE("add expression to list");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     ;
 
@@ -226,7 +237,7 @@ class_definition
             _TRACE("end class body and definition");
             char* f = flag_to_str();
             _TRACE("class flags: %s", f);
-            free(f);
+            FREE(f);
             _TRACE("");
             if(get_flag(CLASS_IS_ENTRY)) {
                 clear_flag(CLASS_IS_ENTRY);
@@ -294,7 +305,7 @@ method_body_element
     | switch_clause
     | assignment ';'
     | data_type_intro ';'
-    | type_assignment ';' /*data_definition*/
+    | type_assignment ';'
     | function_call ';'
     | destroy_statement ';'
     ;
@@ -343,19 +354,22 @@ destructor_definition
     /*
         Expression related rules.
     */
-subscript_item
+    /* subscript_item
     : '[' {
             _TRACE("begin list subscript expression");
         } expression {
             _TRACE("end list subscript expression");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         } ']'
     ;
 
-subscript_list
+    subscript_list
     : subscript_item
     | subscript_list subscript_item
 
-subscripted_compound_name
+    subscripted_compound_name
     : compound_name {
             _TRACE("subscripted compound name: %s", get_compound_name(comp_name));
             destroy_compound_name(comp_name);
@@ -363,81 +377,137 @@ subscripted_compound_name
         } subscript_list {
             _TRACE("end subscripted compound name list");
         }
-    ;
+    ; */
 
 expression_name
     : compound_name {
-            _TRACE("expression compound name: %s", get_compound_name(comp_name));
+            const char* name = get_compound_name(comp_name);
+            _TRACE("expression compound name: %s", name);
+            if(!get_flag(PARSING_EXPRESSION)) {
+                create_expression();
+                set_flag(PARSING_EXPRESSION);
+            }
+            add_expr_symbol(name);
             destroy_compound_name(comp_name);
         }
-    | subscripted_compound_name {
+    /* | subscripted_compound_name {
+            // TODO: Subscripts not supported yet
+            const char* name = get_compound_name(comp_name);
             _TRACE("expression compound name with subscript");
-        }
+            if(!get_flag(PARSING_EXPRESSION)) {
+                create_expression();
+                set_flag(PARSING_EXPRESSION);
+            }
+            add_expr_symbol(name);
+            destroy_compound_name(comp_name);
+        } */
     ;
 
-expression
+    /*
+     *  Parsing an expression always begins with an expression factor
+     *  and ends when the expression is accepted as syntax.
+     */
+expression_factor
     : NUM {
             _TRACE("expression literal number: %s", TOKSTR);
+            if(!get_flag(PARSING_EXPRESSION)) {
+                create_expression();
+                set_flag(PARSING_EXPRESSION);
+            }
+            add_expr_number(TOKSTR);
         }
     | formatted_string {
             _TRACE("formatted string expression value");
+            if(!get_flag(PARSING_EXPRESSION)) {
+                create_expression();
+                set_flag(PARSING_EXPRESSION);
+            }
+            add_expr_string(TOKSTR);
         }
     | bool_value {
             _TRACE("boolean expression value");
+            if(!get_flag(PARSING_EXPRESSION)) {
+                create_expression();
+                set_flag(PARSING_EXPRESSION);
+            }
+            add_expr_bool(TOKSTR);
         }
     | expression_name {
             _TRACE("expression variable value");
         }
+    ;
+
+expression
+    : expression_factor {
+            _TRACE("expression factor");
+        }
     | expression '+' expression {
             _TRACE("expression ADD operator");
+            add_expr_operator(EXP_ADD_OPERATOR);
         }
     | expression '-' expression {
             _TRACE("expression SUB operator");
+            add_expr_operator(EXP_SUB_OPERATOR);
         }
     | expression '/' expression {
             _TRACE("expression DIV operator");
+            add_expr_operator(EXP_DIV_OPERATOR);
         }
     | expression '*' expression {
             _TRACE("expression MUL operator");
+            add_expr_operator(EXP_MUL_OPERATOR);
         }
     | expression '%' expression {
             _TRACE("expression MOD operator");
+            add_expr_operator(EXP_MOD_OPERATOR);
         }
     | expression AND expression {
             _TRACE("expression AND operator");
+            add_expr_operator(EXP_AND_OPERATOR);
         }
     | expression OR expression {
             _TRACE("expression OR operator");
+            add_expr_operator(EXP_OR_OPERATOR);
         }
     | expression LESS expression {
             _TRACE("expression LESS operator");
+            add_expr_operator(EXP_LT_OPERATOR);
         }
     | expression MORE expression {
             _TRACE("expression MORE operator");
+            add_expr_operator(EXP_GT_OPERATOR);
         }
     | expression EQU expression {
             _TRACE("expression EQU operator");
+            add_expr_operator(EXP_EQU_OPERATOR);
         }
     | expression NEQU expression {
             _TRACE("expression NEQU operator");
+            add_expr_operator(EXP_NEQU_OPERATOR);
         }
     | expression LTEQU expression {
             _TRACE("expression LEQU operator");
+            add_expr_operator(EXP_LTE_OPERATOR);
         }
     | expression GTEQU expression {
             _TRACE("expression GEQU operator");
+            add_expr_operator(EXP_GTE_OPERATOR);
         }
     | '-' expression %prec NEG {
             _TRACE("expression unary minus");
+            add_expr_operator(EXP_UNARY_PLUS);
         }
     | '+' expression %prec NEG {
             _TRACE("expression unary plus");
+            add_expr_operator(EXP_UNARY_MINUS);
         }
     | NOT expression {
             _TRACE("expression NOT operator");
+            add_expr_operator(EXP_NOT_OPERATOR);
         }
     | type_name ':' expression {
             _TRACE("casting expression");
+            add_expr_operator(EXP_CAST);
         }
     | '(' expression ')'
     ;
@@ -452,7 +522,7 @@ expression
 call_output_parameter_list
     :
     | expression_name {
-
+            _TRACE("function call output parameter (1): %s", "not implemented");
         }
     | call_output_parameter_list ',' expression_name {
             _TRACE("function call output parameter (2): %s", "not implemented");
@@ -528,6 +598,9 @@ for_initialize
 for_arith_expression
     : expression {
             _TRACE("for loop arithmetic assignment clause");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     | assignment {
             _TRACE("for loop generic assignment clause");
@@ -555,6 +628,9 @@ else_clause
         } expression {
             _TRACE("end else clause expression");
             _TRACE("begin else clause method body");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         } ')' method_body {
             _TRACE("end else clause method body");
             _TRACE("end else clause with expression definition");
@@ -582,6 +658,9 @@ if_clause
         } expression {
             _TRACE("end if clause branch expression definition");
             _TRACE("begin else clause definition");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         } ')' else_body {
             _TRACE("end else clause definition");
             _TRACE("end if clause definition");
@@ -598,6 +677,9 @@ while_clause
         } expression {
             _TRACE("end while clause branch expression definition");
             _TRACE("begin while clause loop body definition");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         } ')' loop_body {
             _TRACE("end while clause loop body definition");
             _TRACE("end while clause with expression definition");
@@ -621,6 +703,9 @@ do_clause
         } expression ')' ';' {
             _TRACE("end do/while branch expression definition");
             _TRACE("end do/while clause definition");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     ;
 
@@ -657,6 +742,9 @@ switch_clause_intro
         } expression ')' '{' {
             _TRACE("end switch/case expression");
             _TRACE("begin switch/case body");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         } case_body {
             _TRACE("end switch/case body");
             _TRACE("end switch/case clause");
@@ -678,6 +766,9 @@ switch_clause
 assignment_target
     : expression {
             _TRACE("assignment target is an expression");
+            validate_expression();
+            destroy_expression();
+            clear_flag(PARSING_EXPRESSION);
         }
     | NOTHING {
             _TRACE("assignment target is nothing");

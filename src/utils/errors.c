@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-//#include "utils.h"
 #include "../include/parser_support.h"
 #include "../include/utils.h"
 
@@ -118,6 +117,37 @@ void warning(char *str, ...) {
     errors.warnings++;
 }
 
+void system_error(char *str, ...) {
+
+    va_list args;
+
+    fprintf(stderr, "SYSTEM ERROR: ");
+
+    va_start(args, str);
+    vfprintf(stderr, str, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    errors.errors++;
+}
+
+void fatal_error(char *str, ...) {
+
+    va_list args;
+
+    fprintf(stderr, "FATAL ERROR: ");
+    va_start(args, str);
+    vfprintf(stderr, str, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    errors.errors++;
+
+    exit(1);
+}
+
+/*
+ *  Debugging stuff blow here.
+ */
+#ifdef _DEBUGGING
 void debug(int lev, char *str, ...) {
 
     va_list args;
@@ -166,7 +196,7 @@ void debug_mark(int lev, const char *file, int line, const char *func) {
         else
             ofp = stderr;
 
-        fprintf(ofp, "MARK: (%s, %d) %s: %d: %d: %s\n", file, line, get_file_name(), get_line_number(), get_col_number(), func);
+        fprintf(ofp, "MARK: (%s, %d) %s: %d: %d: %s\n", clip_path(file), line, get_file_name(), get_line_number(), get_col_number(), func);
         //fprintf(ofp, "      %s: %d\n", file, line);
     }
 }
@@ -190,28 +220,4 @@ void debug_trace(int lev, const char *str, ...) {
     }
 }
 
-void system_error(char *str, ...) {
-
-    va_list args;
-
-    fprintf(stderr, "SYSTEM ERROR: ");
-
-    va_start(args, str);
-    vfprintf(stderr, str, args);
-    va_end(args);
-    fprintf(stderr, "\n");
-    errors.errors++;
-}
-
-void fatal_error(char *str, ...) {
-
-    va_list args;
-
-    fprintf(stderr, "FATAL ERROR: ");
-    va_start(args, str);
-    vfprintf(stderr, str, args);
-    va_end(args);
-    fprintf(stderr, "\n");
-
-    exit(1);
-}
+#endif /* _DEBUGGING */

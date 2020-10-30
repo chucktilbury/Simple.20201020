@@ -9,6 +9,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+//#undef _DEBUGGING
 #include "../include/utils.h"
 
 typedef struct __queue_elem {
@@ -29,9 +30,11 @@ typedef struct {
  */
 int write_queue(queue que, void* in_buf) {
 
+    _MARK();
     __queue* q = (__queue*)que;
     // MALLOC() and CALLOC() end the program if they fail.
     __queue_elem* nelem = CALLOC(1, sizeof(__queue_elem));
+    _DEBUG("item size = %lu", q->item_size);
     nelem->data = MALLOC(q->item_size);
 
     memcpy(nelem->data, in_buf, q->item_size);
@@ -52,6 +55,7 @@ int write_queue(queue que, void* in_buf) {
  */
 int read_queue(queue que, void *out_buf) {
 
+    _MARK();
     __queue* q = (__queue*)que;
     if(q->crnt != NULL) {
         memcpy(out_buf, q->crnt->data, q->item_size);
@@ -68,6 +72,7 @@ int read_queue(queue que, void *out_buf) {
  */
 int reset_queue(queue que) {
 
+    _MARK();
     __queue* q = (__queue*)que;
     q->crnt = q->base;
     return 0;
@@ -80,6 +85,7 @@ int reset_queue(queue que) {
  */
 queue create_queue(size_t elem_size) {
 
+    _MARK();
     __queue* q = (__queue*)CALLOC(1, sizeof(__queue));
 
     q->item_size = elem_size;
@@ -93,6 +99,7 @@ queue create_queue(size_t elem_size) {
  */
 int destroy_queue(queue que) {
 
+    _MARK();
     __queue* q = (__queue*)que;
     __queue_elem* crnt;
     __queue_elem* next;

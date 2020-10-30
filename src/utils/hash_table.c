@@ -256,7 +256,7 @@ const char* iterate_hash_table(hash_table_t* tab, int reset) {
     if(reset)
         ht_index = -1;
 
-    for(ht_index++; ht_index < tab->capacity; ht_index++) {
+    for(ht_index++; ht_index < (int)tab->capacity; ht_index++) {
         if(tab->entries[ht_index].key != NULL) {
             return tab->entries[ht_index].key;
         }

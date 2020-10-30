@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-//#undef _DEBUGGING
+#undef _DEBUGGING
 #include "../include/utils.h"
 #include "../include/configure.h"
 

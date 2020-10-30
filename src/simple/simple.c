@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <signal.h>
 
 #undef _DEBUGGING
 #include "../include/parser_support.h"
@@ -18,6 +21,14 @@ BEGIN_CONFIG
     CONFIG_STR("-d", "DUMP_FILE", "Specify the file name to dump the AST into", 0, "ast_dump.dot", 1)
 END_CONFIG
 
+static void segfault_handler(int sig) {
+
+    (void)sig;
+    fprintf(stderr, "\nSystem SEGFAULT\n");
+    inc_error_count();
+    exit(1);
+}
+
 static void exit_func(void) {
 
     int errors = get_num_errors();
@@ -32,9 +43,10 @@ static void exit_func(void) {
 
 static void init_all(int argc, char** argv) {
 
-    init_errors(10, stdout);
-    init_memory();
+    signal(SIGSEGV, segfault_handler);
+    init_memory();  // configure uses the routines in memory.c
     configure(argc, argv);
+    init_errors(GET_CONFIG_NUM("VERBOSE"), NULL);
     //init_ast();
 
     if(atexit(exit_func))
@@ -43,8 +55,8 @@ static void init_all(int argc, char** argv) {
 
 int main(int argc, char **argv) {
 
+
     init_all(argc, argv);
-    //int verbose = GET_CONFIG_NUM("VERBOSE");
 
     for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
         _DEBUG("\n     >>> before yyparse()");

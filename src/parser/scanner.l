@@ -5,7 +5,7 @@
 #include <string.h>
 #include <errno.h>
 
-//#undef _DEBUGGING
+#undef _DEBUGGING
 
 #include "parser.h"
 #include "../include/parser_support.h"

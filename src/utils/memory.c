@@ -18,10 +18,10 @@
 #include <string.h>
 #include "../include/utils.h"
 
-#define GETSEG(p) ((((uint64_t)(p)) & 0xFFFF00000000) >> 32)
+#define GETSEG(p) (unsigned int)((((uint64_t)(p)) & 0xFFFF00000000) >> 32)
 
-static int stack_segment = 0;
-static int heap_segment = 0;
+static unsigned int stack_segment = 0;
+static unsigned int heap_segment = 0;
 
 void init_memory(void) {
 
