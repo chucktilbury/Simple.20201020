@@ -1,18 +1,11 @@
 
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
 #undef _DEBUGGING
-
-#include "parser.h"
-#include "../include/parser_support.h"
-#include "../include/utils.h"
-
 //#undef _TRACE
 //#define _TRACE(...)
+
+#include "parser.h"
+#include "../include/common.h"
 
 // maximum depth of imports prevents crashing from circular imports.
 static int import_depth = 0;

@@ -3,16 +3,11 @@
 %locations
 
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 //#undef _DEBUGGING
 //#undef _TRACE
 //#define _TRACE(...)
 
-#include "../include/utils.h"
-#include "../include/parser_support.h"
+#include "../include/common.h"
 
 #define TOKSTR get_tok_str()
 

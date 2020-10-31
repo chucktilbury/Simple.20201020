@@ -1,14 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+/**
+ * @file simple.c
+ * @brief This is the main entry point to the compiler.
+ *
+ * @author Chuck Tilbury
+ * @version 0.1
+ * @date 2020-10-31
+ *
+ * @copyright Copyright (c) 2020
+ *
+ */
 #include <signal.h>
 
-#undef _DEBUGGING
-#include "../include/parser_support.h"
+//#undef _DEBUGGING
+#include "../include/common.h"
 #include "../parser/parser.h"
-#include "../include/configure.h"
-#include "../include/utils.h"
 
 //#include "ast_tree.h"
 
@@ -30,7 +35,6 @@ static void segfault_handler(int sig) {
 }
 
 static void exit_func(void) {
-
     int errors = get_num_errors();
 
     if(errors != 0)
@@ -39,6 +43,7 @@ static void exit_func(void) {
         printf("\nparse succeeded: %d errors: %d warnings\n\n", errors, get_num_warnings());
 
     destroy_config();
+    close_debug();
 }
 
 static void init_all(int argc, char** argv) {
@@ -47,6 +52,7 @@ static void init_all(int argc, char** argv) {
     init_memory();  // configure uses the routines in memory.c
     configure(argc, argv);
     init_errors(GET_CONFIG_NUM("VERBOSE"), NULL);
+    init_debug(GET_CONFIG_NUM("VERBOSE"), "debug.log");
     //init_ast();
 
     if(atexit(exit_func))
@@ -55,19 +61,18 @@ static void init_all(int argc, char** argv) {
 
 int main(int argc, char **argv) {
 
-
     init_all(argc, argv);
 
     for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
-        _DEBUG("\n     >>> before yyparse()");
+        _DEBUG("     >>> before yyparse()");
         if(open_file(str)) {
             syntax("cannot continue");
             break;
         }
 
         yyparse();
-        _DEBUG(">>> after yyparse()");
+        _DEBUG("     >>> after yyparse()");
     }
 
-    return get_num_errors();
+    return(get_num_errors());
 }

@@ -7,7 +7,7 @@
                 "${workspaceFolder}/src/include",
                 "${workspaceFolder}/src/parser"
             ],
-            "defines": [],
+            "defines": ["_DEBUGGING"],
             "compilerPath": "/usr/bin/clang",
             "cppStandard": "c++14"
         }

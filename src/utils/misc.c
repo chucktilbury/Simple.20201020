@@ -9,14 +9,8 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 #undef _DEBUGGING
-#include "../include/utils.h"
-#include "../include/configure.h"
+#include "../include/common.h"
 
 /**
  * @brief This function works around the strncat() problem where the size is the length of the added
@@ -33,7 +27,7 @@ char* cat_string(char* dest, const char* src, size_t size) {
 
     size_t s = strlen(dest)+1;
 
-    return strncat(dest, src, size-s);
+    return(strncat(dest, src, size-s));
 }
 
 /**
@@ -49,9 +43,9 @@ const char* clip_path(const char* path) {
 
     char* tmp = strrchr(path, '/');
     if(tmp != NULL)
-        return ++tmp;
+        return(++tmp);
     else
-        return path;
+        return(path);
 }
 
 /**
@@ -85,12 +79,12 @@ const char* find_file(const char* fname, char* outbuf, size_t bsize) {
 
         if(!access(outbuf, F_OK)) {
             _DEBUG("found file name: %s", outbuf);
-            return outbuf;
+            return(outbuf);
         }
     }
 
     _DEBUG("no file was found");
-    return NULL;
+    return(NULL);
 }
 
 /**
@@ -116,15 +110,15 @@ char* realloc_string(const char* orig, const char* newstr) {
             if(nptr == NULL)
                 fatal_error("cannot re-allocate memory for string");
             strcat(nptr, newstr);
-            return nptr;
+            return(nptr);
         }
     }
     else if(newstr != NULL) {
         char* nptr = STRDUP(newstr);
         if(nptr == NULL)
             fatal_error("cannot allocate new memory for string");
-        return nptr;
+        return(nptr);
     }
 
-    return NULL;
+    return(NULL);
 }

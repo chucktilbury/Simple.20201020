@@ -17,10 +17,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <string.h>
-
-#include "../include/utils.h"
-#include "../include/parser_support.h"
+#include "../include/common.h"
 
 /*
  * This same data structure is used when parsing an expression and when it
@@ -78,14 +75,13 @@ static inline double _string_to_num(const char * str) {
     if(str == end) {
         scanner_error("cannot convert string to number: \"%s\"", str);
     }
-    return val;
+    return(val);
 }
 
 /**
  * @brief Create a expression object and push it to the top of the stack.
  */
 void create_expression(void) {
-    _MARK();
 
     _expr_list* expr_lst = (_expr_list*)CALLOC(1, sizeof(_expr_list));
 
@@ -103,7 +99,6 @@ void create_expression(void) {
  * of the memory associated with it. Use this when garbage collecting.
  */
 void destroy_expression(void) {
-    _MARK();
 
     if(expr_stack != NULL) {
         // pop the top of the stack
@@ -134,7 +129,6 @@ void destroy_expression(void) {
  * @param type -- The type of operator to add.
  */
 void add_expr_operator(int type) {
-    _MARK();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -155,7 +149,6 @@ void add_expr_operator(int type) {
  * @param str -- The string that represents the number.
  */
 void add_expr_number(const char* str) {
-    _MARK();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -177,13 +170,12 @@ void add_expr_number(const char* str) {
  * @param str -- The string that represents the bool value.
  */
 void add_expr_bool(const char* str) {
-    _MARK();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
         elem->type = EXP_BOOL;
 
-        int val;
+        int val = -1;
         if(!strcmp(str, "true"))
             val = 1;
         else if(!strcmp(str, "false"))
@@ -207,15 +199,20 @@ void add_expr_bool(const char* str) {
  * @param str -- String the represents the symbol table key of the symbol.
  */
 void add_expr_symbol(const char* str) {
-    _MARK();
 
     if(expr_stack != NULL) {
+        _DEBUG("here 1: %p", expr_stack);
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
+        _DEBUG("here 2");
         elem->type = EXP_SYMBOL;
+        _DEBUG("here 3");
         elem->str = STRDUP(str);
+        _DEBUG("here 4");
 
         expr_stack->last->next = elem;
+        _DEBUG("here 5");
         expr_stack->last = elem;
+        _DEBUG("here 6");
     }
     else {
         fatal_error("attempt to add expression symbol to empty expression stack");
@@ -228,7 +225,6 @@ void add_expr_symbol(const char* str) {
  * @param str -- The string to evaluate.
  */
 void add_expr_string(const char* str) {
-    _MARK();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -251,7 +247,6 @@ void add_expr_string(const char* str) {
  * (implementing later)
  */
 void add_expr_subscr(void) {
-    _MARK();
     fatal_error("subscripted expression elements not supported yet.");
 }
 
@@ -262,6 +257,5 @@ void add_expr_subscr(void) {
  * a number to a string without a cast.
  */
 void validate_expression(void) {
-
     _TRACE("validating the expression");
 }

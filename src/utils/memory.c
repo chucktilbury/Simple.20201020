@@ -14,9 +14,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdint.h>
-#include <string.h>
-#include "../include/utils.h"
+#include "../include/common.h"
 
 #define GETSEG(p) (unsigned int)((((uint64_t)(p)) & 0xFFFF00000000) >> 32)
 
@@ -39,7 +37,7 @@ void* malloc_memory(size_t size) {
     if(ptr == NULL)
         fatal_error("malloc cannot allocate %lu bytes", size);
 
-    return ptr;
+    return(ptr);
 }
 
 void* calloc_memory(size_t num, size_t size) {
@@ -48,12 +46,12 @@ void* calloc_memory(size_t num, size_t size) {
     if(ptr == NULL)
         fatal_error("calloc cannot allocate %lu bytes", num*size);
 
-    return ptr;
+    return(ptr);
 }
 
 void* realloc_memory(void* ptr, size_t size) {
 
-    void* nptr;
+    void* nptr = NULL;
 
     if(GETSEG(ptr) == heap_segment)
          nptr = realloc(ptr, size);
@@ -62,7 +60,8 @@ void* realloc_memory(void* ptr, size_t size) {
 
     if(nptr == NULL)
         fatal_error("realloc cannot allocate %lu bytes", size);
-    return nptr;
+
+    return(nptr);
 }
 
 char* strdup_memory(const char* str) {
@@ -71,7 +70,7 @@ char* strdup_memory(const char* str) {
     if(nstr == NULL)
         fatal_error("strdup cannot allocate %lu bytes", strlen(str));
 
-    return nstr;
+    return(nstr);
 }
 
 // note that the heap and the bss segments have the same signature under Linux.

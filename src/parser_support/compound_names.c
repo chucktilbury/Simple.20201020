@@ -16,13 +16,8 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 //#undef _DEBUGGING
-#include "../include/parser_support.h"
-#include "../include/utils.h"
+#include "../include/common.h"
 
 typedef struct __cname {
     char* raw_name;
@@ -46,7 +41,7 @@ compound_name create_compound_name(const char* str) {
     cn->raw_name = realloc_string(NULL, str);
     append_list(&cn->segments, STRDUP(str));
 
-    return (compound_name)cn;
+    return((compound_name)cn);
 }
 
 /**
@@ -97,7 +92,7 @@ void add_compound_name(compound_name name, const char* str) {
 const char* get_compound_name(compound_name name) {
 
     _cname* cn = (_cname*)name;
-    return cn->raw_name;
+    return(cn->raw_name);
 }
 
 /**
@@ -109,7 +104,7 @@ const char* get_compound_name(compound_name name) {
 const char* iterate_compound_name(compound_name name) {
 
     _cname* cn = (_cname*)name;
-    return get_list_next(&cn->segments);
+    return(get_list_next(&cn->segments));
 }
 
 /**
@@ -123,3 +118,4 @@ void reset_compound_name(compound_name name) {
     _cname* cn = (_cname*)name;
     reset_list(&cn->segments);
 }
+

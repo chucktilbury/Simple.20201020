@@ -17,14 +17,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-
-#include "../include/utils.h"
-#include "../include/configure.h"
+#include "../include/common.h"
 
 
 //static char cmd_line_buffer[1024*4];
@@ -36,11 +29,11 @@ static configuration_t* find_config_by_arg(const char* arg) {
         if(_global_config[i].arg == NULL)
             continue;
         else if(!strncmp(arg, _global_config[i].arg, strlen(_global_config[i].arg))) {
-            return &_global_config[i];
+            return(&_global_config[i]);
         }
     }
 
-    return NULL;
+    return(NULL);
 }
 
 static configuration_t* find_config_by_name(const char* name) {
@@ -49,11 +42,11 @@ static configuration_t* find_config_by_name(const char* name) {
         if(_global_config[i].name == NULL)
             continue;
         else if(!strcmp(name, _global_config[i].name)) {
-            return &_global_config[i];
+            return(&_global_config[i]);
         }
     }
 
-    return NULL;
+    return(NULL);
 }
 
 // aborts program if required parameter is not found
@@ -87,7 +80,6 @@ static void check_required(void) {
 
 static void init_config(void) {
 
-    _MARK();
     for(int i = 0; _global_config[i].name != NULL; i++) {
         if(_global_config[i].type == CONFIG_TYPE_LIST) {
             if(_global_config[i].value.string != NULL) {
@@ -170,12 +162,12 @@ void destroy_config(void) {
  * @return int -- Returns the number of configuration items processed.
  */
 int configure(int argc, char** argv) {
+
     configuration_t* config;
     int idx;
-    _MARK();
     init_config();
 
-    strncpy(prog_name, argv[0], sizeof(prog_name));
+    strncpy(prog_name, argv[0], sizeof(prog_name)-1);
     for(idx = 1; idx < argc; idx++) {
         config = find_config_by_arg(argv[idx]);
         if(config == NULL) {
@@ -263,11 +255,12 @@ int configure(int argc, char** argv) {
     }
 
     check_required();
-    return idx;
+    return(idx);
 }
 
 char* get_prog_name(void) {
-    return prog_name;
+
+    return(prog_name);
 }
 
 void* get_config(const char* name) {
@@ -303,7 +296,7 @@ void* get_config(const char* name) {
                 exit(1);
         }
     }
-    return retv;
+    return(retv);
 }
 
 // given the parameter name, iterate the list. Returns any parameter by a string ptr,
@@ -359,7 +352,7 @@ char* iterate_config(const char* name) {
             fprintf(stderr, "CFG ERROR: Cannot iterate configuation parameter\n");
             exit(1);
     }
-    return retv;
+    return(retv);
 }
 
 // call this before starting an iteration

@@ -7,10 +7,7 @@
  *
  *  These functions return 0 for success and !0 for failure.
  */
-#include <stdio.h>
-#include <string.h>
-
-#include "../include/utils.h"
+#include "../include/common.h"
 
 typedef struct __stack_elem {
     void* data;
@@ -45,7 +42,7 @@ int push_stack(stack stk, void* in_buf) {
         s->top = nelem;
     }
 
-    return 0;
+    return(0);
 }
 
 /**
@@ -66,10 +63,10 @@ int pop_stack(stack stk, void* out_buf) {
         FREE(s->top->data);
         s->top = s->top->next;
         FREE(old_elem);
-        return 0;
+        return(0);
     }
 
-    return 1;
+    return(1);
 }
 
 /**
@@ -82,10 +79,10 @@ int peek_stack(stack stk, void* out_buf) {
 
     if(s->top != NULL) {
         memcpy(out_buf, s->top->data, s->item_size);
-        return 0;
+        return(0);
     }
 
-    return 1;
+    return(1);
 }
 
 /**
@@ -94,7 +91,7 @@ int peek_stack(stack stk, void* out_buf) {
 int stack_is_empty(stack stk) {
 
     __stack* s = (__stack*)stk;
-    return (s->top == NULL);
+    return(s->top == NULL);
 }
 
 /**
@@ -107,7 +104,7 @@ stack create_stack(size_t size) {
 
     stk->item_size = size;
     // top is NULL
-    return (stack)stk;
+    return((stack)stk);
 }
 
 /**
@@ -119,6 +116,6 @@ int destroy_stack(stack stk) {
         pop_stack(stk, NULL);
     }
     FREE(stk);
-    return 0;
+    return(0);
 }
 

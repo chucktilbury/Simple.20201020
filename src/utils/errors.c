@@ -6,12 +6,9 @@
  *  parsing as well as those that result from things like memory allocation
  *  issues.
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 
-#include "../include/parser_support.h"
-#include "../include/utils.h"
+#include "../include/common.h"
 
 static struct errors {
     int level;
@@ -144,80 +141,3 @@ void fatal_error(char *str, ...) {
     exit(1);
 }
 
-/*
- *  Debugging stuff blow here.
- */
-#ifdef _DEBUGGING
-void debug(int lev, char *str, ...) {
-
-    va_list args;
-    FILE *ofp;
-
-    if(lev <= errors.level) {
-        if(NULL != errors.fp)
-            ofp = errors.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "DBG: ");
-        va_start(args, str);
-        vfprintf(ofp, str, args);
-        va_end(args);
-        fprintf(ofp, "\n");
-    }
-}
-
-void debug_msg(int lev, const char *str, ...) {
-
-    va_list args;
-    FILE *ofp;
-
-    if(lev <= errors.level) {
-        if(NULL != errors.fp)
-            ofp = errors.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "MSG: %s: %d: %d: ", get_file_name(), get_line_number(), get_col_number());
-        va_start(args, str);
-        vfprintf(ofp, str, args);
-        va_end(args);
-        fprintf(ofp, "\n");
-    }
-}
-
-void debug_mark(int lev, const char *file, int line, const char *func) {
-
-    FILE *ofp;
-
-    if(lev <= errors.level) {
-        if(NULL != errors.fp)
-            ofp = errors.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "MARK: (%s, %d) %s: %d: %d: %s\n", clip_path(file), line, get_file_name(), get_line_number(), get_col_number(), func);
-        //fprintf(ofp, "      %s: %d\n", file, line);
-    }
-}
-
-void debug_trace(int lev, const char *str, ...) {
-
-    va_list args;
-    FILE *ofp;
-
-    if(lev <= errors.level) {
-        if(NULL != errors.fp)
-            ofp = errors.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "TRACE: %s: %d: %d: ", clip_path(get_file_name()), get_line_number(), get_col_number());
-        va_start(args, str);
-        vfprintf(ofp, str, args);
-        va_end(args);
-        fprintf(ofp, "\n");
-    }
-}
-
-#endif /* _DEBUGGING */

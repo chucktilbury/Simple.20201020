@@ -11,11 +11,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
-#include "../include/utils.h"
+#include "../include/common.h"
 
 #define TABLE_MAX_LOAD 0.75
 
@@ -27,8 +23,8 @@ static inline size_t _min(size_t v1, size_t v2) { return (v1 < v2) ? v1 : v2; }
 /*
  * This is a “FNV-1a” hash function. Do not mess with the constants.
  */
-static uint32_t make_hash(const char* key)
-{
+static uint32_t make_hash(const char* key) {
+
     uint32_t hash = 2166136261u;
 
     for(int i = 0; i < (int)strlen(key); i++)
@@ -37,7 +33,7 @@ static uint32_t make_hash(const char* key)
         hash *= 16777619;
     }
 
-    return hash;
+    return(hash);
 }
 
 /*
@@ -45,8 +41,8 @@ static uint32_t make_hash(const char* key)
  * slot returned is where to put the entry. Check the slot's key to tell the
  * difference.
  */
-static _table_entry_t* find_slot(_table_entry_t* ent, size_t cap, const char* key)
-{
+static _table_entry_t* find_slot(_table_entry_t* ent, size_t cap, const char* key) {
+
     uint32_t index = make_hash(key) & (cap - 1);
 
     while(1)
@@ -62,11 +58,12 @@ static _table_entry_t* find_slot(_table_entry_t* ent, size_t cap, const char* ke
             else
                 _DEBUG("insert: index: %-2u key: %-12s\n", index, key);
 #endif
-            return entry;
+            return(entry);
         }
 
         index = (index + 1) & (cap - 1);
     }
+    return(NULL);
 }
 
 /*
@@ -74,10 +71,9 @@ static _table_entry_t* find_slot(_table_entry_t* ent, size_t cap, const char* ke
  * size changes, this function simply re-adds them to the new table, then
  * updates the data structure.
  */
-static void grow_table(hash_table_t* tab)
-{
-    if(tab->count + 2 > tab->capacity * TABLE_MAX_LOAD)
-    {
+static void grow_table(hash_table_t* tab) {
+
+    if(tab->count + 2 > tab->capacity * TABLE_MAX_LOAD) {
 #ifdef __TESTING_HASH_TABLE_C__
         _DEBUG("\ngrowing table\n");
         _DEBUG("  table capacity: %lu\n", tab->capacity);
@@ -89,12 +85,9 @@ static void grow_table(hash_table_t* tab)
         _table_entry_t* entries = (_table_entry_t*)CALLOC(capacity, sizeof(_table_entry_t));
 
         // re-add the table entries to the new table.
-        if(tab->entries != NULL)
-        {
-            for(int i = 0; i < (int)tab->capacity; i++)
-            {
-                if(tab->entries[i].key != NULL)
-                {
+        if(tab->entries != NULL) {
+            for(int i = 0; i < (int)tab->capacity; i++) {
+                if(tab->entries[i].key != NULL) {
                     _table_entry_t* ent = find_slot(entries, capacity, tab->entries[i].key);
 
                     // if the key is the same, (i.e. not NULL) the replace the data. There
@@ -123,15 +116,15 @@ static void grow_table(hash_table_t* tab)
  *
  * @return hash_table_t* -- pointer to the allocated memory.
  */
-hash_table_t* create_hash_table(void)
-{
+hash_table_t* create_hash_table(void) {
+
     hash_table_t* tab;
 
     tab = MALLOC(sizeof(hash_table_t));
 
     tab->capacity = 0x01 << 3;
     tab->entries = (_table_entry_t*)CALLOC(tab->capacity, sizeof(_table_entry_t));
-    return tab;
+    return(tab);
 }
 
 /**
@@ -139,14 +132,11 @@ hash_table_t* create_hash_table(void)
  *
  * @param tab -- Pointer to the table to destroy.
  */
-void destroy_hash_table(hash_table_t* tab)
-{
-    if(tab != NULL)
-    {
-        if(tab->entries != NULL)
-        {
-            for(int i = 0; i < (int)tab->capacity; i++)
-            {
+void destroy_hash_table(hash_table_t* tab) {
+
+    if(tab != NULL) {
+        if(tab->entries != NULL) {
+            for(int i = 0; i < (int)tab->capacity; i++) {
                 if(tab->entries[i].data != NULL)
                     FREE(tab->entries[i].data);
                 if(tab->entries[i].key != NULL)
@@ -168,8 +158,8 @@ void destroy_hash_table(hash_table_t* tab)
  * @param size -- Size of the data to store in the table.
  * @return int -- Indicate whether the data was sored or not.
  */
-int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
-{
+int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t size) {
+
     grow_table(tab);
 
     _table_entry_t* entry = find_slot(tab->entries, tab->capacity, key);
@@ -183,7 +173,7 @@ int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t siz
         tab->count++;
     }
 
-    return retv;
+    return(retv);
 }
 
 /**
@@ -198,15 +188,13 @@ int insert_hash_table(hash_table_t* tab, const char* key, void* data, size_t siz
  * @param size -- Number of bytes to copy for the data.
  * @return int -- Indicate whether there was an error or not.
  */
-int find_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
-{
+int find_hash_table(hash_table_t* tab, const char* key, void* data, size_t size) {
+
     _table_entry_t* entry = find_slot(tab->entries, tab->capacity, key);
     int retv = HASH_NO_ERROR;
 
-    if(entry->key != NULL)
-    {
-        if(entry->data != NULL)
-        {
+    if(entry->key != NULL) {
+        if(entry->data != NULL) {
             //if(entry->size != size)
             //    retv = HASH_DATA_SIZE;
             memcpy(data, entry->data, _min(size, entry->size));
@@ -217,7 +205,7 @@ int find_hash_table(hash_table_t* tab, const char* key, void* data, size_t size)
     else
         retv = HASH_NOT_FOUND;
 
-    return retv;
+    return(retv);
 }
 
 /**
@@ -237,7 +225,7 @@ size_t find_hash_table_entry_size(hash_table_t* tab, const char* key) {
         retv = entry->size;
     }
 
-    return retv;
+    return(retv);
 }
 
 /**
@@ -258,9 +246,9 @@ const char* iterate_hash_table(hash_table_t* tab, int reset) {
 
     for(ht_index++; ht_index < (int)tab->capacity; ht_index++) {
         if(tab->entries[ht_index].key != NULL) {
-            return tab->entries[ht_index].key;
+            return(tab->entries[ht_index].key);
         }
     }
 
-    return NULL;
+    return(NULL);
 }

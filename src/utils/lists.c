@@ -3,12 +3,9 @@
  * data type and the caller is responsible for freeing the data and making sure that the
  * pointer remains valid through the life of the list.
  */
-
-//#include "../include/common.h"
-#include <stdio.h>
-
 //#undef _DEBUGGING
-#include "../include/utils.h"
+#include "../include/common.h"
+
 /*
  * This resizes the list to grow it. This should always be called before
  * adding aything to it.
@@ -17,6 +14,7 @@
  */
 static void resize_list(list_t* list)
 {
+
     if(list->nitems + 2 > list->capacity)
     {
         list->capacity = list->capacity << 1;
@@ -47,6 +45,7 @@ static unsigned char* list_at_index(list_t* list, int index)
  */
 void destroy_list(list_t* list)
 {
+
     FREE(list->buffer);
     FREE(list);
 }
@@ -62,6 +61,7 @@ void init_list(list_t* list) {
     list->buffer = (void**)CALLOC(list->capacity, sizeof(void*));
     if(list->buffer == NULL)
         fatal_error("cannot allocate %lu bytes for managed list buffer", list->capacity * sizeof(void*));
+
 }
 
 /*
@@ -70,8 +70,8 @@ void init_list(list_t* list) {
  *
  * Size is the size of each item that that will be put in the list.
  */
-list_t* create_list(void)
-{
+list_t* create_list(void) {
+
     list_t* list;
 
     list = (list_t*)MALLOC(sizeof(list_t));
@@ -80,14 +80,14 @@ list_t* create_list(void)
 
     init_list(list);
 
-    return list;
+    return(list);
 }
 
 /*
  * Store the given item in the given list at the end of the list.
  */
-void append_list(list_t* list, void* item)
-{
+void append_list(list_t* list, void* item){
+
     resize_list(list);
     list->buffer[list->nitems] = item;
     list->nitems++;
@@ -98,17 +98,16 @@ void append_list(list_t* list, void* item)
  * the element specified. If it is outside the list, or if there is nothing in
  * the list, then return NULL.
  */
-void* get_list_by_index(list_t* list, int index)
-{
+void* get_list_by_index(list_t* list, int index) {
+
     if(list != NULL)
     {
         if(index >= 0 && index < (int)list->nitems)
         {
-            return list->buffer[index];
+            return(list->buffer[index]);
         }
     }
-
-    return NULL;  // failed
+    return(NULL);  // failed
 }
 
 /*
@@ -116,8 +115,8 @@ void* get_list_by_index(list_t* list, int index)
  * the element specified. If it is outside the list, or if there is nothing in
  * the list, then return NULL.
  */
-void* get_list_next(list_t* list)
-{
+void* get_list_next(list_t* list) {
+
     if(list != NULL)
     {
         //if(list->index >= 0 && list->index < list->nitems)
@@ -126,11 +125,10 @@ void* get_list_next(list_t* list)
         {
             void* retv = list->buffer[list->index];
             list->index++;
-            return retv;
+            return(retv);
         }
     }
-
-    return NULL;  // failed
+    return(NULL);  // failed
 }
 
 /*

@@ -9,6 +9,7 @@ add_library(${PROJECT_NAME} STATIC
     lists.c
     misc.c
     memory.c
+    messages.c
 )
 
 target_include_directories(${PROJECT_NAME}

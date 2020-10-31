@@ -19,3 +19,7 @@ This is a rough sketch of my todo list in this project.
 * ~~fix the error reporting~~
   * ~~clarify error messages for category~~
   * ~~if there is no file open, then don't try to report the name.~~
+
+backtrace
+enter/return macros
+memory tracker

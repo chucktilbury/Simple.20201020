@@ -17,13 +17,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
-#include "../include/utils.h"
-#include "../include/parser_support.h"
+#include "../include/common.h"
 
 // define 32 flags to start with. If more flags are needed, then define
 // another flags var and then implement the logic to tell the difference.
@@ -39,6 +33,7 @@ static uint64_t flags;
  *
  */
 void clear_flags(void) {
+
     flags = 0x00UL - 1;
 }
 
@@ -48,10 +43,12 @@ void clear_flags(void) {
  * @param flag -- Which flag.
  */
 void set_flag(int flag) {
+
     // clear the unused bit
     flags &= ~FLAG_UBIT(flag);
     // set the value bit
     flags |= FLAG_VBIT(flag);
+
 }
 
 /**
@@ -60,10 +57,12 @@ void set_flag(int flag) {
  * @param flag -- Which flag.
  */
 void clear_flag(int flag) {
+
     // clear the unused bit
     flags &= ~FLAG_UBIT(flag);
     // clear the value bit
     flags &= ~FLAG_VBIT(flag);
+
 }
 
 /**
@@ -72,8 +71,10 @@ void clear_flag(int flag) {
  * @param flag -- Which flag.
  */
 void reset_flag(int flag) {
+
     flags |= FLAG_UBIT(flag);
     flags |= FLAG_VBIT(flag);
+
 }
 
 /**
@@ -83,11 +84,12 @@ void reset_flag(int flag) {
  * @return int -- Return UNUSED, TRUE, or FALSE.
  */
 int get_flag(int flag) {
+
     int v = (flags & FLAG_MASK(flag)) >> FLAG_INDEX(flag);
     if(v & 0x10)
-        return FM_UNUSED;
+        return(FM_UNUSED);
     else
-        return v;
+        return(v);
 }
 
 // This data structure must match the order that the flags are defined in
@@ -120,6 +122,6 @@ char* flag_to_str(void) {
     if(strlen(outstr) == 1)
         outstr = realloc_string(outstr, "NONE ");
     outstr[strlen(outstr)-1] = ')';
-    return outstr;
+    return(outstr);
 }
 
