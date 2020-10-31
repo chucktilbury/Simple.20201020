@@ -11,13 +11,6 @@
 
 #define TOKSTR get_tok_str()
 
-/*
- *  Compound name is allocated when a new one is being formed and destroyed
- *  when it's consumed. If the name needs to be stored, then that must happen
- *  explititly.
- */
-compound_name comp_name;
-
 %}
 %define parse.error verbose
 %locations
@@ -65,11 +58,11 @@ module_item
 compound_name
     : SYMBOL {
             _TRACE("new compound symbol name: %s", TOKSTR);
-            comp_name = create_compound_name(TOKSTR);
+            create_compound_name(TOKSTR);
         }
     | compound_name '.' SYMBOL {
             _TRACE("adding to compound name: %s", TOKSTR);
-            add_compound_name(comp_name, TOKSTR);
+            add_compound_name(TOKSTR);
         }
     | compound_name error SYMBOL
     | compound_name '.' error
@@ -92,8 +85,8 @@ type_name
             _TRACE("defining number data type");
         }
     | compound_name {
-            _TRACE("compound name as a type name see: %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("compound name as a type name see: %s", get_compound_name());
+            destroy_compound_name();
         }
     | error
     ;
@@ -222,8 +215,8 @@ class_definition_params
             _TRACE("start class body");
         }
     | class_name '(' compound_name {
-            _TRACE("class inherits from %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("class inherits from %s", get_compound_name());
+            destroy_compound_name();
         } ')' '{'
     ;
 
@@ -366,8 +359,8 @@ destructor_definition
 
     subscripted_compound_name
     : compound_name {
-            _TRACE("subscripted compound name: %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("subscripted compound name: %s", get_compound_name());
+            destroy_compound_name();
             _TRACE("begin subscripted compound name list");
         } subscript_list {
             _TRACE("end subscripted compound name list");
@@ -376,14 +369,18 @@ destructor_definition
 
 expression_name
     : compound_name {
-            const char* name = get_compound_name(comp_name);
+            const char* name = get_compound_name();
             _TRACE("expression compound name: %s", name);
             if(!get_flag(PARSING_EXPRESSION)) {
+                _DEBUG(5, "before creating an expression");
                 create_expression();
+                _DEBUG(5, "after creating an expression");
                 set_flag(PARSING_EXPRESSION);
             }
+            _DEBUG(5, "before add an expression symbol");
             add_expr_symbol(name);
-            destroy_compound_name(comp_name);
+            _DEBUG(5, "after add an expression symbol");
+            destroy_compound_name();
         }
     /* | subscripted_compound_name {
             // TODO: Subscripts not supported yet
@@ -526,8 +523,8 @@ call_output_parameter_list
 
 function_call
     : compound_name {
-            _TRACE("function call name: %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("function call name: %s", get_compound_name());
+            destroy_compound_name();
             _TRACE("begin function call input parameters");
         } '(' possible_blank_expr_list {
             _TRACE("end function call input parameters");
@@ -539,8 +536,8 @@ function_call
 
 destroy_statement
     : DESTROY compound_name {
-            _TRACE("destroy symbol: %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("destroy symbol: %s", get_compound_name());
+            destroy_compound_name();
         }
     | DESTROY error ';'
     ;
@@ -772,8 +769,8 @@ assignment_target
 
 assignment
     : compound_name {
-            _TRACE("assignment to compound name: %s", get_compound_name(comp_name));
-            destroy_compound_name(comp_name);
+            _TRACE("assignment to compound name: %s", get_compound_name());
+            destroy_compound_name();
         } '=' assignment_target {
             _TRACE("end assignment statement");
         }

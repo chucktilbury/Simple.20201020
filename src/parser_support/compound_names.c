@@ -2,12 +2,16 @@
  * @file compound_names.c
  * @brief This file contains code that the bison parser calls directly.
  *
- *  This implements the compound name functionality. When a compound
- *  name is parsed, it is read in segments. Each segment represents
- *  a part of a path to follow to find the memory where the actual
- *  object is located. This module facilitates storing the name in
- *  a format that makes it easy to search, or to simply retrieve the
- *  name as a single string.
+ * This implements the compound name functionality. When a compound
+ * name is parsed, it is read in segments. Each segment represents
+ * a part of a path to follow to find the memory where the actual
+ * object is located. This module facilitates storing the name in
+ * a format that makes it easy to search, or to simply retrieve the
+ * name as a single string.
+ *
+ * In the parser, it's possible that a compound name will not be consumed
+ * immediately after it's parsed. The names are kept in stack until it's
+ * consumed. When it's consumed, it's popped off of the stack and freed.
  *
  * @author Chuck Tilbury
  * @version 0.1
@@ -21,101 +25,82 @@
 
 typedef struct __cname {
     char* raw_name;
-    list_t segments;
+    struct __cname* next;
 } _cname;
+
+static _cname* name_stack = NULL;
 
 /**
  * @brief Create a compound name object
  *
  * @param str
- * @return compound_name
  */
-compound_name create_compound_name(const char* str) {
+void create_compound_name(const char* str) {
 
-    _cname* cn = (_cname*)CALLOC(1, sizeof(_cname));
-    if(cn == NULL)
-        fatal_error("cannot allocate memory for compound name");
+    _cname* cname = CALLOC(1, sizeof(_cname));
+    cname->raw_name = STRDUP(str);
+    _DEBUG(5, "create compound name \"%s\" (%p -> %p)", str, cname, name_stack);
 
-    _DEBUG(11, "create compound name: %s", str);
-    init_list(&cn->segments);
-    cn->raw_name = realloc_string(NULL, str);
-    append_list(&cn->segments, STRDUP(str));
-
-    return((compound_name)cn);
+    // push it on the stack
+    cname->next = name_stack;
+    name_stack = cname;
 }
 
 /**
- * @brief Destroy a compound name object
+ * @brief Destroy a compound name object. Caller has to free the string.
  *
- * @param name -- The compound name to destroy
  */
-void destroy_compound_name(compound_name name) {
+void destroy_compound_name(void) {
 
-    _cname* cn = (_cname*)name;
+    _cname* cname = name_stack;
 
-    _DEBUG(11, "destroy compound name: %s", cn->raw_name);
-    reset_list(&cn->segments);
-    void* item;
-    while(NULL != (item = get_list_next(&cn->segments))) {
-        _DEBUG(11, "free segment: %s", item);
-        FREE(item);
+    if(cname != NULL) {
+        // pop the top
+        name_stack = cname->next;
+        _DEBUG(5, "destroy compound name: \"%s\"", cname->raw_name);
+        FREE(cname->raw_name);
+        FREE(cname);
     }
-    FREE(cn->segments.buffer);
-    FREE(cn);
+    else
+        internal_error("attempt to destroy a non-existant compound name");
 }
 
 /**
  * @brief Add a segment to the compound name.
  *
- * @param name -- The compound name to add to.
  * @param str -- The segment to add.
  */
-void add_compound_name(compound_name name, const char* str) {
+void add_compound_name(const char* str) {
 
-    _cname* cn = (_cname*)name;
+    _cname* cname = name_stack;
     char tmp[80];
 
-    _DEBUG(11, "add to compound name: %s", str);
-    strcpy(tmp, ".");
-    cat_string(tmp, str, sizeof(tmp));
-
-    cn->raw_name = realloc_string(cn->raw_name, tmp);
-    append_list(&cn->segments, STRDUP(str));
+    if(cname != NULL) {
+        strcpy(tmp, ".");
+        cat_string(tmp, str, sizeof(tmp));
+        _DEBUG(5, "add to a compound name: \"%s\" -> \"%s\"", cname->raw_name, tmp);
+        cname->raw_name = realloc_string(cname->raw_name, tmp);
+    }
+    else
+        internal_error("attempt to add to a non-existant compound name");
 }
 
 /**
  * @brief Get the compound name object
  *
- * @param name -- The compound name object to query
  * @return const char* -- The full name.
  */
-const char* get_compound_name(compound_name name) {
+const char* get_compound_name(void) {
 
-    _cname* cn = (_cname*)name;
-    return(cn->raw_name);
-}
+    _cname* cname = name_stack;
 
-/**
- * @brief Scan the compound name, one segment at a time.
- *
- * @param name -- The compound name to iterate.
- * @return const char* -- The segment that weas iterated, or NULL if there are no more segments.
- */
-const char* iterate_compound_name(compound_name name) {
-
-    _cname* cn = (_cname*)name;
-    return(get_list_next(&cn->segments));
-}
-
-/**
- * @brief Reset the compound name iterator. This must be called before
- * the compound name is iterated.
- *
- * @param name -- The compound name to iterate.
- */
-void reset_compound_name(compound_name name) {
-
-    _cname* cn = (_cname*)name;
-    reset_list(&cn->segments);
+    if(cname != NULL) {
+        _DEBUG(5, "returning compound name: \"%s\"", cname->raw_name);
+        return cname->raw_name;
+    }
+    else {
+        internal_error("attempt to get to a non-existant compound name");
+        return NULL;
+    }
 }
 

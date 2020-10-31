@@ -79,6 +79,22 @@ static inline double _string_to_num(const char * str) {
 }
 
 /**
+ * @brief Add an element to the expression list.
+ */
+static inline void add_element(_expr_element* elem) {
+
+    // have already validated that the TOS is valid.
+    if(expr_stack->first == NULL) {
+        expr_stack->first = elem;
+        expr_stack->last = elem;
+    }
+    else {
+        expr_stack->last->next = elem;
+        expr_stack->last = elem;
+    }
+}
+
+/**
  * @brief Create a expression object and push it to the top of the stack.
  */
 void create_expression(void) {
@@ -156,8 +172,7 @@ void add_expr_number(const char* str) {
         elem->type = EXP_NUMBER;
         elem->number = _string_to_num(str);
 
-        expr_stack->last->next = elem;
-        expr_stack->last = elem;
+        add_element(elem);
     }
     else {
         fatal_error("attempt to add expression number literal to empty expression stack");
@@ -173,6 +188,7 @@ void add_expr_bool(const char* str) {
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
+
         elem->type = EXP_BOOL;
 
         int val = -1;
@@ -185,8 +201,7 @@ void add_expr_bool(const char* str) {
 
         elem->bool_val = val;
 
-        expr_stack->last->next = elem;
-        expr_stack->last = elem;
+        add_element(elem);
     }
     else {
         fatal_error("attempt to add expression boolean literal to empty expression stack");
@@ -201,18 +216,12 @@ void add_expr_bool(const char* str) {
 void add_expr_symbol(const char* str) {
 
     if(expr_stack != NULL) {
-        _DEBUG(11, "here 1: %p", expr_stack);
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
-        _DEBUG(11, "here 2");
-        elem->type = EXP_SYMBOL;
-        _DEBUG(11, "here 3");
-        elem->str = STRDUP(str);
-        _DEBUG(11, "here 4");
 
-        expr_stack->last->next = elem;
-        _DEBUG(11, "here 5");
-        expr_stack->last = elem;
-        _DEBUG(11, "here 6");
+        elem->type = EXP_SYMBOL;
+        elem->str = STRDUP(str);
+
+        add_element(elem);
     }
     else {
         fatal_error("attempt to add expression symbol to empty expression stack");
@@ -231,8 +240,7 @@ void add_expr_string(const char* str) {
         elem->type = EXP_STRING;
         elem->str = STRDUP(str);
 
-        expr_stack->last->next = elem;
-        expr_stack->last = elem;
+        add_element(elem);
     }
     else {
         fatal_error("attempt to add expression string literal to empty expression stack");
@@ -258,4 +266,11 @@ void add_expr_subscr(void) {
  */
 void validate_expression(void) {
     _TRACE("validating the expression");
+
+    _expr_element* crnt;
+    _DEBUG(5, "expression queue:");
+    for(crnt = expr_stack->first; crnt != NULL; crnt = crnt->next) {
+        _DEBUG(5, "    %s (%d)", EXPR_TYPE_TO_STR(crnt->type), crnt->type);
+    }
+
 }

@@ -21,11 +21,11 @@
 #  define _MARK(v) debug_mark((v), __FILE__, __LINE__, __func__)
 #  define _MSG(v, ...) debug_msg((v), __VA_ARGS__)
 #  define _DEBUG(v, ...) debug((v), __VA_ARGS__)
-#  define _TRACE(...) debug_trace(6, __VA_ARGS__)
-#  define _TRACE1(...) debug_trace(7, __VA_ARGS__)
-#  define _TRACE2(...) debug_trace(8, __VA_ARGS__)
-#  define _TRACE3(...) debug_trace(9, __VA_ARGS__)
-#  define _TRACE4(...) debug_trace(10, __VA_ARGS__)
+#  define _TRACE(...) debug_trace(11, __VA_ARGS__)
+#  define _TRACE1(...) debug_trace(12, __VA_ARGS__)
+#  define _TRACE2(...) debug_trace(13, __VA_ARGS__)
+#  define _TRACE3(...) debug_trace(14, __VA_ARGS__)
+#  define _TRACE4(...) debug_trace(15, __VA_ARGS__)
 void debug_mark(int, const char*, int, const char *);
 void debug_trace(int, const char *, ...);
 void debug(int, const char*, ...);
