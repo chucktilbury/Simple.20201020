@@ -11,7 +11,6 @@
 #include "../include/common.h"
 
 static struct errors {
-    int level;
     FILE *fp;
     int errors;
     int warnings;
@@ -20,9 +19,8 @@ static struct errors {
 /*
  *  Initialize the errors and logging system.
  */
-void init_errors(int level, FILE * stre) {
+void init_errors(FILE * stre) {
 
-    errors.level = level;
     errors.fp = stre; // If this is NULL, then stderr will be used.
     errors.errors = 0;
     errors.warnings = 0;
@@ -34,14 +32,6 @@ void inc_error_count(void) {
 
 void inc_warning_count(void) {
     errors.warnings++;
-}
-
-void set_error_level(int lev) {
-    errors.level = lev;
-}
-
-int get_error_level(void) {
-    return errors.level;
 }
 
 void set_error_stream(FILE * fp) {
@@ -114,11 +104,19 @@ void warning(char *str, ...) {
     errors.warnings++;
 }
 
-void system_error(char *str, ...) {
+/**
+ * @brief This error is shown when one of those "impossible" errors happens.
+ * For example, when some syntax is encountered that the parser should make
+ * impossible.
+ *
+ * @param str
+ * @param ...
+ */
+void internal_error(char *str, ...) {
 
     va_list args;
 
-    fprintf(stderr, "SYSTEM ERROR: ");
+    fprintf(stderr, "INTERNAL ERROR: ");
 
     va_start(args, str);
     vfprintf(stderr, str, args);
@@ -127,6 +125,13 @@ void system_error(char *str, ...) {
     errors.errors++;
 }
 
+/**
+ * @brief This is an error such as running out of memory. The exit handler
+ * is still called, but the program is aborted.
+ *
+ * @param str
+ * @param ...
+ */
 void fatal_error(char *str, ...) {
 
     va_list args;

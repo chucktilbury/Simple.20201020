@@ -51,7 +51,7 @@ static void init_all(int argc, char** argv) {
     signal(SIGSEGV, segfault_handler);
     init_memory();  // configure uses the routines in memory.c
     configure(argc, argv);
-    init_errors(GET_CONFIG_NUM("VERBOSE"), NULL);
+    init_errors(NULL);
     init_debug(GET_CONFIG_NUM("VERBOSE"), "debug.log");
     //init_ast();
 
