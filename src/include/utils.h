@@ -19,6 +19,6 @@
 #include "stack.h"
 #include "misc.h"
 #include "memory.h"
-#include "debug.h"
+#include "messages.h"
 
 #endif /* __UTILS_H__ */

@@ -36,7 +36,7 @@ compound_name create_compound_name(const char* str) {
     if(cn == NULL)
         fatal_error("cannot allocate memory for compound name");
 
-    _DEBUG("create compound name: %s", str);
+    _DEBUG(11, "create compound name: %s", str);
     init_list(&cn->segments);
     cn->raw_name = realloc_string(NULL, str);
     append_list(&cn->segments, STRDUP(str));
@@ -53,11 +53,11 @@ void destroy_compound_name(compound_name name) {
 
     _cname* cn = (_cname*)name;
 
-    _DEBUG("destroy compound name: %s", cn->raw_name);
+    _DEBUG(11, "destroy compound name: %s", cn->raw_name);
     reset_list(&cn->segments);
     void* item;
     while(NULL != (item = get_list_next(&cn->segments))) {
-        _DEBUG("free segment: %s", item);
+        _DEBUG(11, "free segment: %s", item);
         FREE(item);
     }
     FREE(cn->segments.buffer);
@@ -75,7 +75,7 @@ void add_compound_name(compound_name name, const char* str) {
     _cname* cn = (_cname*)name;
     char tmp[80];
 
-    _DEBUG("add to compound name: %s", str);
+    _DEBUG(11, "add to compound name: %s", str);
     strcpy(tmp, ".");
     cat_string(tmp, str, sizeof(tmp));
 

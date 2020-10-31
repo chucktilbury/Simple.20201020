@@ -201,18 +201,18 @@ void add_expr_bool(const char* str) {
 void add_expr_symbol(const char* str) {
 
     if(expr_stack != NULL) {
-        _DEBUG("here 1: %p", expr_stack);
+        _DEBUG(11, "here 1: %p", expr_stack);
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
-        _DEBUG("here 2");
+        _DEBUG(11, "here 2");
         elem->type = EXP_SYMBOL;
-        _DEBUG("here 3");
+        _DEBUG(11, "here 3");
         elem->str = STRDUP(str);
-        _DEBUG("here 4");
+        _DEBUG(11, "here 4");
 
         expr_stack->last->next = elem;
-        _DEBUG("here 5");
+        _DEBUG(11, "here 5");
         expr_stack->last = elem;
-        _DEBUG("here 6");
+        _DEBUG(11, "here 6");
     }
     else {
         fatal_error("attempt to add expression symbol to empty expression stack");

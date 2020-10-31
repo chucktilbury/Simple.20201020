@@ -44,7 +44,7 @@ compound_name comp_name;
      */
 module
     : module_list {
-        _DEBUG("module finished");
+        _DEBUG(11, "module finished");
         if(!get_flag(ENTRY_DEFINED))
             warning("no entry defined for program.");
     }

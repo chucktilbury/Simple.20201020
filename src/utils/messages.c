@@ -21,6 +21,13 @@ static struct {
     const char* fname;
 } debugging;
 
+/**
+ * @brief Init the debug code. This sets the level of the debug messages and
+ * also opens the debugger logging file.
+ *
+ * @param level
+ * @param fname
+ */
 void init_debug(int level, const char* fname) {
 
     debugging.fname = fname;
@@ -38,13 +45,14 @@ void close_debug(void) {
 }
 
 /**
- * @brief Print a simple generic debugging message.
+ * @brief Print a simple generic debugging message with no information about
+ * the source code or the file being parsed.
  *
  * @param lev
  * @param str
  * @param ...
  */
-void debug(int lev, char *str, ...) {
+void debug(int lev, const char *str, ...) {
 
     va_list args;
     FILE *ofp;
@@ -64,7 +72,8 @@ void debug(int lev, char *str, ...) {
 }
 
 /**
- * @brief Print a generic debugging message.
+ * @brief Print a generic debugging message with information about the file
+ * that is being parsed.
  *
  * @param lev
  * @param str
@@ -139,69 +148,5 @@ void debug_trace(int lev, const char *str, ...) {
     }
 }
 
-// #define INDENT_SPACES 2
-// static int indent = 0;
-/**
- * @brief All functions should be decorated with the macro associated with this.
- * It allows the stack trace to be printed in case of a seg fault or other
- * premature ending of the program.
- *
- * @param name
- * @param line
- */
-void debug_entry(const char* name, int line) {
-
-    //char buffer[100];
-    FILE *ofp;
-
-    if(20 <= debugging.level) {
-        if(NULL != debugging.fp)
-            ofp = debugging.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "ENT: %s(): line %d\n", name, line);
-        //indent += INDENT_SPACES;
-    }
-}
-
-/**
- * @brief All return points in all functions should be decorated with the macros
- * associated with this function to enable stack tracing in the event of a
- * segfault or other premature ending of the program.
- *
- * @param name
- * @param line
- */
-void debug_return(const char* name, int line) {
-
-    FILE *ofp;
-
-    if(20 <= debugging.level) {
-        if(NULL != debugging.fp)
-            ofp = debugging.fp;
-        else
-            ofp = stderr;
-
-        fprintf(ofp, "RET: %s(): line %d\n", name, line);
-    }
-}
-
-/**
- * @brief Exit the program and print the message.
- *
- * @param val
- */
-void debug_exit(const char* fname, int line, const char* func, int val) {
-
-    FILE *ofp;
-
-    if(NULL != debugging.fp)
-        ofp = debugging.fp;
-    else
-        ofp = stderr;
-
-    fprintf(ofp, "EXIT: file %s: line %d: %s(): %d: ", clip_path(fname), line, func, val);
-}
 
 #endif /* _DEBUGGING */

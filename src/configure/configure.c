@@ -180,7 +180,7 @@ int configure(int argc, char** argv) {
                 config = find_config_by_name("INFILES");
                 const char* ptr = STRDUP(argv[idx]);
                 append_list(config->value.list, (void*)ptr);
-                _DEBUG("after append_list()");
+                _DEBUG(11, "after append_list()");
                 config->touched++;
                 continue;
             }

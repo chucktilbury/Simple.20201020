@@ -27,8 +27,8 @@ void init_memory(void) {
     stack_segment = GETSEG(&num);
     heap_segment = GETSEG(&heap_segment);
 
-    //_DEBUG("stack = %p, heap = %p", &num, &heap_segment);
-    _DEBUG("stack = 0x%04X, heap = 0x%04X", stack_segment, heap_segment);
+    //_DEBUG(11, "stack = %p, heap = %p", &num, &heap_segment);
+    _DEBUG(11, "stack = 0x%04X, heap = 0x%04X", stack_segment, heap_segment);
 }
 
 void* malloc_memory(size_t size) {

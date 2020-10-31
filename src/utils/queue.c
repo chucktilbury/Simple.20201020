@@ -31,7 +31,7 @@ int write_queue(queue que, void* in_buf) {
     __queue* q = (__queue*)que;
     // MALLOC() and CALLOC() end the program if they fail.
     __queue_elem* nelem = CALLOC(1, sizeof(__queue_elem));
-    _DEBUG("item size = %lu", q->item_size);
+    _DEBUG(11, "item size = %lu", q->item_size);
     nelem->data = MALLOC(q->item_size);
 
     memcpy(nelem->data, in_buf, q->item_size);

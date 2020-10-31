@@ -64,14 +64,14 @@ int main(int argc, char **argv) {
     init_all(argc, argv);
 
     for(char* str = iterate_config("INFILES"); str != NULL; str = iterate_config("INFILES")) {
-        _DEBUG("     >>> before yyparse()");
+        _DEBUG(11, "     >>> before yyparse()");
         if(open_file(str)) {
             syntax("cannot continue");
             break;
         }
 
         yyparse();
-        _DEBUG("     >>> after yyparse()");
+        _DEBUG(11, "     >>> after yyparse()");
     }
 
     return(get_num_errors());
