@@ -14,8 +14,11 @@ extern _expr_list* expr_stack;
 static inline const char* _stack_item_to_str(_expr_element* elem, char* buffer, size_t bsize) {
 
     switch(elem->type) {
-        case EXP_NUMBER:
-            snprintf(buffer, bsize, "%s = %g", EXPR_TYPE_TO_STR(elem->type), elem->number);
+        case EXP_FLOAT:
+            snprintf(buffer, bsize, "%s = %g", EXPR_TYPE_TO_STR(elem->type), elem->fpnum);
+            break;
+        case EXP_INT:
+            snprintf(buffer, bsize, "%s = %lld", EXPR_TYPE_TO_STR(elem->type), elem->intnum);
             break;
         case EXP_STRING:
             snprintf(buffer, bsize, "%s = %s", EXPR_TYPE_TO_STR(elem->type), elem->str);
@@ -69,10 +72,10 @@ static int _magnitude_lr(_expr_element* left, _expr_element* right) {
     int retv = 0; // pessimestic
 
     switch(left->type) {
-        case EXP_NUMBER:
+        case EXP_FLOAT:
             switch(right->type) {
-                case EXP_NUMBER:
-                    retv = EXP_NUMBER;
+                case EXP_FLOAT:
+                    retv = EXP_FLOAT;
                     break;
                 case EXP_STRING:
                     syntax("magnitude compare on a number and a string is invalid. (use a cast)");
@@ -87,7 +90,7 @@ static int _magnitude_lr(_expr_element* left, _expr_element* right) {
                 case EXP_STRING:
                     retv = EXP_STRING;
                     break;
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     syntax("magnitude compare on a number and a string is invalid. (use a cast)");
                     break;
                 case EXP_BOOL:
@@ -103,7 +106,7 @@ static int _magnitude_lr(_expr_element* left, _expr_element* right) {
                 case EXP_STRING:
                     syntax("magnitude compare on string and bool is invalid. (use a cast)");
                     break;
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     syntax("magnitude compare on number and bool is invalid. (use a cast)");
                     break;
             }
@@ -122,10 +125,10 @@ static int _arith_lr(_expr_element* left, _expr_element* right) {
     int retv = 0; // pessimestic
 
     switch(left->type) {
-        case EXP_NUMBER:
+        case EXP_FLOAT:
             switch(right->type) {
-                case EXP_NUMBER:
-                    retv = EXP_NUMBER;
+                case EXP_FLOAT:
+                    retv = EXP_FLOAT;
                     break;
                 case EXP_STRING:
                     syntax("arithmetic operation on a number and a string is invalid. (use a cast)");
@@ -140,7 +143,7 @@ static int _arith_lr(_expr_element* left, _expr_element* right) {
                 case EXP_STRING:
                     retv = EXP_STRING;
                     break;
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     syntax("arithmetic operation on a number and a string is invalid. (use a cast)");
                     break;
                 case EXP_BOOL:
@@ -156,7 +159,7 @@ static int _arith_lr(_expr_element* left, _expr_element* right) {
                 case EXP_STRING:
                     syntax("arithmetic operation on string and bool is invalid. (use a cast)");
                     break;
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     syntax("arithmetic operation on number and bool is invalid. (use a cast)");
                     break;
             }
@@ -197,8 +200,8 @@ static int _comparison(int op) {
     switch(op) {
         case EXP_EQU_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number == right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum == right.fpnum);
                     _push(&result);
                     warning("comparing two numbers for equality is risky");
                     break;
@@ -220,8 +223,8 @@ static int _comparison(int op) {
             break;
         case EXP_NEQU_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number != right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum != right.fpnum);
                     _push(&result);
                     warning("comparing two numbers for inequality is risky");
                     break;
@@ -243,8 +246,8 @@ static int _comparison(int op) {
             break;
         case EXP_LT_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number < right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum < right.fpnum);
                     _push(&result);
                     break;
                 case EXP_STRING:
@@ -262,8 +265,8 @@ static int _comparison(int op) {
             break;
         case EXP_GT_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number > right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum > right.fpnum);
                     _push(&result);
                     break;
                 case EXP_STRING:
@@ -281,8 +284,8 @@ static int _comparison(int op) {
             break;
         case EXP_GTE_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number >= right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum >= right.fpnum);
                     _push(&result);
                     break;
                 case EXP_STRING:
@@ -300,8 +303,8 @@ static int _comparison(int op) {
             break;
         case EXP_LTE_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.bool_val = (left.number <= right.number);
+                case EXP_FLOAT:
+                    result.bool_val = (left.fpnum <= right.fpnum);
                     _push(&result);
                     break;
                 case EXP_STRING:
@@ -320,7 +323,7 @@ static int _comparison(int op) {
 
         case EXP_AND_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     result.bool_val = 1;
                     warning("a number AND a number is always true");
                     _push(&result);
@@ -341,7 +344,7 @@ static int _comparison(int op) {
 
         case EXP_OR_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
+                case EXP_FLOAT:
                     result.bool_val = 1;
                     warning("a number OR a number is always true");
                     _push(&result);
@@ -394,13 +397,13 @@ static int _arithmetic(int op) { //, int type) {
 
 
     memset(&result, 0, sizeof(_expr_element));
-    result.type = EXP_NUMBER;
+    result.type = EXP_FLOAT;
 
     switch(op) {
         case EXP_ADD_OPERATOR:
             switch(apparent_type) {
-                case EXP_NUMBER:
-                    result.number = left.number + right.number;
+                case EXP_FLOAT:
+                    result.fpnum = left.fpnum + right.fpnum;
                     _push(&result);
                     break;
                 case EXP_STRING:
@@ -418,48 +421,48 @@ static int _arithmetic(int op) { //, int type) {
             break;
 
         case EXP_SUB_OPERATOR:
-            if(apparent_type != EXP_NUMBER) {
+            if(apparent_type != EXP_FLOAT) {
                 syntax("cannot perform subtraction operation");
                 retv = 1;
             }
-            result.number = left.number - right.number;
+            result.fpnum = left.fpnum - right.fpnum;
             _push(&result);
             break;
 
         case EXP_MUL_OPERATOR:
-            if(apparent_type != EXP_NUMBER) {
+            if(apparent_type != EXP_FLOAT) {
                 syntax("cannot perform multiplication operation");
                 retv = 1;
             }
-            result.number = left.number * right.number;
+            result.fpnum = left.fpnum * right.fpnum;
             _push(&result);
             break;
 
         case EXP_DIV_OPERATOR:
-            if(apparent_type != EXP_NUMBER) {
+            if(apparent_type != EXP_FLOAT) {
                 syntax("cannot perform division operation");
                 retv = 1;
             }
 
-            if(right.number == 0.0) {
+            if(right.fpnum == 0.0) {
                 syntax("right side of division cannot be zero.");
                 fatal_error("divide by zero error");
             }
-            result.number = left.number / right.number;
+            result.fpnum = left.fpnum / right.fpnum;
             _push(&result);
             break;
 
         case EXP_MOD_OPERATOR:
-            if(apparent_type != EXP_NUMBER) {
+            if(apparent_type != EXP_FLOAT) {
                 syntax("cannot perform modulo operation");
                 retv = 1;
             }
 
-            if(right.number == 0.0) {
+            if(right.fpnum == 0.0) {
                 syntax("right side of division cannot be zero.");
                 fatal_error("divide by zero error");
             }
-            result.number = remainder(left.number, right.number);
+            result.fpnum = remainder(left.fpnum, right.fpnum);
             _push(&result);
             break;
 
@@ -485,7 +488,7 @@ void validate_expression(void) {
         switch(crnt->type) {
             // These are not so much types as they are actions that have to
             // be carried out for the expression to make sense.
-            case EXP_NUMBER:
+            case EXP_FLOAT:
                 // just push it on the eval stack. The expression can be
                 // arithmetic or boolean. All of the operands should match
                 // types or a warning is produced.
@@ -515,8 +518,8 @@ void validate_expression(void) {
                     // For development and debugging all symbols are numbers with a value of 5.0.
                     _expr_element tmp;
                     memset(&tmp, 0, sizeof(_expr_element));
-                    tmp.type = EXP_NUMBER;
-                    tmp.number = 5.0;
+                    tmp.type = EXP_FLOAT;
+                    tmp.fpnum = 5.0;
                     _push(&tmp);
                 }
                 break;
@@ -575,7 +578,7 @@ void validate_expression(void) {
                     memset(&res, 0, sizeof(_expr_element));
 
                     switch(val.type) {
-                        case EXP_NUMBER:
+                        case EXP_FLOAT:
                             syntax("cannot perform NOT on a number. (use unary operator)");
                             res.type = EXP_ERROR;
                             _push(&res);
@@ -612,12 +615,12 @@ void validate_expression(void) {
                     memset(&res, 0, sizeof(_expr_element));
 
                     switch(val.type) {
-                        case EXP_NUMBER:
-                            res.type = EXP_NUMBER;
+                        case EXP_FLOAT:
+                            res.type = EXP_FLOAT;
                             if(crnt->type == EXP_UNARY_PLUS)
-                                res.number = +val.number;
+                                res.fpnum = +val.fpnum;
                             else if(crnt->type == EXP_UNARY_MINUS)
-                                res.number = -val.number;
+                                res.fpnum = -val.fpnum;
                             _push(&res);
                             break;
 

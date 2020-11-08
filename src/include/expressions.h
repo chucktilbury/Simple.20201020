@@ -32,7 +32,8 @@ typedef struct _expr_element {
     // If the element is a literal number then this is the value. This is the
     // value that is pushed on the stack durning evaluation for numeric
     // expressions.
-    double number;
+    double fpnum;
+    long long intnum;
 
     // This is the value that is pushed on the stack for boolean apparent values.
     int bool_val;
@@ -53,7 +54,8 @@ typedef struct _expr_list {
 
 typedef enum {
     // value types
-    EXP_NUMBER = 100,
+    EXP_FLOAT = 100,
+    EXP_INT,
     EXP_STRING,
     EXP_BOOL,
     EXP_SYMBOL,
@@ -88,7 +90,8 @@ typedef enum {
 
 #ifdef _DEBUGGING
 #define EXPR_TYPE_TO_STR(v) \
-        ((EXP_NUMBER == (v))? "EXP_NUMBER": \
+        ((EXP_FLOAT == (v))? "EXP_FLOAT": \
+        (EXP_INT == (v))? "EXP_INT": \
         (EXP_STRING == (v))? "EXP_STRING": \
         (EXP_BOOL == (v))? "EXP_BOOL": \
         (EXP_SYMBOL == (v))? "EXP_SYMBOL": \
@@ -118,7 +121,8 @@ typedef enum {
 void destroy_expression(void);
 void add_expr_operator(int type);
 void add_expr_cast(int type);
-void add_expr_number(const char* str);
+void add_expr_float(const char* str);
+void add_expr_int(const char* str);
 void add_expr_true(void);
 void add_expr_false(void);
 void add_expr_symbol(const char* str);

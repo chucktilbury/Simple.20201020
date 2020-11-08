@@ -1,18 +1,8 @@
 
-project(simple)
+project(semantics)
 
-add_executable(${PROJECT_NAME}
-    simple.c
-    #globals.c
-)
-
-target_link_libraries(${PROJECT_NAME}
-    parser
-    configure
-    parser_support
-    utils
-    semantics
-    m
+add_library(${PROJECT_NAME} STATIC
+    validate_expr.c
 )
 
 target_include_directories(${PROJECT_NAME}

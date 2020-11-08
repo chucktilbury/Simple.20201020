@@ -1,6 +1,6 @@
 
 %{
-#undef _DEBUGGING
+//#undef _DEBUGGING
 //#undef _TRACE
 //#define _TRACE(...)
 
@@ -74,7 +74,7 @@ static void update_loc(void){
 %}
 
 DIGIT   [0-9]
-SYMCH   [a-zA-Z_$@%^&~?#|]
+SYMCH   [a-zA-Z_$@%^&~?|]
 
 /* state definitions */
 %x SQUOTES
@@ -100,7 +100,9 @@ SYMCH   [a-zA-Z_$@%^&~?#|]
 "destructor"    { return DESTRUCT; }
 "destroy"       { return DESTROY; }
 "string"        { return STRING; }
-"number"        { return NUMBER; }
+"float"         { return FLOAT; }
+"int"           { return INTEGER; }
+"integer"       { return INTEGER; }
 "dict"          { return DICT; }
 "list"          { return LIST; }
 "bool"          { return BOOL; }
@@ -173,23 +175,30 @@ SYMCH   [a-zA-Z_$@%^&~?#|]
     }
 
     /* recognize and ignore comments */
-"/*" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
-<COMMENT>"*/" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
+"#*" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
+<COMMENT>"*#" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
 <COMMENT>\n { name_stack->line_no++; yylineno++; }
 <COMMENT>.  {}  /* eat everything in between */
 
     /* eat up until the newline */
-"//".* {
+"#".* {
         _TRACE("SCANNER: single-line comment");
+    }
+
+[0-9]+ {
+        _TRACE("SCANNER: INTEGER scanned: %s", yytext);
+        strncpy(strbuf, yytext, sizeof(strbuf));
+        return INTNUM;
     }
 
     /* recognize a float */
     /*[-+]?[0-9]+\.[0-9]+([eE]*[-+]?[0-9]+)? { */
 [0-9]+(\.[0-9]+([eE]+[-+]?[0-9]+)?)? {
-        _TRACE("SCANNER: number scanned: %s", yytext);
+        _TRACE("SCANNER: FLOAT scanned: %s", yytext);
         strncpy(strbuf, yytext, sizeof(strbuf));
-        return NUM;
+        return FPNUM;
     }
+
 
     /* double quoted strings have escapes managed */
 \"  {

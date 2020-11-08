@@ -16,12 +16,28 @@
 %define parse.error verbose
 %locations
 
+%union {
+    int type_token;
+    double fpval;
+    int intval;
+    char* str;
+    int bool;
+    char* symbol;
+    char* compound;
+}
+
+%token <fpval> FPNUM
+%token <intval> INTNUM
+%token <str> QSTRG
+%token <type_token> DICT LIST BOOL STRING FLOAT INTEGER
+%token <bool>  TRUE FALSE
+%token <symbol> SYMBOL
+%token <compound> COMPOUND
+
 %token NOTHING IMPORT CONSTRUCT DESTRUCT DESTROY
-%token DICT LIST BOOL TRUE FALSE STRING NUM FOR
-%token IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
+%token FOR IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
 %token AND OR NOT EQU NEQU LTEQU GTEQU LESS MORE
-%token DEFAULT NUMBER QSTRG ENTRY
-%token SYMBOL
+%token DEFAULT  ENTRY
 
     // %right '='
 %left AND OR
@@ -98,13 +114,17 @@ type_name
             _TRACE("defining string data type");
             push_token(STRING);
         }
-    | NUMBER {
+    | FLOAT {
             _TRACE("defining number data type");
-            push_token(NUMBER);
+            push_token(FLOAT);
+        }
+    | INTEGER {
+        _TRACE("defining number data type");
+        push_token(INTEGER);
         }
     | compound_symbol {
-            _TRACE("symbol name as a type name");
-            push_token(SYMBOL);
+        _TRACE("symbol name as a type name");
+        push_token(SYMBOL);
         }
     | error
     ;
@@ -404,9 +424,13 @@ destructor_definition
      *  and ends when the expression is accepted as syntax.
      */
 expression_factor
-    : NUM {
+    : FPNUM {
             _TRACE("expression literal number: %s", TOKSTR);
-            add_expr_number(TOKSTR);
+            add_expr_float(TOKSTR);
+        }
+    | INTNUM {
+            _TRACE("expression literal number: %s", TOKSTR);
+            add_expr_int(TOKSTR);
         }
     | TRUE {
             add_expr_true();
@@ -704,7 +728,7 @@ do_clause
         Switch/case related rules
     */
 case_clause
-    : CASE NUM {
+    : CASE INTNUM {
             _TRACE("begin case clause and loop body: %s", TOKSTR);
         } loop_body {
             _TRACE("end case loop body and clause");

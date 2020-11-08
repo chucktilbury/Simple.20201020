@@ -31,10 +31,27 @@ static int stack_created = 0;
  * @param str -- string to convert.
  * @return double -- value returned.
  */
-static inline double _string_to_num(const char * str) {
+static inline double _string_to_float(const char * str) {
 
     char* end;
     double val = strtod(str, &end);
+
+    if(str == end) {
+        scanner_error("cannot convert string to number: \"%s\"", str);
+    }
+    return(val);
+}
+
+/**
+ * @brief Convert a string to a double with error checking.
+ *
+ * @param str -- string to convert.
+ * @return double -- value returned.
+ */
+static inline long _string_to_int(const char * str) {
+
+    char* end;
+    long long val = strtoll(str, &end, 10);
 
     if(str == end) {
         scanner_error("cannot convert string to number: \"%s\"", str);
@@ -169,15 +186,37 @@ void add_expr_cast(int type) {
  *
  * @param str -- The string that represents the number.
  */
-void add_expr_number(const char* str) {
+void add_expr_float(const char* str) {
 
     set_expr_flags();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
-        elem->type = EXP_NUMBER;
-        elem->number = _string_to_num(str);
+        elem->type = EXP_FLOAT;
+        elem->fpnum = _string_to_float(str);
+
+        add_element(elem);
+    }
+    else {
+        fatal_error("attempt to add expression number literal to empty expression stack");
+    }
+}
+
+/**
+ * @brief Add a literal number to the queue.
+ *
+ * @param str -- The string that represents the number.
+ */
+void add_expr_int(const char* str) {
+
+    set_expr_flags();
+
+    if(expr_stack != NULL) {
+        _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
+
+        elem->type = EXP_INT;
+        elem->intnum = _string_to_int(str);
 
         add_element(elem);
     }
