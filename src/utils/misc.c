@@ -107,18 +107,41 @@ char* realloc_string(const char* orig, const char* newstr) {
             FREE((void*)orig);
         else {
             char* nptr = REALLOC((void*)orig, strlen(orig)+strlen(newstr)+2);
-            if(nptr == NULL)
-                fatal_error("cannot re-allocate memory for string");
             strcat(nptr, newstr);
             return(nptr);
         }
     }
     else if(newstr != NULL) {
         char* nptr = STRDUP(newstr);
-        if(nptr == NULL)
-            fatal_error("cannot allocate new memory for string");
         return(nptr);
     }
 
     return(NULL);
+}
+
+/**
+ * @brief Reallocate and concatinate two strings. If one or the other are NULL
+ * then simply allocate the string. The return pointer is guarenteed to be a
+ * new pointer and both of the source pointers can be free()d. If both pointers
+ * are NULL or zero length, then a zero length string will be returned.
+ */
+char* alloc_cat(char* first, char* second) {
+
+    int l1 = 0, l2 = 0, tl = 0;
+    char* outptr;
+
+    if(first != NULL)
+        l1 = strlen(first);
+    if(second != NULL)
+        l2 = strlen(second);
+    tl = l1 + l2;
+
+    if(tl != 0) {
+        outptr = MALLOC(tl+1);
+        memset(outptr, 0, tl+1); // in case it's zero length
+        strcpy(outptr, (l1 != 0)? first: "");
+        strcat(outptr, (l2 != 0)? second: "");
+    }
+
+    return outptr;
 }

@@ -20,45 +20,9 @@
 #include "../include/common.h"
 
 /*
- * This same data structure is used when parsing an expression and when it
- * is being evaluated. This is a private data structure.
- */
-typedef struct _expr_element {
-    // This is the parsed element type. If the element is a number, it will
-    // keep this type as it is evaluated.
-    int type;
-
-    // Used when evaluating to keep track of the current apparent type. For
-    // example, if two strings are being compared, then this will be bool.
-    int apparent_type;
-
-    // If the element is a symbol, then this is the symbol table key. If the
-    // element is a literal string, then this is a pointer to it.
-    char* str;
-
-    // If the element is a literal number then this is the value. This is the
-    // value that is pushed on the stack durning evaluation for numeric
-    // expressions.
-    double number;
-
-    // This is the value that is pushed on the stack for boolean apparent values.
-    int bool_val;
-
-    // This is the next element in the expression element list.
-    struct _expr_element* next;
-
-} _expr_element;
-
-typedef struct _expr_list {
-    _expr_element* first;
-    _expr_element* last;
-    struct _expr_list* next;
-} _expr_list;
-
-/*
  * The stack stores the first element in the expression queue.
  */
-static _expr_list* expr_stack;
+_expr_list* expr_stack;
 static int stack_created = 0;
 
 /**
@@ -97,7 +61,7 @@ static inline void add_element(_expr_element* elem) {
 /**
  * @brief Create a expression object and push it to the top of the stack.
  */
-void create_expression(void) {
+static inline void create_expression(void) {
 
     _expr_list* expr_lst = (_expr_list*)CALLOC(1, sizeof(_expr_list));
 
@@ -108,6 +72,24 @@ void create_expression(void) {
     else {
         expr_stack = expr_lst;
     }
+}
+
+/**
+ * @brief Set the expression flags before an "add".
+ */
+static inline void set_expr_flags(void) {
+
+    if(!get_flag(PARSING_EXPRESSION)) {
+        create_expression();
+        set_flag(PARSING_EXPRESSION);
+    }
+}
+
+/**
+ * @brief Set the expression flags before an "add".
+ */
+void clear_expr_flags(void) {
+    clear_flag(PARSING_EXPRESSION);
 }
 
 /**
@@ -146,13 +128,36 @@ void destroy_expression(void) {
  */
 void add_expr_operator(int type) {
 
+    set_expr_flags();
+
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
         elem->type = type;
 
-        expr_stack->last->next = elem;
-        expr_stack->last = elem;
+        add_element(elem);
+    }
+    else {
+        fatal_error("attempt to add expression operator to empty expression stack");
+    }
+}
+
+/**
+ * @brief Add an operator to the expression list.
+ *
+ * @param type -- The type of operator to add.
+ */
+void add_expr_cast(int type) {
+
+    set_expr_flags();
+
+    if(expr_stack != NULL) {
+        _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
+
+        elem->type = EXP_CAST;
+        elem->apparent_type = type;
+
+        add_element(elem);
     }
     else {
         fatal_error("attempt to add expression operator to empty expression stack");
@@ -165,6 +170,8 @@ void add_expr_operator(int type) {
  * @param str -- The string that represents the number.
  */
 void add_expr_number(const char* str) {
+
+    set_expr_flags();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -182,24 +189,37 @@ void add_expr_number(const char* str) {
 /**
  * @brief Add a literal boolean value to the queue.
  *
- * @param str -- The string that represents the bool value.
  */
-void add_expr_bool(const char* str) {
+void add_expr_true(void) {
+
+    set_expr_flags();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
         elem->type = EXP_BOOL;
+        elem->bool_val = 1;
 
-        int val = -1;
-        if(!strcmp(str, "true"))
-            val = 1;
-        else if(!strcmp(str, "false"))
-            val = 0;
-        else
-            fatal_error("attempt to convert a non-boolean literal to a boolean value");
+        add_element(elem);
+    }
+    else {
+        fatal_error("attempt to add expression boolean literal to empty expression stack");
+    }
+}
 
-        elem->bool_val = val;
+/**
+ * @brief Add a literal boolean value to the queue.
+ *
+ */
+void add_expr_false(void) {
+
+    set_expr_flags();
+
+    if(expr_stack != NULL) {
+        _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
+
+        elem->type = EXP_BOOL;
+        elem->bool_val = 0;
 
         add_element(elem);
     }
@@ -214,6 +234,8 @@ void add_expr_bool(const char* str) {
  * @param str -- String the represents the symbol table key of the symbol.
  */
 void add_expr_symbol(const char* str) {
+
+    set_expr_flags();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -234,6 +256,8 @@ void add_expr_symbol(const char* str) {
  * @param str -- The string to evaluate.
  */
 void add_expr_string(const char* str) {
+
+    set_expr_flags();
 
     if(expr_stack != NULL) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
@@ -258,19 +282,3 @@ void add_expr_subscr(void) {
     fatal_error("subscripted expression elements not supported yet.");
 }
 
-
-/**
- * @brief This function makes sure that the expression can be solved from
- * a semantic point of view. For example, it does not make any sense to add
- * a number to a string without a cast.
- */
-void validate_expression(void) {
-    _TRACE("validating the expression");
-
-    _expr_element* crnt;
-    _DEBUG(5, "expression queue:");
-    for(crnt = expr_stack->first; crnt != NULL; crnt = crnt->next) {
-        _DEBUG(5, "    %s (%d)", EXPR_TYPE_TO_STR(crnt->type), crnt->type);
-    }
-
-}

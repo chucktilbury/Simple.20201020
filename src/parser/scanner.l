@@ -74,7 +74,7 @@ static void update_loc(void){
 %}
 
 DIGIT   [0-9]
-SYMCH   [a-zA-Z_$@%^&!~?#|]
+SYMCH   [a-zA-Z_$@%^&~?#|]
 
 /* state definitions */
 %x SQUOTES
@@ -91,6 +91,10 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 
     /* keywords */
 "nothing"       { return NOTHING; }
+"nil"           { return NOTHING; }
+"NULL"          { return NOTHING; }
+"null"          { return NOTHING; }
+"Null"          { return NOTHING; }
 "import"        { return IMPORT; }
 "constructor"   { return CONSTRUCT; }
 "destructor"    { return DESTRUCT; }
@@ -101,7 +105,11 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 "list"          { return LIST; }
 "bool"          { return BOOL; }
 "true"          { return TRUE; }
+"True"          { return TRUE; }
+"TRUE"          { return TRUE; }
 "false"         { return FALSE; }
+"False"         { return FALSE; }
+"FALSE"         { return FALSE; }
 "for"           { return FOR; }
 "if"            { return IF; }
 "else"          { return ELSE; }
@@ -120,12 +128,20 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 "or"            { return OR; }
 
 "not"           { return NOT; }
+"!"             { return NOT; }
 "equ"           { return EQU; }
+"=="            { return EQU; }
 "neq"           { return NEQU; }
+"!="            { return NEQU; }
+"<>"            { return NEQU; }
 "leq"           { return LTEQU; }
+"<="            { return LTEQU; }
 "geq"           { return GTEQU; }
+">="            { return GTEQU; }
 "lt"            { return LESS; }
+"<"             { return LESS; }
 "gt"            { return MORE; }
+">"             { return MORE; }
 
     /* arithmetic operators */
 "-"             { return '-'; }
@@ -148,17 +164,24 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 "."             { return '.'; }
 
     /* constructed tokens */
-    /* [_A-Za-z][_0-9A-Za-z]*    { _TRACE("SCANNER: symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; } */
-{SYMCH}({SYMCH}|{DIGIT})* { _TRACE("SCANNER: symbol scan: %s",yytext); strncpy(strbuf, yytext, sizeof(strbuf)); return SYMBOL; }
-    /* [_A-Za-z][_0-9A-Za-z\.]*    { strncpy(strbuf, yytext, sizeof(strbuf)); return COMPLEX; } */
+
+    /* A simple symbol has no dot in it. */
+{SYMCH}({SYMCH}|{DIGIT})* {
+        _TRACE("SCANNER: symbol scan: %s",yytext);
+        strncpy(strbuf, yytext, sizeof(strbuf));
+        return SYMBOL;
+    }
 
     /* recognize and ignore comments */
-"<-" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
-<COMMENT>"->" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
+"/*" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
+<COMMENT>"*/" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
 <COMMENT>\n { name_stack->line_no++; yylineno++; }
 <COMMENT>.  {}  /* eat everything in between */
 
-"<<".* { _TRACE("SCANNER: single-line comment"); }  /* eat up until the newline */
+    /* eat up until the newline */
+"//".* {
+        _TRACE("SCANNER: single-line comment");
+    }
 
     /* recognize a float */
     /*[-+]?[0-9]+\.[0-9]+([eE]*[-+]?[0-9]+)? { */
@@ -220,7 +243,7 @@ SYMCH   [a-zA-Z_$@%^&!~?#|]
 
 <<EOF>> {
 
-        _DEBUG("SCANNER: %s: closing file", name_stack->name);
+        _DEBUG(10, "SCANNER: %s: closing file", name_stack->name);
         _file_name_stack *name = name_stack->next;
         FREE(name_stack->name);
         FREE(name_stack);
@@ -254,7 +277,7 @@ int open_file(const char *fname) {
         return 1;
     }
 
-    _DEBUG("SCANNER: %s: open file", locbuf);
+    _DEBUG(10, "SCANNER: %s: open file", locbuf);
     if(NULL == (name = CALLOC(1, sizeof(_file_name_stack))))
         fatal_error("cannot allocate memory for file stack");
 
@@ -299,7 +322,7 @@ int get_col_number(void) {
 }
 
 const char *get_tok_str(void) {
-    _DEBUG("strbuf value: %s", strbuf);
+    _DEBUG(10, "strbuf value: %s", strbuf);
     return strbuf;
 }
 

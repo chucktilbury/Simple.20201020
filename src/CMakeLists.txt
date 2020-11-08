@@ -8,6 +8,5 @@ add_subdirectory(parser_support)
 add_subdirectory(utils)
 add_subdirectory(configure)
 
-
 # build the main program
 add_subdirectory(simple)

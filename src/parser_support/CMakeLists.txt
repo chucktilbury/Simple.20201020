@@ -2,10 +2,12 @@
 project(parser_support)
 
 add_library(${PROJECT_NAME} STATIC
-    compound_names.c
+    #compound_names.c
     flag_manager.c
     symbol_table.c
     expressions.c
+    validate_expr.c
+    token_stack.c
 )
 
 target_include_directories(${PROJECT_NAME}

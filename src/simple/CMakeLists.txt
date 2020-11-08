@@ -11,6 +11,7 @@ target_link_libraries(${PROJECT_NAME}
     configure
     parser_support
     utils
+    m
 )
 
 target_include_directories(${PROJECT_NAME}

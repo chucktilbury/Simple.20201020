@@ -7,7 +7,8 @@
 //#undef _TRACE
 //#define _TRACE(...)
 
-#include "../include/common.h"
+//#include "../include/common.h"
+#include "common.h"
 
 #define TOKSTR get_tok_str()
 
@@ -18,18 +19,19 @@
 %token NOTHING IMPORT CONSTRUCT DESTRUCT DESTROY
 %token DICT LIST BOOL TRUE FALSE STRING NUM FOR
 %token IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
-%token DEFAULT SYMBOL NUMBER QSTRG ENTRY
 %token AND OR NOT EQU NEQU LTEQU GTEQU LESS MORE
+%token DEFAULT NUMBER QSTRG ENTRY
+%token SYMBOL
 
-%right '='
+    // %right '='
 %left AND OR
 %left EQU NEQU
 %left LESS MORE LTEQU GTEQU
+%right ':'
 %left '+' '-'
 %left '*' '/' '%'
 %left NEG
 %right NOT '~'
-%right ':'
 
 %%
     /*
@@ -55,38 +57,54 @@ module_item
     /*
         Literal values rules.
     */
-compound_name
+compound_symbol
     : SYMBOL {
             _TRACE("new compound symbol name: %s", TOKSTR);
-            create_compound_name(TOKSTR);
+            push_name(TOKSTR);
         }
-    | compound_name '.' SYMBOL {
+    | compound_symbol '.' SYMBOL {
             _TRACE("adding to compound name: %s", TOKSTR);
-            add_compound_name(TOKSTR);
+            add_name(TOKSTR);
         }
-    | compound_name error SYMBOL
-    | compound_name '.' error
+    | compound_symbol error SYMBOL
+    | compound_symbol '.' error
     ;
+
+// any_symbol
+//     : compound_symbol {
+//             _TRACE("compound symbol");
+//             push_name(TOKSTR);
+//         }
+//     | SYMBOL {
+//             _TRACE("simple symbol");
+//             push_name(TOKSTR);
+//         }
+//     ;
 
 type_name
     : DICT {
             _TRACE("defining dict data type");
+            push_token(DICT);
         }
     | LIST {
             _TRACE("defining list data type");
+            push_token(LIST);
         }
     | BOOL {
             _TRACE("defining boolean data type");
+            push_token(BOOL);
         }
     | STRING {
             _TRACE("defining string data type");
+            push_token(STRING);
         }
     | NUMBER {
             _TRACE("defining number data type");
+            push_token(NUMBER);
         }
-    | compound_name {
-            _TRACE("compound name as a type name see: %s", get_compound_name());
-            destroy_compound_name();
+    | compound_symbol {
+            _TRACE("symbol name as a type name");
+            push_token(SYMBOL);
         }
     | error
     ;
@@ -138,15 +156,6 @@ formatted_string
             _TRACE("end of formtted string definition");
         }
     | error
-    ;
-
-bool_value
-    : TRUE {
-            _TRACE("boolean value: true");
-        }
-    | FALSE {
-            _TRACE("boolean value: false");
-        }
     ;
 
     /*
@@ -206,6 +215,7 @@ class_name
                 syntax("only one entry class may be defined for program");
             set_flag(CLASS_IS_ENTRY);
     }
+    ;
 
 class_definition_params
     : class_name '{' {
@@ -214,9 +224,10 @@ class_definition_params
     | class_name '(' ')' '{' {
             _TRACE("start class body");
         }
-    | class_name '(' compound_name {
-            _TRACE("class inherits from %s", get_compound_name());
-            destroy_compound_name();
+    | class_name '(' compound_symbol {
+            char buffer[128];
+            pop_name(buffer, sizeof(buffer));
+            _TRACE("class inherits from %s", buffer);
         } ')' '{'
     ;
 
@@ -275,6 +286,7 @@ method_param_def
 method_definition
     : SYMBOL {
         } '(' method_param_def {
+            // this symbol is consumed in this location
             _TRACE("begin method definition with symbol: %s", TOKSTR);
             _TRACE("begin of input parameter list");
         } ')' '(' method_param_def {
@@ -358,7 +370,7 @@ destructor_definition
     | subscript_list subscript_item
 
     subscripted_compound_name
-    : compound_name {
+    : compound_symbol {
             _TRACE("subscripted compound name: %s", get_compound_name());
             destroy_compound_name();
             _TRACE("begin subscripted compound name list");
@@ -367,33 +379,25 @@ destructor_definition
         }
     ; */
 
-expression_name
-    : compound_name {
-            const char* name = get_compound_name();
-            _TRACE("expression compound name: %s", name);
-            if(!get_flag(PARSING_EXPRESSION)) {
-                _DEBUG(5, "before creating an expression");
-                create_expression();
-                _DEBUG(5, "after creating an expression");
-                set_flag(PARSING_EXPRESSION);
-            }
-            _DEBUG(5, "before add an expression symbol");
-            add_expr_symbol(name);
-            _DEBUG(5, "after add an expression symbol");
-            destroy_compound_name();
-        }
-    /* | subscripted_compound_name {
-            // TODO: Subscripts not supported yet
-            const char* name = get_compound_name(comp_name);
-            _TRACE("expression compound name with subscript");
-            if(!get_flag(PARSING_EXPRESSION)) {
-                create_expression();
-                set_flag(PARSING_EXPRESSION);
-            }
-            add_expr_symbol(name);
-            destroy_compound_name(comp_name);
-        } */
-    ;
+// expression_name
+//     : compound_symbol {
+//             const char* name = get_compound_name();
+//             _TRACE("expression compound name: %s", name);
+//             add_expr_symbol(name);
+//             destroy_compound_name();
+//         }
+//     /* | subscripted_compound_name {
+//             TODO: Subscripts not supported yet
+//             const char* name = get_compound_name(comp_name);
+//             _TRACE("expression compound name with subscript");
+//             if(!get_flag(PARSING_EXPRESSION)) {
+//                 create_expression();
+//                 set_flag(PARSING_EXPRESSION);
+//             }
+//             add_expr_symbol(name);
+//             destroy_compound_name(comp_name);
+//         } */
+//     ;
 
     /*
      *  Parsing an expression always begins with an expression factor
@@ -402,30 +406,23 @@ expression_name
 expression_factor
     : NUM {
             _TRACE("expression literal number: %s", TOKSTR);
-            if(!get_flag(PARSING_EXPRESSION)) {
-                create_expression();
-                set_flag(PARSING_EXPRESSION);
-            }
             add_expr_number(TOKSTR);
+        }
+    | TRUE {
+            add_expr_true();
+        }
+    | FALSE {
+            add_expr_false();
         }
     | formatted_string {
             _TRACE("formatted string expression value");
-            if(!get_flag(PARSING_EXPRESSION)) {
-                create_expression();
-                set_flag(PARSING_EXPRESSION);
-            }
             add_expr_string(TOKSTR);
         }
-    | bool_value {
-            _TRACE("boolean expression value");
-            if(!get_flag(PARSING_EXPRESSION)) {
-                create_expression();
-                set_flag(PARSING_EXPRESSION);
-            }
-            add_expr_bool(TOKSTR);
-        }
-    | expression_name {
+    | compound_symbol {
             _TRACE("expression variable value");
+            char buffer[128];
+            pop_name(buffer, sizeof(buffer));
+            add_expr_symbol(buffer);
         }
     ;
 
@@ -498,8 +495,8 @@ expression
             add_expr_operator(EXP_NOT_OPERATOR);
         }
     | type_name ':' expression {
-            _TRACE("casting expression");
-            add_expr_operator(EXP_CAST);
+            _TRACE("type of casting expression");
+            add_expr_cast(pop_token());
         }
     | '(' expression ')'
     ;
@@ -513,18 +510,19 @@ expression
     */
 call_output_parameter_list
     :
-    | expression_name {
+    | compound_symbol {
             _TRACE("function call output parameter (1): %s", "not implemented");
         }
-    | call_output_parameter_list ',' expression_name {
+    | call_output_parameter_list ',' compound_symbol {
             _TRACE("function call output parameter (2): %s", "not implemented");
         }
     ;
 
 function_call
-    : compound_name {
-            _TRACE("function call name: %s", get_compound_name());
-            destroy_compound_name();
+    : compound_symbol {
+            char buffer[128];
+            pop_name(buffer, sizeof(buffer));
+            _TRACE("function call name: %s", buffer);
             _TRACE("begin function call input parameters");
         } '(' possible_blank_expr_list {
             _TRACE("end function call input parameters");
@@ -535,9 +533,10 @@ function_call
     ;
 
 destroy_statement
-    : DESTROY compound_name {
-            _TRACE("destroy symbol: %s", get_compound_name());
-            destroy_compound_name();
+    : DESTROY compound_symbol {
+            char buffer[128];
+            pop_name(buffer, sizeof(buffer));
+            _TRACE("destroy symbol: %s", buffer);
         }
     | DESTROY error ';'
     ;
@@ -768,9 +767,10 @@ assignment_target
     ;
 
 assignment
-    : compound_name {
-            _TRACE("assignment to compound name: %s", get_compound_name());
-            destroy_compound_name();
+    : compound_symbol {
+            char buffer[128];
+            pop_name(buffer, sizeof(buffer));
+            _TRACE("assignment to compound name: %s", buffer);
         } '=' assignment_target {
             _TRACE("end assignment statement");
         }

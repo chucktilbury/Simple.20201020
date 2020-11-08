@@ -20,6 +20,9 @@ This is a rough sketch of my todo list in this project.
   * ~~clarify error messages for category~~
   * ~~if there is no file open, then don't try to report the name.~~
 
-backtrace
-enter/return macros
-memory tracker
+* add an INT type to the parser and change NUMBER to FLOAT
+* need to look at implementing parser types.
+* strings in expressions do not work correctly.
+* casts need to be implemented
+  * parser types? stacks?
+* add a symantics directory and put validate_expr.c in it.

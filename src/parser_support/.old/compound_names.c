@@ -39,7 +39,7 @@ void create_compound_name(const char* str) {
 
     _cname* cname = CALLOC(1, sizeof(_cname));
     cname->raw_name = STRDUP(str);
-    _DEBUG(5, "create compound name \"%s\" (%p -> %p)", str, cname, name_stack);
+    _DEBUG(20, "create compound name \"%s\" (%p -> %p)", str, cname, name_stack);
 
     // push it on the stack
     cname->next = name_stack;
@@ -57,7 +57,7 @@ void destroy_compound_name(void) {
     if(cname != NULL) {
         // pop the top
         name_stack = cname->next;
-        _DEBUG(5, "destroy compound name: \"%s\"", cname->raw_name);
+        _DEBUG(20, "destroy compound name: \"%s\"", cname->raw_name);
         FREE(cname->raw_name);
         FREE(cname);
     }
@@ -78,7 +78,7 @@ void add_compound_name(const char* str) {
     if(cname != NULL) {
         strcpy(tmp, ".");
         cat_string(tmp, str, sizeof(tmp));
-        _DEBUG(5, "add to a compound name: \"%s\" -> \"%s\"", cname->raw_name, tmp);
+        _DEBUG(20, "add to a compound name: \"%s\" -> \"%s\"", cname->raw_name, tmp);
         cname->raw_name = realloc_string(cname->raw_name, tmp);
     }
     else
@@ -95,7 +95,7 @@ const char* get_compound_name(void) {
     _cname* cname = name_stack;
 
     if(cname != NULL) {
-        _DEBUG(5, "returning compound name: \"%s\"", cname->raw_name);
+        _DEBUG(20, "returning compound name: \"%s\"", cname->raw_name);
         return cname->raw_name;
     }
     else {

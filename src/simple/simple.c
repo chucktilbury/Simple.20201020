@@ -24,6 +24,7 @@ BEGIN_CONFIG
     CONFIG_LIST("-i", "FPATH", "Specify directories to search for imports", 0, ".:include", 0)
     CONFIG_BOOL("-D", "DFILE_ONLY", "Output the dot file only. No object output", 0, 0, 0)
     CONFIG_STR("-d", "DUMP_FILE", "Specify the file name to dump the AST into", 0, "ast_dump.dot", 1)
+    CONFIG_STR("-l", "LOG_FILE", "Specify the file name to dump the logging information into", 0, "debug.log", 1)
 END_CONFIG
 
 static void segfault_handler(int sig) {
@@ -51,8 +52,8 @@ static void init_all(int argc, char** argv) {
     signal(SIGSEGV, segfault_handler);
     init_memory();  // configure uses the routines in memory.c
     configure(argc, argv);
-    init_errors(NULL);
-    init_debug(GET_CONFIG_NUM("VERBOSE"), "debug.log");
+    init_errors(NULL); // errors go to stderr
+    init_debug(GET_CONFIG_NUM("VERBOSE"), GET_CONFIG_STR("LOG_FILE"));
     //init_ast();
 
     if(atexit(exit_func))

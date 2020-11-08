@@ -38,4 +38,5 @@ const char* find_file(const char* fname, char* outbuf, size_t bsize);
  */
 char* realloc_string(const char* orig, const char* newstr);
 
+char* alloc_cat(char* first, char* second);
 #endif

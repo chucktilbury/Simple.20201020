@@ -15,9 +15,12 @@
 #include <stdio.h>
 
 #include "scanner.h"
-#include "compound_names.h"
+//#include "compound_names.h"
+#include "symbol_table.h"
 #include "flag_manager.h"
 #include "expressions.h"
+#include "token_stack.h"
+#include "validate_expr.h"
 
 #endif
 

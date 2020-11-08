@@ -13,6 +13,7 @@
 #define __SCANNER_H__
 
 #include <stdio.h>
+#include "../parser/parser.h"
 
 char *get_file_name(void);
 int get_line_number(void);
@@ -31,6 +32,16 @@ extern FILE *yyin;
 
 // void yyerror(char *s, ...);
 void yyerror(const char *s);
+
+#ifdef _DEBUGGING
+#define TYPE_TO_STR(t) \
+        ((t == DICT)? "DICT": \
+        (t == LIST)? "LIST": \
+        (t == BOOL)? "BOOL": \
+        (t == STRING)? "STRING": \
+        (t == NUMBER)? "NUMBER": \
+        (t == SYMBOL)? "SYMBOL": "UNKNOWN")
+#endif
 
 #endif
 
