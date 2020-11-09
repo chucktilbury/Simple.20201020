@@ -12,6 +12,7 @@ bin/*
 lib/*
 src/include/.old/*
 src/utils/.old/*
+*.log
 
 # Prerequisites
 *.d

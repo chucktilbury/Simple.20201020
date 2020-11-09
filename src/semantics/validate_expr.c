@@ -26,6 +26,9 @@ static inline const char* _stack_item_to_str(_expr_element* elem, char* buffer, 
         case EXP_BOOL:
             snprintf(buffer, bsize, "%s = %s", EXPR_TYPE_TO_STR(elem->type), (elem->bool_val)? "TRUE": "FALSE");
             break;
+        case EXP_CAST:
+            snprintf(buffer, bsize, "%s = %s", EXPR_TYPE_TO_STR(elem->type), TYPE_TO_STR(elem->cast_type));
+            break;
         default:
             snprintf(buffer, bsize, "%s", EXPR_TYPE_TO_STR(elem->type));
     }
@@ -34,6 +37,14 @@ static inline const char* _stack_item_to_str(_expr_element* elem, char* buffer, 
 #else
 #define _DEBUG_ITEM(e, m)
 #endif
+
+void _expr_push_error(void) {
+    _DEBUG(5, "        push: ERROR");
+    _expr_element* nele = CALLOC(1, sizeof(_expr_element));
+    nele->type = EXP_ERROR;
+    nele->next = validate_stack;
+    validate_stack = nele;
+}
 
 void _expr_push(_expr_element* elem) {
 
@@ -62,14 +73,194 @@ _expr_element* _expr_peek(void) {
     return validate_stack;
 }
 
+/**
+ * @brief This function actually performs the cast on the operand on the top of
+ * the stack.
+ */
+static int _perform_cast(int type) {
 
+    _MARK(5);
+    _expr_element item;
+    _expr_element result;
+    int retv = 0;
+
+    if(!_expr_pop(&item))
+        fatal_error("expression stack underflow on cast operand (parser error)");
+
+    memset(&result, 0, sizeof(_expr_element));
+    switch(type) {
+        case LIST:
+            syntax("only casts are allowed to primary types, such as int or string");
+            retv = EXP_ERROR;
+            _expr_push_error();
+            break;
+
+        case DICT:
+            syntax("only casts are allowed to primary types, such as int or string");
+            retv = EXP_ERROR;
+            _expr_push_error();
+            break;
+
+        case BOOL:
+            switch(item.type) {
+                case EXP_BOOL:
+                    // do nothing
+                    warning("casting a boolean value to a boolean");
+                    break;
+
+                case EXP_STRING:
+                    warning("casting a string to a boolean is always true");
+                    result.bool_val = 1;
+                    result.type = EXP_BOOL;
+                    _expr_push(&result);
+                    break;
+
+                case EXP_FLOAT:
+                    warning("casting a float to a boolean is always true");
+                    result.bool_val = 1;
+                    result.type = EXP_BOOL;
+                    _expr_push(&result);
+                    break;
+
+                case EXP_INT:
+                    result.bool_val = (item.intnum == 0)? 0: 1;
+                    result.type = EXP_BOOL;
+                    _expr_push(&result);
+                    break;
+
+                default:
+                    fatal_error("unknown cast type in validate expression");
+            }
+            break;
+
+        case STRING:
+            switch(item.type) {
+                case EXP_BOOL:
+                    result.str = (item.bool_val != 0)? "TRUE": "FALSE";
+                    result.type = EXP_STRING;
+                    _expr_push(&result);
+                    break;
+
+                case EXP_STRING:
+                    // do nothing
+                    warning("casting a string value to a string");
+                    break;
+
+                case EXP_FLOAT: {
+                        char buff[20];
+                        snprintf(buff, sizeof(buff), "%g", item.fpnum);
+                        result.str = STRDUP(buff);
+                        result.type = EXP_STRING;
+                    }
+                    break;
+
+                case EXP_INT:{
+                        char buff[20];
+                        snprintf(buff, sizeof(buff), "%lld", item.intnum);
+                        result.str = STRDUP(buff);
+                        result.type = EXP_STRING;
+                    }
+                    break;
+
+                default:
+                    fatal_error("unknown cast type in validate expression");
+            }
+            break;
+
+        case FLOAT:
+            switch(item.type) {
+                case EXP_BOOL:
+                    syntax("cannot cast a boolean value to a float");
+                    retv = EXP_ERROR;
+                    break;
+
+                case EXP_STRING: {
+                        char *end;
+                        double val = strtod(item.str, &end);
+                        if(item.str == end) {
+                            //error
+                            syntax("cannot convert string \"%s\" to a float", item.str);
+                            retv = EXP_ERROR;
+                            result.type = EXP_ERROR;
+                        }
+                        else {
+                            result.type = EXP_FLOAT;
+                            result.fpnum = val;
+                        }
+                        _expr_push(&result);
+                    }
+                    break;
+
+                case EXP_FLOAT:
+                    // do nothing
+                    warning("casting a float value to a float");
+                    break;
+
+                case EXP_INT:
+                    result.fpnum = (double)item.intnum;
+                    result.type = EXP_FLOAT;
+                    _expr_push(&result);
+                    break;
+
+                default:
+                    fatal_error("unknown cast type in validate expression");
+            }
+            break;
+
+        case INTEGER:
+            switch(item.type) {
+                case EXP_BOOL:
+                    result.intnum = (item.bool_val == 0)? 0: 1;
+                    result.type = EXP_INT;
+                    _expr_push(&result);
+                    break;
+
+                case EXP_STRING:
+                    {
+                        char *end;
+                        double val = strtoll(item.str, &end, 10);
+                        if(item.str == end) {
+                            //error
+                            syntax("cannot convert string \"%s\" to an integer", item.str);
+                            _expr_push_error();
+                        }
+                        else {
+                            result.type = EXP_FLOAT;
+                            result.intnum = val;
+                        }
+                        _expr_push(&result);
+                    }
+                    break;
+
+                case EXP_FLOAT:
+                    result.type = EXP_INT;
+                    result.intnum = (long long)item.fpnum;
+                    _expr_push(&result);
+                    break;
+
+                case EXP_INT:
+                    // do nothing
+                    warning("casting a integer value to a integer");
+                    break;
+
+                default:
+                    fatal_error("unknown cast type in validate expression");
+            }
+            break;
+
+        default:
+            fatal_error("unknown cast type in validate expression");
+    }
+
+    return retv;
+}
 
 /**
  * @brief This function makes sure that the expression can be solved from
  * a semantic point of view. For example, it does not make any sense to add
  * a number to a string without a cast.
  */
-void validate_expression(void) {
+int validate_expression(void) {
     _TRACE("validating the expression");
 
     _expr_element* crnt;
@@ -177,20 +368,17 @@ void validate_expression(void) {
                     switch(val.type) {
                         case EXP_INT:
                             syntax("cannot perform NOT on an integer. (use unary operator)");
-                            res.type = EXP_ERROR;
-                            _expr_push(&res);
+                            _expr_push_error();
                             break;
 
                         case EXP_FLOAT:
                             syntax("cannot perform NOT on a float. (use unary operator)");
-                            res.type = EXP_ERROR;
-                            _expr_push(&res);
+                            _expr_push_error();
                             break;
 
                         case EXP_STRING:
                             syntax("cannot perform NOT on a string. (use unary operator)");
-                            res.type = EXP_ERROR;
-                            _expr_push(&res);
+                            _expr_push_error();
                             break;
 
                         case EXP_BOOL:
@@ -237,15 +425,13 @@ void validate_expression(void) {
                             break;
 
                         case EXP_STRING:
-                            syntax("cannot unary arithmetic unary operator to a string.");
-                            res.type = EXP_ERROR;
-                            _expr_push(&res);
+                            syntax("cannot apply unary operator to a string.");
+                            _expr_push_error();
                             break;
 
                         case EXP_BOOL:
-                            syntax("cannot unary arithmetic operator to a bool.");
-                            res.type = EXP_ERROR;
-                            _expr_push(&res);
+                            syntax("cannot unary operator to a bool.");
+                            _expr_push_error();
                             break;
 
                         default:
@@ -256,16 +442,29 @@ void validate_expression(void) {
                 break;
 
             case EXP_CAST:
-                // In theory any type can be cast to any other type. The jury is out.
                 _DEBUG_ITEM(crnt, "    ");
+                switch(crnt->cast_type) {
+                    case BOOL:
+                    case STRING:
+                    case FLOAT:
+                    case INTEGER:
+                    case LIST:
+                    case DICT:
+                        _perform_cast(crnt->cast_type);
+                        break;
+
+                    default:
+                        fatal_error("unknown cast type in validate expression");
+                }
                 break;
 
-//             case EXP_CAST_TYPE:
-//                 // In theory any type can be cast to any other type. The jury is out.
-//                 break;
+            case EXP_ERROR:
+                syntax("expression error");
+                return 0;
+                break;
 
             default:
-                break;
+                fatal_error("unknown expression element in validate expression");
 
         }
     }
@@ -274,4 +473,5 @@ void validate_expression(void) {
     _expr_element ele;
     while(_expr_pop(&ele)) {}
     clear_expr_flags();
+    return 1;
 }

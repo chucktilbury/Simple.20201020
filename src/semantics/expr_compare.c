@@ -124,6 +124,7 @@ int _comparison(int op) {
                EXPR_TYPE_TO_STR(left.type),
                EXPR_TYPE_TO_STR(right.type),
                EXPR_TYPE_TO_STR(apparent_type));
+        _expr_push_error();
         return EXP_ERROR;
     }
 
@@ -208,8 +209,8 @@ int _comparison(int op) {
                     break;
 
                 case EXP_STRING:
-                    result.type = EXP_ERROR;
                     syntax("comparing strings for other then equality does not make sense.");
+                    _expr_push_error();
                     break;
 
                 case EXP_BOOL:
@@ -236,8 +237,8 @@ int _comparison(int op) {
                     break;
 
                 case EXP_STRING:
-                    result.type = EXP_ERROR;
                     syntax("comparing strings for other then equality does not make sense.");
+                    _expr_push_error();
                     break;
 
                 case EXP_BOOL:
@@ -264,8 +265,8 @@ int _comparison(int op) {
                     break;
 
                 case EXP_STRING:
-                    result.type = EXP_ERROR;
                     syntax("comparing strings for other then equality does not make sense.");
+                    _expr_push_error();
                     break;
 
                 case EXP_BOOL:
@@ -292,8 +293,8 @@ int _comparison(int op) {
                     break;
 
                 case EXP_STRING:
-                    result.type = EXP_ERROR;
                     syntax("comparing strings for other then equality does not make sense.");
+                    _expr_push_error();
                     break;
 
                 case EXP_BOOL:

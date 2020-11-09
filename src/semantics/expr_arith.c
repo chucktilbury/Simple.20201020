@@ -120,6 +120,7 @@ int _arithmetic(int op) {
                EXPR_TYPE_TO_STR(left.type),
                EXPR_TYPE_TO_STR(right.type),
                EXPR_TYPE_TO_STR(apparent_type));
+        _expr_push_error();
         return EXP_ERROR;
     }
 
@@ -150,8 +151,7 @@ int _arithmetic(int op) {
 
                 case EXP_BOOL:
                     syntax("addition on a boolean value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
@@ -175,15 +175,13 @@ int _arithmetic(int op) {
 
                 case EXP_STRING:
                     syntax("subtraction on a string value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
                 case EXP_BOOL:
                     syntax("subtraction on a boolean value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
@@ -207,15 +205,13 @@ int _arithmetic(int op) {
 
                 case EXP_STRING:
                     syntax("multiplication on a string value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
                 case EXP_BOOL:
                     syntax("multiplication on a boolean value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
@@ -247,15 +243,13 @@ int _arithmetic(int op) {
 
                 case EXP_STRING:
                     syntax("division on a string value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
                 case EXP_BOOL:
                     syntax("division on a boolean value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
@@ -288,15 +282,13 @@ int _arithmetic(int op) {
 
                 case EXP_STRING:
                     syntax("division on a string value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 
                 case EXP_BOOL:
                     syntax("division on a boolean value is invalid");
-                    result.type = EXP_ERROR;
-                    _expr_push(&result);
+                    _expr_push_error();
                     retv = 1;
                     break;
 

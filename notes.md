@@ -23,19 +23,21 @@ This is a rough sketch of my todo list in this project.
   * ~~if there is no file open, then don't try to report the name.~~
 
 * ~~add an INT type to the parser and change NUMBER to FLOAT~~
-* need to look at implementing parser types.
-* strings in expressions do not work correctly.
+* ~~need to look at implementing parser types.~~
+* ~~strings in expressions do not work correctly.~~
 * casts need to be implemented
   * parser types? stacks?
-* add a symantics directory and put validate_expr.c in it.
+* ~~add a symantics directory and put validate_expr.c in it.~~
 
 ### parser types
 Following the example found here: https://www.math.utah.edu/docs/info/bison_5.html
 A union is created with slots for everything that might be found in a rule. For example
 for type casts "string:expression", both of those items must be in the union.
 
-* Values for numbers are converted in the scanner.
+* ~~Values for numbers are converted in the scanner.~~
 * Symbols are stored in the symbol table in the scanner and a pointer is placed in the union.
 
 * tables for the left/right permutations.
 table with the left types has indexes to the right side.
+
+* need to debug error paths...

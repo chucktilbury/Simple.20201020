@@ -531,7 +531,7 @@ expression
             add_expr_operator(EXP_NOT_OPERATOR);
         }
     | type_name ':' expression {
-            _TRACE("type of casting expression");
+            _TRACE("type of casting expression %d", $1);
             add_expr_cast($1);
         }
     | '(' expression ')'

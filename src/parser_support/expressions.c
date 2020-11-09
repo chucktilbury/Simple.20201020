@@ -172,7 +172,7 @@ void add_expr_cast(int type) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
         elem->type = EXP_CAST;
-        elem->apparent_type = type;
+        elem->cast_type = type;
 
         add_element(elem);
     }

@@ -39,7 +39,8 @@ void yyerror(const char *s);
         (t == LIST)? "LIST": \
         (t == BOOL)? "BOOL": \
         (t == STRING)? "STRING": \
-        (t == NUMBER)? "NUMBER": \
+        (t == FLOAT)? "FLOAT": \
+        (t == INTEGER)? "INTEGER": \
         (t == SYMBOL)? "SYMBOL": "UNKNOWN")
 #endif
 

@@ -17,30 +17,13 @@
  * is being evaluated. This is a private data structure.
  */
 typedef struct _expr_element {
-    // This is the parsed element type. If the element is a number, it will
-    // keep this type as it is evaluated.
     int type;
-
-    // Used when evaluating to keep track of the current apparent type. For
-    // example, if two strings are being compared, then this will be bool.
-    int apparent_type;
-
-    // If the element is a symbol, then this is the symbol table key. If the
-    // element is a literal string, then this is a pointer to it.
+    int cast_type;
     char* str;
-
-    // If the element is a literal number then this is the value. This is the
-    // value that is pushed on the stack durning evaluation for numeric
-    // expressions.
     double fpnum;
     long long intnum;
-
-    // This is the value that is pushed on the stack for boolean apparent values.
     int bool_val;
-
-    // This is the next element in the expression element list.
     struct _expr_element* next;
-
 } _expr_element;
 
 typedef struct _expr_list {
