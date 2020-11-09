@@ -188,8 +188,8 @@ SYMBOL  ({SYMCH}+({SYMCH}{DIGIT})*)
     }
 
     /* recognize and ignore comments */
-"#*" { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
-<COMMENT>"*#" { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
+[#][*]+ { BEGIN(COMMENT); _TRACE("SCANNER: start multi-line comment"); }
+<COMMENT>[*]+[#] { BEGIN(INITIAL); _TRACE("SCANNER: end multi-line comment"); }
 <COMMENT>\n { name_stack->line_no++; yylineno++; }
 <COMMENT>.  {}  /* eat everything in between */
 

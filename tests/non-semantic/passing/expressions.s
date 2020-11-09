@@ -1,7 +1,9 @@
-#*
-    This is a cursory test for expressions to check the
-    syntax is being accepted.
-*#
+#******************
+*
+*    This is a cursory test for expressions to check the
+*    syntax is being accepted.
+*
+*******************-**-******#
 
 some_class_name {
 
