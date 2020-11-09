@@ -106,6 +106,7 @@ static int _perform_cast(int type) {
                 case EXP_BOOL:
                     // do nothing
                     warning("casting a boolean value to a boolean");
+                    _expr_push(&item);
                     break;
 
                 case EXP_STRING:
@@ -144,6 +145,7 @@ static int _perform_cast(int type) {
                 case EXP_STRING:
                     // do nothing
                     warning("casting a string value to a string");
+                    _expr_push(&item);
                     break;
 
                 case EXP_FLOAT: {
@@ -172,6 +174,7 @@ static int _perform_cast(int type) {
                 case EXP_BOOL:
                     syntax("cannot cast a boolean value to a float");
                     retv = EXP_ERROR;
+                    _expr_push_error();
                     break;
 
                 case EXP_STRING: {
@@ -194,6 +197,7 @@ static int _perform_cast(int type) {
                 case EXP_FLOAT:
                     // do nothing
                     warning("casting a float value to a float");
+                    _expr_push(&item);
                     break;
 
                 case EXP_INT:
@@ -241,6 +245,7 @@ static int _perform_cast(int type) {
                 case EXP_INT:
                     // do nothing
                     warning("casting a integer value to a integer");
+                    _expr_push(&item);
                     break;
 
                 default:

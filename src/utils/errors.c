@@ -8,13 +8,16 @@
  */
 #include <stdarg.h>
 
-#include "../include/common.h"
+#include "common.h"
 
 static struct errors {
     FILE *fp;
     int errors;
     int warnings;
 } errors;
+
+// messages longer than this will be truncated to this length.
+char msg_buff[132];
 
 /*
  *  Initialize the errors and logging system.
@@ -55,17 +58,20 @@ void syntax(char *str, ...) {
     va_list args;
     const char *name = get_file_name();
     int lnum = get_line_number();
+    int col = get_col_number();
 
     if(lnum > 0)
-        fprintf(stderr, "Syntax Error: %s: %d: ", name, lnum);
+        snprintf(msg_buff, sizeof(msg_buff), "Syntax Error: %s: %d: %d: ", name, lnum, col);
     else
-        fprintf(stderr, "Syntax Error: ");
+        snprintf(msg_buff, sizeof(msg_buff), "Syntax Error: ");
 
+    int len = strlen(msg_buff);
     va_start(args, str);
-    vfprintf(stderr, str, args);
+    vsnprintf(&msg_buff[len], sizeof(msg_buff)-len, str, args);
     va_end(args);
-    fprintf(stderr, "\n");
     errors.errors++;
+    fprintf(stderr, "%s\n", msg_buff);
+    _DEBUG(0, msg_buff);
 }
 
 void scanner_error(char *str, ...) {
@@ -73,17 +79,20 @@ void scanner_error(char *str, ...) {
     va_list args;
     const char *name = get_file_name();
     int lnum = get_line_number();
+    int col = get_col_number();
 
     if(lnum > 0)
-        fprintf(stderr, "Scanner Error: %s: %d: ", name, lnum);
+        snprintf(msg_buff, sizeof(msg_buff), "Scanner Error: %s: %d: %d: ", name, lnum, col);
     else
-        fprintf(stderr, "Scanner Error: ");
+        snprintf(msg_buff, sizeof(msg_buff), "Scanner Error: ");
 
+    int len = strlen(msg_buff);
     va_start(args, str);
-    vfprintf(stderr, str, args);
+    vsnprintf(&msg_buff[len], sizeof(msg_buff)-len, str, args);
     va_end(args);
-    fprintf(stderr, "\n");
     errors.errors++;
+    fprintf(stderr, "%s\n", msg_buff);
+    _DEBUG(0, msg_buff);
 }
 
 void warning(char *str, ...) {
@@ -91,17 +100,20 @@ void warning(char *str, ...) {
     va_list args;
     const char *name = get_file_name();
     int lnum = get_line_number();
+    int col = get_col_number();
 
     if(lnum > 0)
-        fprintf(stderr, "Warning: %s: %d: ", name, lnum);
+        snprintf(msg_buff, sizeof(msg_buff), "Warning: %s: %d: %d: ", name, lnum, col);
     else
-        fprintf(stderr, "Warning: ");
+        snprintf(msg_buff, sizeof(msg_buff), "Warning: ");
 
+    int len = strlen(msg_buff);
     va_start(args, str);
-    vfprintf(stderr, str, args);
+    vsnprintf(&msg_buff[len], sizeof(msg_buff)-len, str, args);
     va_end(args);
-    fprintf(stderr, "\n");
     errors.warnings++;
+    fprintf(stderr, "%s\n", msg_buff);
+    _DEBUG(0, msg_buff);
 }
 
 /**
@@ -116,13 +128,15 @@ void internal_error(char *str, ...) {
 
     va_list args;
 
-    fprintf(stderr, "INTERNAL ERROR: ");
+    snprintf(msg_buff, sizeof(msg_buff), "INTERNAL ERROR: ");
 
+    int len = strlen(msg_buff);
     va_start(args, str);
-    vfprintf(stderr, str, args);
+    vsnprintf(&msg_buff[len], sizeof(msg_buff)-len, str, args);
     va_end(args);
-    fprintf(stderr, "\n");
     errors.errors++;
+    fprintf(stderr, "%s\n", msg_buff);
+    _DEBUG(0, msg_buff);
 }
 
 /**
@@ -136,13 +150,13 @@ void fatal_error(char *str, ...) {
 
     va_list args;
 
-    fprintf(stderr, "FATAL ERROR: ");
+    snprintf(msg_buff, sizeof(msg_buff), "FATAL ERROR: ");
+
+    int len = strlen(msg_buff);
     va_start(args, str);
-    vfprintf(stderr, str, args);
+    vsnprintf(&msg_buff[len], sizeof(msg_buff)-len, str, args);
     va_end(args);
-    fprintf(stderr, "\n");
     errors.errors++;
-
-    exit(1);
+    fprintf(stderr, "%s\n", msg_buff);
+    _DEBUG(0, msg_buff);
 }
-

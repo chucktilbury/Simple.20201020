@@ -2,10 +2,10 @@ This is a rough sketch of my todo list in this project.
 
 * Connect error module to the configure module for verbosity.
 * Implement parse rules for initializing lists and dicts.
-* Implement first cut at expressions. (symbols always have the value of 5)
+* ~~Implement first cut at expressions. (symbols always have the value of 5)~~
 * Implement the symbol table.
 * Add column number to the syntax error func.
-* Add code to handle ints in validate_expr.c. (there is bound to be a better way to handle permutations
+* ~~Add code to handle ints in validate_expr.c. (there is bound to be a better way to handle permutations~~
 * ~~Fix the memory macros so that the debugging can be turned off for module.~~
 * ~~Arrange the include directory according to libraries, instead of individual includes.~~
 * ~~Try to compress experssion lists to one rule.~~
@@ -25,8 +25,8 @@ This is a rough sketch of my todo list in this project.
 * ~~add an INT type to the parser and change NUMBER to FLOAT~~
 * ~~need to look at implementing parser types.~~
 * ~~strings in expressions do not work correctly.~~
-* casts need to be implemented
-  * parser types? stacks?
+* ~~casts need to be implemented~~
+  ~~* parser types? stacks?~~
 * ~~add a symantics directory and put validate_expr.c in it.~~
 
 ### parser types
@@ -37,7 +37,4 @@ for type casts "string:expression", both of those items must be in the union.
 * ~~Values for numbers are converted in the scanner.~~
 * Symbols are stored in the symbol table in the scanner and a pointer is placed in the union.
 
-* tables for the left/right permutations.
-table with the left types has indexes to the right side.
-
-* need to debug error paths...
+* ~~need to debug error paths...~~
