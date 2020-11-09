@@ -53,8 +53,10 @@ typedef struct _expr_list {
 //typedef void* expression;
 
 typedef enum {
+    EXP_FIRST_ENTRY = 100,
+
     // value types
-    EXP_FLOAT = 100,
+    EXP_FLOAT = EXP_FIRST_ENTRY,
     EXP_INT,
     EXP_STRING,
     EXP_BOOL,
@@ -83,7 +85,7 @@ typedef enum {
     EXP_UNARY_PLUS,
     EXP_UNARY_MINUS,
     EXP_CAST,
-    EXP_CAST_TYPE,
+    //EXP_CAST_TYPE,
 
     EXP_ERROR,
 } expression_element_types;
@@ -113,16 +115,16 @@ typedef enum {
         (EXP_UNARY_PLUS == (v))? "EXP_UNARY_PLUS": \
         (EXP_UNARY_MINUS == (v))? "EXP_UNARY_MINUS": \
         (EXP_CAST == (v))? "EXP_CAST": \
-        (EXP_ERROR == (v))? "EXP_ERROR": \
-        (EXP_CAST_TYPE == (v))? "EXP_CAST_TYPE": "UNKNOWN")
-        #endif
+        (EXP_ERROR == (v))? "EXP_ERROR": "UNKNOWN")
+        //(EXP_CAST_TYPE == (v))? "EXP_CAST_TYPE": "UNKNOWN")
+#endif
 
 //void create_expression(void);
 void destroy_expression(void);
 void add_expr_operator(int type);
 void add_expr_cast(int type);
-void add_expr_float(const char* str);
-void add_expr_int(const char* str);
+void add_expr_float(double num);
+void add_expr_int(long long num);
 void add_expr_true(void);
 void add_expr_false(void);
 void add_expr_symbol(const char* str);

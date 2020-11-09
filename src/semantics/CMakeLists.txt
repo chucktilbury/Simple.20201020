@@ -3,6 +3,8 @@ project(semantics)
 
 add_library(${PROJECT_NAME} STATIC
     validate_expr.c
+    expr_arith.c
+    expr_compare.c
 )
 
 target_include_directories(${PROJECT_NAME}

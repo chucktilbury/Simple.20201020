@@ -1,11 +1,11 @@
 
 %{
-//#undef _DEBUGGING
+#undef _DEBUGGING
 //#undef _TRACE
 //#define _TRACE(...)
 
 #include "parser.h"
-#include "../include/common.h"
+#include "common.h"
 
 // maximum depth of imports prevents crashing from circular imports.
 static int import_depth = 0;
@@ -75,6 +75,7 @@ static void update_loc(void){
 
 DIGIT   [0-9]
 SYMCH   [a-zA-Z_$@%^&~?|]
+SYMBOL  ({SYMCH}+({SYMCH}{DIGIT})*)
 
 /* state definitions */
 %x SQUOTES
@@ -90,6 +91,20 @@ SYMCH   [a-zA-Z_$@%^&~?|]
 [ \t\r]         {}
 
     /* keywords */
+"string"        { yylval.type = STRING; return STRING; }
+"float"         { yylval.type = FLOAT; return FLOAT; }
+"int"           { yylval.type = INTEGER; return INTEGER; }
+"integer"       { yylval.type = INTEGER; return INTEGER; }
+"dict"          { yylval.type = DICT; return DICT; }
+"list"          { yylval.type = LIST; return LIST; }
+"bool"          { yylval.type = BOOL; return BOOL; }
+"true"          { yylval.boolean = 1; return TRUE; }
+"True"          { yylval.boolean = 1; return TRUE; }
+"TRUE"          { yylval.boolean = 1; return TRUE; }
+"false"         { yylval.boolean = 0; return FALSE; }
+"False"         { yylval.boolean = 0; return FALSE; }
+"FALSE"         { yylval.boolean = 0; return FALSE; }
+
 "nothing"       { return NOTHING; }
 "nil"           { return NOTHING; }
 "NULL"          { return NOTHING; }
@@ -97,21 +112,10 @@ SYMCH   [a-zA-Z_$@%^&~?|]
 "Null"          { return NOTHING; }
 "import"        { return IMPORT; }
 "constructor"   { return CONSTRUCT; }
+"construct"     { return CONSTRUCT; }
 "destructor"    { return DESTRUCT; }
 "destroy"       { return DESTROY; }
-"string"        { return STRING; }
-"float"         { return FLOAT; }
-"int"           { return INTEGER; }
-"integer"       { return INTEGER; }
-"dict"          { return DICT; }
-"list"          { return LIST; }
-"bool"          { return BOOL; }
-"true"          { return TRUE; }
-"True"          { return TRUE; }
-"TRUE"          { return TRUE; }
-"false"         { return FALSE; }
-"False"         { return FALSE; }
-"FALSE"         { return FALSE; }
+
 "for"           { return FOR; }
 "if"            { return IF; }
 "else"          { return ELSE; }
@@ -167,10 +171,19 @@ SYMCH   [a-zA-Z_$@%^&~?|]
 
     /* constructed tokens */
 
+    /* A compound symbol has a dot in it. */
+({SYMBOL}\.{SYMBOL})+(\.{SYMBOL})* {
+        _TRACE("SCANNER: compound symbol scan: %s",yytext);
+        //strncpy(strbuf, yytext, sizeof(strbuf));
+        yylval.compound = STRDUP(yytext);
+        return COMPOUND;
+    }
+
     /* A simple symbol has no dot in it. */
-{SYMCH}({SYMCH}|{DIGIT})* {
+{SYMBOL} {
         _TRACE("SCANNER: symbol scan: %s",yytext);
-        strncpy(strbuf, yytext, sizeof(strbuf));
+        //strncpy(strbuf, yytext, sizeof(strbuf));
+        yylval.symbol = STRDUP(yytext);
         return SYMBOL;
     }
 
@@ -187,7 +200,8 @@ SYMCH   [a-zA-Z_$@%^&~?|]
 
 [0-9]+ {
         _TRACE("SCANNER: INTEGER scanned: %s", yytext);
-        strncpy(strbuf, yytext, sizeof(strbuf));
+        //strncpy(strbuf, yytext, sizeof(strbuf));
+        yylval.intval = strtoll(yytext, NULL, 10);
         return INTNUM;
     }
 
@@ -195,7 +209,8 @@ SYMCH   [a-zA-Z_$@%^&~?|]
     /*[-+]?[0-9]+\.[0-9]+([eE]*[-+]?[0-9]+)? { */
 [0-9]+(\.[0-9]+([eE]+[-+]?[0-9]+)?)? {
         _TRACE("SCANNER: FLOAT scanned: %s", yytext);
-        strncpy(strbuf, yytext, sizeof(strbuf));
+        //strncpy(strbuf, yytext, sizeof(strbuf));
+        yylval.fpval = strtod(yytext, NULL);
         return FPNUM;
     }
 
@@ -208,7 +223,8 @@ SYMCH   [a-zA-Z_$@%^&~?|]
     }
 
 <DQUOTES>\" {
-        strncpy(strbuf, buffer, sizeof(strbuf));
+        //strncpy(strbuf, buffer, sizeof(strbuf));
+        yylval.str = STRDUP(buffer);
         BEGIN(INITIAL);
         return QSTRG;
     }
@@ -239,7 +255,8 @@ SYMCH   [a-zA-Z_$@%^&~?|]
     }
 
 <SQUOTES>\' {
-        strncpy(strbuf, buffer, sizeof(strbuf));
+        //strncpy(strbuf, buffer, sizeof(strbuf));
+        yylval.str = STRDUP(buffer);
         BEGIN(INITIAL);
         return QSTRG;
     }

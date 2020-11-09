@@ -183,10 +183,8 @@ void add_expr_cast(int type) {
 
 /**
  * @brief Add a literal number to the queue.
- *
- * @param str -- The string that represents the number.
  */
-void add_expr_float(const char* str) {
+void add_expr_float(double num) {
 
     set_expr_flags();
 
@@ -194,7 +192,7 @@ void add_expr_float(const char* str) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
         elem->type = EXP_FLOAT;
-        elem->fpnum = _string_to_float(str);
+        elem->fpnum = num;
 
         add_element(elem);
     }
@@ -205,10 +203,8 @@ void add_expr_float(const char* str) {
 
 /**
  * @brief Add a literal number to the queue.
- *
- * @param str -- The string that represents the number.
  */
-void add_expr_int(const char* str) {
+void add_expr_int(long long num) {
 
     set_expr_flags();
 
@@ -216,7 +212,7 @@ void add_expr_int(const char* str) {
         _expr_element* elem = (_expr_element*)CALLOC(1, sizeof(_expr_element));
 
         elem->type = EXP_INT;
-        elem->intnum = _string_to_int(str);
+        elem->intnum = num;
 
         add_element(elem);
     }

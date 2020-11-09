@@ -36,3 +36,6 @@ for type casts "string:expression", both of those items must be in the union.
 
 * Values for numbers are converted in the scanner.
 * Symbols are stored in the symbol table in the scanner and a pointer is placed in the union.
+
+* tables for the left/right permutations.
+table with the left types has indexes to the right side.

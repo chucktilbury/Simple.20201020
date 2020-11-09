@@ -17,11 +17,11 @@
 %locations
 
 %union {
-    int type_token;
+    int type;
     double fpval;
     int intval;
     char* str;
-    int bool;
+    int boolean;
     char* symbol;
     char* compound;
 }
@@ -29,10 +29,13 @@
 %token <fpval> FPNUM
 %token <intval> INTNUM
 %token <str> QSTRG
-%token <type_token> DICT LIST BOOL STRING FLOAT INTEGER
-%token <bool>  TRUE FALSE
+%token <type> DICT LIST BOOL STRING FLOAT INTEGER
+%token <boolean> TRUE FALSE
 %token <symbol> SYMBOL
 %token <compound> COMPOUND
+
+%type <str> formatted_string any_symbol
+%type <type> type_name
 
 %token NOTHING IMPORT CONSTRUCT DESTRUCT DESTROY
 %token FOR IF ELSE WHILE DO SWITCH CASE BREAK CONTINUE
@@ -57,7 +60,7 @@ module
     : module_list {
         _DEBUG(11, "module finished");
         if(!get_flag(ENTRY_DEFINED))
-            warning("no entry defined for program.");
+            warning("no entry point defined for program.");
     }
 
 module_list
@@ -73,60 +76,72 @@ module_item
     /*
         Literal values rules.
     */
-compound_symbol
-    : SYMBOL {
-            _TRACE("new compound symbol name: %s", TOKSTR);
-            push_name(TOKSTR);
-        }
-    | compound_symbol '.' SYMBOL {
-            _TRACE("adding to compound name: %s", TOKSTR);
-            add_name(TOKSTR);
-        }
-    | compound_symbol error SYMBOL
-    | compound_symbol '.' error
-    ;
-
-// any_symbol
-//     : compound_symbol {
-//             _TRACE("compound symbol");
+// compound_symbol
+//     : SYMBOL {
+//             _TRACE("new compound symbol name: %s", $1);
 //             push_name(TOKSTR);
 //         }
-//     | SYMBOL {
-//             _TRACE("simple symbol");
-//             push_name(TOKSTR);
+//     | compound_symbol '.' SYMBOL {
+//             _TRACE("adding to compound name: %s", TOKSTR);
+//             add_name(TOKSTR);
 //         }
+//     | compound_symbol error SYMBOL
+//     | compound_symbol '.' error
 //     ;
+
+any_symbol
+    : COMPOUND {
+            _TRACE("compound symbol: %s", $1);
+            $$ = $1;
+        }
+    | SYMBOL {
+            _TRACE("simple symbol: %s", $1);
+            $$ = $1;
+    }
+    ;
 
 type_name
     : DICT {
             _TRACE("defining dict data type");
-            push_token(DICT);
+            $$ = $1;
+            //push_token($1);
         }
     | LIST {
             _TRACE("defining list data type");
-            push_token(LIST);
+            $$ = $1;
+            //push_token($1);
         }
     | BOOL {
             _TRACE("defining boolean data type");
-            push_token(BOOL);
+            $$ = $1;
+            //push_token($1);
         }
     | STRING {
             _TRACE("defining string data type");
-            push_token(STRING);
+            $$ = $1;
+            //push_token($1);
         }
     | FLOAT {
             _TRACE("defining number data type");
-            push_token(FLOAT);
+            $$ = $1;
+            //push_token($1);
         }
     | INTEGER {
-        _TRACE("defining number data type");
-        push_token(INTEGER);
+            _TRACE("defining number data type");
+            $$ = $1;
+            //push_token($1);
         }
-    | compound_symbol {
-        _TRACE("symbol name as a type name");
-        push_token(SYMBOL);
+    | SYMBOL {
+            _TRACE("symbol name as a type name");
+            $$ = SYMBOL;
+            //push_token(SYMBOL);
         }
-    | error
+    | COMPOUND {
+            _TRACE("symbol name as a type name");
+            $$ = COMPOUND;
+            //push_token(COMPOUND);
+        }
+    // | error
     ;
 
 expression_list
@@ -175,7 +190,7 @@ formatted_string
         } ')' {
             _TRACE("end of formtted string definition");
         }
-    | error
+    // | error
     ;
 
     /*
@@ -244,10 +259,10 @@ class_definition_params
     | class_name '(' ')' '{' {
             _TRACE("start class body");
         }
-    | class_name '(' compound_symbol {
+    | class_name '(' COMPOUND {
             char buffer[128];
             pop_name(buffer, sizeof(buffer));
-            _TRACE("class inherits from %s", buffer);
+            _TRACE("class inherits from %s", $3);
         } ')' '{'
     ;
 
@@ -277,7 +292,7 @@ class_definition
     */
 data_type_intro
     : type_name SYMBOL {
-            _TRACE("type definition symbol name: %s", TOKSTR);
+            _TRACE("type definition symbol name: %s", $2);
         }
     ;
 
@@ -305,12 +320,11 @@ method_param_def
 
 method_definition
     : SYMBOL {
+        _TRACE("begin method definition with symbol: %s", $1);
         } '(' method_param_def {
-            // this symbol is consumed in this location
-            _TRACE("begin method definition with symbol: %s", TOKSTR);
-            _TRACE("begin of input parameter list");
+            _TRACE("end of input parameter list, begin of output parameters");
         } ')' '(' method_param_def {
-            _TRACE("end of input parameter list and begin output parameters");
+            _TRACE("end of output parameters");
             _TRACE("begin method body definition");
         } ')' method_body {
             _TRACE("end method body definition");
@@ -425,12 +439,12 @@ destructor_definition
      */
 expression_factor
     : FPNUM {
-            _TRACE("expression literal number: %s", TOKSTR);
-            add_expr_float(TOKSTR);
+            _TRACE("expression literal float: %g", $1);
+            add_expr_float($1);
         }
     | INTNUM {
-            _TRACE("expression literal number: %s", TOKSTR);
-            add_expr_int(TOKSTR);
+            _TRACE("expression literal int: %d", $1);
+            add_expr_int($1);
         }
     | TRUE {
             add_expr_true();
@@ -440,13 +454,11 @@ expression_factor
         }
     | formatted_string {
             _TRACE("formatted string expression value");
-            add_expr_string(TOKSTR);
+            add_expr_string($1);
         }
-    | compound_symbol {
-            _TRACE("expression variable value");
-            char buffer[128];
-            pop_name(buffer, sizeof(buffer));
-            add_expr_symbol(buffer);
+    | any_symbol {
+            _TRACE("expression symbol variable value; %s", $1);
+            add_expr_symbol($1);
         }
     ;
 
@@ -520,7 +532,7 @@ expression
         }
     | type_name ':' expression {
             _TRACE("type of casting expression");
-            add_expr_cast(pop_token());
+            add_expr_cast($1);
         }
     | '(' expression ')'
     ;
@@ -534,19 +546,20 @@ expression
     */
 call_output_parameter_list
     :
-    | compound_symbol {
+    | any_symbol {
             _TRACE("function call output parameter (1): %s", "not implemented");
         }
-    | call_output_parameter_list ',' compound_symbol {
+        | call_output_parameter_list ',' any_symbol {
             _TRACE("function call output parameter (2): %s", "not implemented");
         }
     ;
 
+
 function_call
-    : compound_symbol {
-            char buffer[128];
-            pop_name(buffer, sizeof(buffer));
-            _TRACE("function call name: %s", buffer);
+    : any_symbol {
+            //char buffer[128];
+            //pop_name(buffer, sizeof(buffer));
+            _TRACE("function call name: %s", $1);
             _TRACE("begin function call input parameters");
         } '(' possible_blank_expr_list {
             _TRACE("end function call input parameters");
@@ -557,10 +570,10 @@ function_call
     ;
 
 destroy_statement
-    : DESTROY compound_symbol {
-            char buffer[128];
-            pop_name(buffer, sizeof(buffer));
-            _TRACE("destroy symbol: %s", buffer);
+    : DESTROY any_symbol {
+            //char buffer[128];
+            //pop_name(buffer, sizeof(buffer));
+            _TRACE("destroy symbol: %s", $2);
         }
     | DESTROY error ';'
     ;
@@ -791,10 +804,10 @@ assignment_target
     ;
 
 assignment
-    : compound_symbol {
-            char buffer[128];
-            pop_name(buffer, sizeof(buffer));
-            _TRACE("assignment to compound name: %s", buffer);
+    : any_symbol {
+            //char buffer[128];
+            //pop_name(buffer, sizeof(buffer));
+            _TRACE("assignment to name: %s", $1);
         } '=' assignment_target {
             _TRACE("end assignment statement");
         }
@@ -802,7 +815,7 @@ assignment
 
 type_assignment
     : type_name SYMBOL {
-            _TRACE("type assignment of type: %s", TOKSTR);
+            _TRACE("type assignment of type: %d to %s", $1, $2);
         } '=' assignment_target {
             _TRACE("after type assignment");
         }
